@@ -10,6 +10,8 @@ import { OrderTicket } from "./screens/OrderTicket";
 import { Race } from "./screens/Race";
 import { Leaderboards } from "./screens/Leaderboards";
 import { VsDuel } from "./screens/VsDuel";
+import { ProfilePullUp } from "./screens/ProfilePullUp";
+import { TrophyRoom } from "./screens/TrophyRoom";
 import { PhoneFrame, Screen } from "./components/PhoneFrame";
 import { RefreshProvider } from "./refresh";
 
@@ -24,7 +26,11 @@ import { RefreshProvider } from "./refresh";
 type View =
   | { name: "tab"; tab: Tab }
   | { name: "stock"; symbol: string }
-  | { name: "ticket"; symbol: string; side: "buy" | "sell"; amount: number };
+  | { name: "ticket"; symbol: string; side: "buy" | "sell"; amount: number }
+  // Profile and trophies are modal over whichever tab you opened them from,
+  // so dismissing returns you there rather than dumping you on HOME.
+  | { name: "profile"; from: Tab }
+  | { name: "trophies"; from: Tab };
 
 const usd = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 
@@ -63,6 +69,9 @@ export default function LiveApp() {
   const go = (tab: Tab) => setView({ name: "tab", tab });
 
   // Pull-to-refresh on any screen refetches everything the shell owns.
+  const openProfile = () =>
+    setView({ name: "profile", from: view.name === "tab" ? view.tab : "home" });
+
   const shell = (node: React.ReactNode) => (
     <RefreshProvider onRefresh={refresh}>{node}</RefreshProvider>
   );
@@ -77,6 +86,26 @@ export default function LiveApp() {
         onReview={(order) =>
           setView({ name: "ticket", symbol: view.symbol, side: order.side, amount: order.amount })
         }
+      />
+    );
+  }
+
+  if (view.name === "profile") {
+    return shell(
+      <LiveProfile
+        version={dataVersion}
+        onDismiss={() => go(view.from)}
+        onTrophyRoom={() => setView({ name: "trophies", from: view.from })}
+      />
+    );
+  }
+
+  if (view.name === "trophies") {
+    return shell(
+      <LiveTrophies
+        version={dataVersion}
+        onNavigate={go}
+        onBack={() => setView({ name: "profile", from: view.from })}
       />
     );
   }
@@ -97,18 +126,25 @@ export default function LiveApp() {
 
   switch (view.tab) {
     case "home":
-      return shell(<LiveHome version={dataVersion} onNavigate={go} />);
+      return shell(
+        <LiveHome version={dataVersion} onNavigate={go} onProfile={openProfile} />
+      );
     case "folio":
       return shell(
         <LiveFolio
           version={dataVersion}
           onNavigate={go}
+          onProfile={openProfile}
           onOpen={(symbol) => setView({ name: "stock", symbol })}
         />
       );
     case "trade":
       return shell(
-        <LiveDiscover onNavigate={go} onOpen={(symbol) => setView({ name: "stock", symbol })} />
+        <LiveDiscover
+          onNavigate={go}
+          onProfile={openProfile}
+          onOpen={(symbol) => setView({ name: "stock", symbol })}
+        />
       );
     case "race":
       return shell(<LiveRace version={dataVersion} onNavigate={go} />);
@@ -119,7 +155,15 @@ export default function LiveApp() {
 
 /* ------------------------------- screens -------------------------------- */
 
-function LiveHome({ version, onNavigate }: { version: number; onNavigate: (t: Tab) => void }) {
+function LiveHome({
+  version,
+  onNavigate,
+  onProfile,
+}: {
+  version: number;
+  onNavigate: (t: Tab) => void;
+  onProfile: () => void;
+}) {
   const portfolio = useApi("portfolio", () => api.portfolio(), [version]);
   const feed = useApi("feed", () => api.feed(), [version]);
 
@@ -130,6 +174,7 @@ function LiveHome({ version, onNavigate }: { version: number; onNavigate: (t: Ta
   return (
     <Home
       onNavigate={onNavigate}
+      onProfile={onProfile}
       onTrade={() => onNavigate("trade")}
       live={{
         player: p.player,
@@ -146,10 +191,12 @@ function LiveFolio({
   version,
   onNavigate,
   onOpen,
+  onProfile,
 }: {
   version: number;
   onNavigate: (t: Tab) => void;
   onOpen: (symbol: string) => void;
+  onProfile: () => void;
 }) {
   const { data, error, reload } = useApi("portfolio", () => api.portfolio(), [version]);
 
@@ -159,8 +206,10 @@ function LiveFolio({
   return (
     <Portfolio
       onNavigate={onNavigate}
+      onProfile={onProfile}
       onOpenHolding={onOpen}
       live={{
+        trophies: data.vitals.trophies,
         investedLabel: data.stack.investedLabel,
         cashLabel: data.stack.cashLabel,
         positions: data.positions,
@@ -172,9 +221,11 @@ function LiveFolio({
 function LiveDiscover({
   onNavigate,
   onOpen,
+  onProfile,
 }: {
   onNavigate: (t: Tab) => void;
   onOpen: (symbol: string) => void;
+  onProfile: () => void;
 }) {
   const [board, setBoard] = useState<"gainers" | "losers" | "traded">("gainers");
   const [query, setQuery] = useState("");
@@ -184,6 +235,9 @@ function LiveDiscover({
     const t = setTimeout(() => setDebounced(query), 250);
     return () => clearTimeout(t);
   }, [query]);
+
+  // Cached from the portfolio fetch, so this costs nothing extra.
+  const trophyCount = useApi("portfolio", () => api.portfolio(), []).data?.vitals.trophies ?? 0;
 
   const { data, error, loading, reload } = useApi(
     `market:${board}:${debounced}`,
@@ -196,8 +250,10 @@ function LiveDiscover({
   return (
     <Discover
       onNavigate={onNavigate}
+      onProfile={onProfile}
       onOpenStock={onOpen}
       live={{
+        trophies: trophyCount,
         rows: data?.rows ?? [],
         board,
         onBoard: setBoard,
@@ -340,6 +396,69 @@ function LiveRace({ version, onNavigate }: { version: number; onNavigate: (t: Ta
         standings: race.data.standings,
         period,
         onPeriod: setPeriod,
+      }}
+    />
+  );
+}
+
+function LiveProfile({
+  version,
+  onDismiss,
+  onTrophyRoom,
+}: {
+  version: number;
+  onDismiss: () => void;
+  onTrophyRoom: () => void;
+}) {
+  const { data, error, reload } = useApi("profile", () => api.profile(), [version]);
+  if (error) return <Failed message={error} onRetry={reload} />;
+  if (!data) return <Booting />;
+
+  return (
+    <ProfilePullUp
+      onDismiss={onDismiss}
+      onTrophyRoom={onTrophyRoom}
+      live={{
+        name: data.player.name,
+        initials: data.player.initials,
+        level: data.level,
+        levelTitle: data.levelTitle,
+        xpPct: data.xpPct,
+        toNextLabel: data.toNextLabel,
+        rank: data.rank,
+        streak: data.streak,
+        duels: data.duels,
+        duelRecord: data.duelRecord,
+        crewSize: data.crewSize,
+        earnedCount: data.earnedCount,
+        totalCount: data.totalCount,
+      }}
+    />
+  );
+}
+
+function LiveTrophies({
+  version,
+  onNavigate,
+  onBack,
+}: {
+  version: number;
+  onNavigate: (t: Tab) => void;
+  onBack: () => void;
+}) {
+  const { data, error, reload } = useApi("profile", () => api.profile(), [version]);
+  if (error) return <Failed message={error} onRetry={reload} />;
+  if (!data) return <Booting />;
+
+  return (
+    <TrophyRoom
+      onNavigate={onNavigate}
+      onBack={onBack}
+      live={{
+        name: data.player.name,
+        earnedCount: data.earnedCount,
+        totalCount: data.totalCount,
+        trophies: data.trophies,
       }}
     />
   );

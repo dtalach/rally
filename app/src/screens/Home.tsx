@@ -75,7 +75,7 @@ function Strong({ children, color = "#fff" }: { children: React.ReactNode; color
 /** Real data from the API, when the app is running live. */
 export type HomeLive = {
   player: { name: string; initials: string };
-  vitals: { level: number; rank: number; streak: number; duels: number };
+  vitals: { level: number; rank: number; streak: number; duels: number; trophies: number };
   stack: { totalLabel: string; allTimeLabel: string; todayLabel: string; cashLabel: string };
   newPlays: number;
   posts: {
@@ -118,7 +118,7 @@ export function Home({
           >
             RALLY
           </div>
-          <Avatar pip={PLAYER.trophies} onClick={onProfile} />
+          <Avatar pip={live ? live.vitals.trophies : PLAYER.trophies} onClick={onProfile} />
         </div>
 
         {/* Stack card — pure money, no gamification chips. Tapping it opens

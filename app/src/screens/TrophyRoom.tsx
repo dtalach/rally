@@ -23,8 +23,28 @@ const LOCKED = [
   { title: "Giant Slayer", meta: "Beat a top-100" },
 ];
 
-export function TrophyRoom({ onNavigate, onBack }: { onNavigate?: (t: Tab) => void; onBack?: () => void }) {
-  const pct = Math.round((PLAYER.trophies / PLAYER.trophiesTotal) * 100);
+export type TrophyRoomLive = {
+  name: string;
+  earnedCount: number;
+  totalCount: number;
+  trophies: { id: string; title: string; icon: string; role: string; earned: boolean; meta: string }[];
+};
+
+export function TrophyRoom({
+  onNavigate,
+  onBack,
+  live,
+}: {
+  onNavigate?: (t: Tab) => void;
+  onBack?: () => void;
+  live?: TrophyRoomLive;
+}) {
+  const got = live ? live.earnedCount : PLAYER.trophies;
+  const total = live ? live.totalCount : PLAYER.trophiesTotal;
+  const pct = Math.round((got / total) * 100);
+
+  const liveEarned = live?.trophies.filter((t) => t.earned) ?? [];
+  const liveLocked = live?.trophies.filter((t) => !t.earned) ?? [];
 
   return (
     <PhoneFrame glow="rgba(255,230,0,0.12)">
@@ -44,9 +64,9 @@ export function TrophyRoom({ onNavigate, onBack }: { onNavigate?: (t: Tab) => vo
               TROPHY ROOM
             </div>
             <div style={{ fontSize: 13, color: "var(--text-2)" }}>
-              {PLAYER.name} ·{" "}
+              {live ? live.name : PLAYER.name} ·{" "}
               <span className="num" style={{ color: "#fff", fontWeight: 700 }}>
-                {PLAYER.trophies} of {PLAYER.trophiesTotal}
+                {got} of {total}
               </span>{" "}
               collected
             </div>
@@ -74,6 +94,7 @@ export function TrophyRoom({ onNavigate, onBack }: { onNavigate?: (t: Tab) => vo
           />
         </div>
 
+        {!live && (
         <div
           style={{
             display: "flex",
@@ -100,10 +121,11 @@ export function TrophyRoom({ onNavigate, onBack }: { onNavigate?: (t: Tab) => vo
             +500 XP
           </div>
         </div>
+        )}
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, flexShrink: 0 }}>
-          {EARNED.map((t) => {
-            const tint = ROLE[t.role];
+          {(live ? liveEarned : EARNED).map((t) => {
+            const tint = ROLE[(t.role as Role) in ROLE ? (t.role as Role) : "gold"];
             return (
               <div
                 key={t.title}
@@ -148,13 +170,11 @@ export function TrophyRoom({ onNavigate, onBack }: { onNavigate?: (t: Tab) => vo
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", color: "var(--cyan-soft)" }}>
             NEXT UP
           </div>
-          <div style={{ fontSize: 11, color: "var(--text-3)" }}>
-            {PLAYER.trophiesTotal - PLAYER.trophies} more to find
-          </div>
+          <div style={{ fontSize: 11, color: "var(--text-3)" }}>{total - got} more to find</div>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, flexShrink: 0 }}>
-          {LOCKED.map((t) => (
+          {(live ? liveLocked : LOCKED).map((t) => (
             <div
               key={t.title}
               style={{

@@ -3,6 +3,7 @@ import { db, schema } from "./_lib/db.js";
 import { requirePlayer, route } from "./_lib/http.js";
 import { pct, signedUsd, usd } from "./_lib/money.js";
 import { level, periodReturn, recordSnapshot, streak, valuePlayer } from "./_lib/valuation.js";
+import { evaluateTrophies } from "./_lib/trophies.js";
 
 /**
  * Everything HOME and FOLIO need: the stack, the day's move, every position,
@@ -41,6 +42,7 @@ export default route("GET", async (req) => {
       streak: await streak(playerId),
       // Duels aren't backed yet — reported as zero rather than invented.
       duels: 0,
+      trophies: (await evaluateTrophies(playerId, stack)).filter((t) => t.earned).length,
     },
     stack: {
       total: stack.total,

@@ -41,6 +41,7 @@ const BOARDS: Record<string, Mover[]> = {
 const CATEGORIES = ["GAMING", "AI", "SNEAKERS", "FOOD"];
 
 export type DiscoverLive = {
+  trophies: number;
   rows: {
     symbol: string;
     name: string;
@@ -97,7 +98,7 @@ export function Discover({
       <Screen scroll>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Title>FIND YOUR NEXT PLAY</Title>
-          <Avatar pip={PLAYER.trophies} onClick={onProfile} />
+          <Avatar pip={live ? live.trophies : PLAYER.trophies} onClick={onProfile} />
         </div>
 
         <div

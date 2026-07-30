@@ -13,10 +13,49 @@ const STATS: { value: string; label: string; role: Role }[] = [
   { value: String(PLAYER.trophies), label: "TROPHIES", role: "magenta" },
 ];
 
-export function ProfilePullUp({ onTrophyRoom }: { onTrophyRoom?: () => void }) {
+export type ProfileLive = {
+  name: string;
+  initials: string;
+  level: number;
+  levelTitle: string;
+  xpPct: number;
+  toNextLabel: string;
+  rank: number;
+  streak: number;
+  duels: number;
+  duelRecord: string;
+  crewSize: number;
+  earnedCount: number;
+  totalCount: number;
+};
+
+export function ProfilePullUp({
+  onTrophyRoom,
+  onDismiss,
+  live,
+}: {
+  onTrophyRoom?: () => void;
+  onDismiss?: () => void;
+  live?: ProfileLive;
+}) {
+  const stats: { value: string; label: string; role: Role }[] = live
+    ? [
+        { value: `#${live.rank}`, label: "RANK", role: "cyan" },
+        { value: String(live.streak), label: "STREAK", role: "gold" },
+        { value: live.duelRecord, label: "DUELS", role: "green" },
+        { value: String(live.earnedCount), label: "TROPHIES", role: "magenta" },
+      ]
+    : STATS;
+
   return (
     <PhoneFrame>
-      {/* the screen behind, dimmed */}
+      {/* The screen behind, dimmed. Tapping it dismisses, which is what the
+          sheet presentation implies — there's no back chevron by design. */}
+      <div
+        onClick={onDismiss}
+        style={{ position: "absolute", inset: 0, zIndex: 3 }}
+        aria-hidden
+      />
       <Screen style={{ filter: "brightness(0.4) saturate(0.8)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div className="pixel" style={{ fontSize: 15, color: "var(--gold)" }}>
@@ -60,12 +99,12 @@ export function ProfilePullUp({ onTrophyRoom }: { onTrophyRoom?: () => void }) {
               color: "var(--cyan-pale)",
             }}
           >
-            {PLAYER.initials}
+            {live ? live.initials : PLAYER.initials}
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 19, fontWeight: 700 }}>{PLAYER.name}</div>
+            <div style={{ fontSize: 19, fontWeight: 700 }}>{live ? live.name : PLAYER.name}</div>
             <div style={{ fontSize: 13, color: "var(--cyan-soft)" }}>
-              LVL {PLAYER.level} · {PLAYER.levelTitle}
+              LVL {live ? live.level : PLAYER.level} · {live ? live.levelTitle : PLAYER.levelTitle}
             </div>
             <div
               style={{
@@ -78,7 +117,7 @@ export function ProfilePullUp({ onTrophyRoom }: { onTrophyRoom?: () => void }) {
             >
               <div
                 style={{
-                  width: `${PLAYER.xpPct}%`,
+                  width: `${live ? live.xpPct : PLAYER.xpPct}%`,
                   height: 7,
                   borderRadius: 4,
                   background: "linear-gradient(90deg,#39ff14,#22f7ff)",
@@ -88,8 +127,12 @@ export function ProfilePullUp({ onTrophyRoom }: { onTrophyRoom?: () => void }) {
           </div>
         </div>
 
+        {live && (
+          <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: -6 }}>{live.toNextLabel}</div>
+        )}
+
         <div style={{ display: "flex", gap: 10 }}>
-          {STATS.map((s) => {
+          {stats.map((s) => {
             const t = ROLE[s.role];
             return (
               <div
@@ -134,11 +177,15 @@ export function ProfilePullUp({ onTrophyRoom }: { onTrophyRoom?: () => void }) {
             <span style={{ fontSize: 14, fontWeight: 700 }}>Trophy Room</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--gold)", fontWeight: 700 }}>
-            {PLAYER.trophies} / {PLAYER.trophiesTotal} <i className="ph ph-caret-right" />
+            {live ? live.earnedCount : PLAYER.trophies} /{" "}
+            {live ? live.totalCount : PLAYER.trophiesTotal} <i className="ph ph-caret-right" />
           </div>
         </button>
 
-        <ProfileRow icon="ph ph-users-three" label={`My Crew · ${PLAYER.crewSize} racers`} />
+        <ProfileRow
+          icon="ph ph-users-three"
+          label={`My Crew · ${live ? live.crewSize : PLAYER.crewSize} racers`}
+        />
         <ProfileRow icon="ph ph-shield-check" label="Parent view & settings" />
       </Sheet>
     </PhoneFrame>

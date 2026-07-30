@@ -7,6 +7,7 @@ import { ALLOCATION, HOLDINGS, PLAYER, STACK } from "../data";
    every holding with shares, weight, value and day change. */
 
 export type PortfolioLive = {
+  trophies: number;
   investedLabel: string;
   cashLabel: string;
   positions: {
@@ -63,7 +64,7 @@ export function Portfolio({
           <Title>MY HOLDINGS</Title>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <Chip role="cyan">{(positions ?? HOLDINGS).length} POSITIONS</Chip>
-            <Avatar pip={PLAYER.trophies} onClick={onProfile} />
+            <Avatar pip={live ? live.trophies : PLAYER.trophies} onClick={onProfile} />
           </div>
         </div>
 

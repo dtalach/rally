@@ -38,7 +38,13 @@ const post = <T,>(path: string, body: unknown) =>
 
 export type Player = { id: number; handle: string; name: string; initials: string };
 
-export type Vitals = { level: number; rank: number; streak: number; duels: number };
+export type Vitals = {
+  level: number;
+  rank: number;
+  streak: number;
+  duels: number;
+  trophies: number;
+};
 
 export type Position = {
   symbol: string;
@@ -137,6 +143,33 @@ export type LeaderRow = {
   return: number;
 };
 
+export type Trophy = {
+  id: string;
+  title: string;
+  icon: string;
+  role: string;
+  earned: boolean;
+  meta: string;
+};
+
+export type Profile = {
+  player: { name: string; initials: string };
+  level: number;
+  levelTitle: string;
+  xpPct: number;
+  toNextLabel: string;
+  rank: number;
+  streak: number;
+  duels: number;
+  duelRecord: string;
+  crewSize: number;
+  stackLabel: string;
+  monthReturnLabel: string;
+  trophies: Trophy[];
+  earnedCount: number;
+  totalCount: number;
+};
+
 export type Period = "month" | "quarter" | "year";
 
 /* ------------------------------ endpoints ------------------------------- */
@@ -148,6 +181,7 @@ export const api = {
   logout: () => post<{ ok: true }>("logout", {}),
 
   portfolio: () => get<Portfolio>("portfolio"),
+  profile: () => get<Profile>("profile"),
   feed: () => get<{ newPlays: number; posts: FeedPost[] }>("feed"),
   market: (board: "gainers" | "losers" | "traded", q = "") =>
     get<{ board: string; rows: MarketRow[] }>(
