@@ -1,6 +1,6 @@
 import { inArray, sql } from "drizzle-orm";
-import { db, schema } from "./db";
-import { round2 } from "./money";
+import { db, schema } from "./db.js";
+import { round2 } from "./money.js";
 
 /* ---------------------------------------------------------------------------
    Quotes.

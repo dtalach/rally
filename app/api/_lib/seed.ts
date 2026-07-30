@@ -11,10 +11,10 @@
  * Run it with `npm run db:seed`, or once against a deployment via /api/setup.
  */
 import { sql } from "drizzle-orm";
-import { db, schema } from "./db";
-import { hashPin } from "./session";
-import { getQuotes } from "./prices";
-import { round2, round6 } from "./money";
+import { db, schema } from "./db.js";
+import { hashPin } from "./session.js";
+import { getQuotes } from "./prices.js";
+import { round2, round6 } from "./money.js";
 
 const INSTRUMENTS = [
   { symbol: "NVDA", name: "NVIDIA", kind: "stock", sector: "Chips", blurb: "Chips · most traded on Rally", badge: "NV", role: "cyan" },

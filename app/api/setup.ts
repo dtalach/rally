@@ -1,8 +1,8 @@
 import { sql } from "drizzle-orm";
-import { db } from "./_lib/db";
-import { ApiError, route, str } from "./_lib/http";
-import { MIGRATIONS } from "./_lib/migrations";
-import { seed } from "./_lib/seed";
+import { db } from "./_lib/db.js";
+import { ApiError, route, str } from "./_lib/http.js";
+import { MIGRATIONS } from "./_lib/migrations.js";
+import { seed } from "./_lib/seed.js";
 
 /**
  * One-shot database setup for a fresh deployment: create the tables, then seed

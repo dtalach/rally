@@ -1,7 +1,7 @@
 import { desc, sql } from "drizzle-orm";
-import { db, schema } from "./_lib/db";
-import { route } from "./_lib/http";
-import { usingRealPrices } from "./_lib/prices";
+import { db, schema } from "./_lib/db.js";
+import { route } from "./_lib/http.js";
+import { usingRealPrices } from "./_lib/prices.js";
 
 /**
  * Is this deployment actually wired up?

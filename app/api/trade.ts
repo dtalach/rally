@@ -1,8 +1,8 @@
 import { and, eq, sql } from "drizzle-orm";
-import { db, schema } from "./_lib/db";
-import { ApiError, num, oneOf, requirePlayer, route, str } from "./_lib/http";
-import { round2, round6, toNum, usd } from "./_lib/money";
-import { getQuotes } from "./_lib/prices";
+import { db, schema } from "./_lib/db.js";
+import { ApiError, num, oneOf, requirePlayer, route, str } from "./_lib/http.js";
+import { round2, round6, toNum, usd } from "./_lib/money.js";
+import { getQuotes } from "./_lib/prices.js";
 
 const MIN_ORDER = 1;
 

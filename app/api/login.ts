@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { db, schema } from "./_lib/db";
-import { ApiError, route, str } from "./_lib/http";
-import { issue, verifyPin } from "./_lib/session";
+import { db, schema } from "./_lib/db.js";
+import { ApiError, route, str } from "./_lib/http.js";
+import { issue, verifyPin } from "./_lib/session.js";
 
 export default route("POST", async (req, res) => {
   const handle = str(req.body?.handle, "handle").toLowerCase();

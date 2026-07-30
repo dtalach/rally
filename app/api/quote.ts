@@ -1,9 +1,9 @@
 import { and, desc, eq } from "drizzle-orm";
-import { db, schema } from "./_lib/db";
-import { ApiError, route, str } from "./_lib/http";
-import { pct, signedUsd, toNum, usd } from "./_lib/money";
-import { dayChange, getQuotes } from "./_lib/prices";
-import { playerIdFrom } from "./_lib/session";
+import { db, schema } from "./_lib/db.js";
+import { ApiError, route, str } from "./_lib/http.js";
+import { pct, signedUsd, toNum, usd } from "./_lib/money.js";
+import { dayChange, getQuotes } from "./_lib/prices.js";
+import { playerIdFrom } from "./_lib/session.js";
 
 /** The stock detail screen: price, delay stamp, and the player's own position. */
 export default route("GET", async (req) => {

@@ -1,7 +1,7 @@
-import { db, schema } from "./_lib/db";
-import { oneOf, requirePlayer, route } from "./_lib/http";
-import { pct, usdCompact } from "./_lib/money";
-import { periodReturn, recordSnapshot, series, streak, valuePlayer, type Period } from "./_lib/valuation";
+import { db, schema } from "./_lib/db.js";
+import { oneOf, requirePlayer, route } from "./_lib/http.js";
+import { pct, usdCompact } from "./_lib/money.js";
+import { periodReturn, recordSnapshot, series, streak, valuePlayer, type Period } from "./_lib/valuation.js";
 
 /**
  * The race: everyone's % return over the period, plus the daily series that

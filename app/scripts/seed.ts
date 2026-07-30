@@ -5,7 +5,7 @@
  *
  *   DATABASE_URL=... npm run db:seed
  */
-import { seed } from "../api/_lib/seed";
+import { seed } from "../api/_lib/seed.js";
 
 seed()
   .then(() => process.exit(0))

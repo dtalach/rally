@@ -1,7 +1,7 @@
 import { and, desc, eq, lte, sql } from "drizzle-orm";
-import { db, schema } from "./db";
-import { round2, toNum } from "./money";
-import { dayChange, getQuotes } from "./prices";
+import { db, schema } from "./db.js";
+import { round2, toNum } from "./money.js";
+import { dayChange, getQuotes } from "./prices.js";
 
 /* ---------------------------------------------------------------------------
    Valuation.

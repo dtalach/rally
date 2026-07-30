@@ -1,7 +1,7 @@
-import { db, schema } from "./_lib/db";
-import { oneOf, route } from "./_lib/http";
-import { pct } from "./_lib/money";
-import { dayChange, getQuotes } from "./_lib/prices";
+import { db, schema } from "./_lib/db.js";
+import { oneOf, route } from "./_lib/http.js";
+import { pct } from "./_lib/money.js";
+import { dayChange, getQuotes } from "./_lib/prices.js";
 
 /**
  * The discover surface: every tradable instrument ranked by the chosen board.

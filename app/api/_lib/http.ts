@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { playerIdFrom } from "./session";
+import { playerIdFrom } from "./session.js";
 
 /** A failure the client is allowed to see the message of. */
 export class ApiError extends Error {

@@ -1,7 +1,7 @@
 import { desc, eq, ne, sql } from "drizzle-orm";
-import { db, schema } from "./_lib/db";
-import { requirePlayer, route } from "./_lib/http";
-import { toNum, usd } from "./_lib/money";
+import { db, schema } from "./_lib/db.js";
+import { requirePlayer, route } from "./_lib/http.js";
+import { toNum, usd } from "./_lib/money.js";
 
 /**
  * The crew feed on HOME — what everyone else just did, built from real orders.

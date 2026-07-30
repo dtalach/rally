@@ -1,7 +1,7 @@
-import { db, schema } from "./_lib/db";
-import { oneOf, requirePlayer, route } from "./_lib/http";
-import { pct } from "./_lib/money";
-import { periodReturn, periodStart, valuePlayer, type Period } from "./_lib/valuation";
+import { db, schema } from "./_lib/db.js";
+import { oneOf, requirePlayer, route } from "./_lib/http.js";
+import { pct } from "./_lib/money.js";
+import { periodReturn, periodStart, valuePlayer, type Period } from "./_lib/valuation.js";
 
 const PERIOD_LABEL: Record<Period, string> = {
   month: "month",

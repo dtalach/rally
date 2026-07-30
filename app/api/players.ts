@@ -1,5 +1,5 @@
-import { db, schema } from "./_lib/db";
-import { route } from "./_lib/http";
+import { db, schema } from "./_lib/db.js";
+import { route } from "./_lib/http.js";
 
 /** The login picker. Names and initials only — no PIN material leaves the server. */
 export default route("GET", async () => {

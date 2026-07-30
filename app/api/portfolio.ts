@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
-import { db, schema } from "./_lib/db";
-import { requirePlayer, route } from "./_lib/http";
-import { pct, signedUsd, usd } from "./_lib/money";
-import { level, periodReturn, recordSnapshot, streak, valuePlayer } from "./_lib/valuation";
+import { db, schema } from "./_lib/db.js";
+import { requirePlayer, route } from "./_lib/http.js";
+import { pct, signedUsd, usd } from "./_lib/money.js";
+import { level, periodReturn, recordSnapshot, streak, valuePlayer } from "./_lib/valuation.js";
 
 /**
  * Everything HOME and FOLIO need: the stack, the day's move, every position,
