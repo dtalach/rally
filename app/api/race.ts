@@ -1,7 +1,15 @@
 import { db, schema } from "./_lib/db.js";
 import { oneOf, requirePlayer, route } from "./_lib/http.js";
 import { pct, usdCompact } from "./_lib/money.js";
-import { periodReturn, recordSnapshot, series, streak, valuePlayer, type Period } from "./_lib/valuation.js";
+import {
+  periodLabel,
+  periodReturn,
+  recordSnapshot,
+  series,
+  streak,
+  valuePlayer,
+  type Period,
+} from "./_lib/valuation.js";
 
 /**
  * The race: everyone's % return over the period, plus the daily series that
@@ -46,6 +54,7 @@ export default route("GET", async (req) => {
 
   return {
     period,
+    label: periodLabel(period as Period),
     streak: me,
     standings: standings.map((s, i) => ({
       ...s,

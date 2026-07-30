@@ -61,6 +61,9 @@ export function TabBar({
         display: "flex",
         alignItems: "center",
         padding: device ? "0 6px calc(14px + env(safe-area-inset-bottom))" : "0 6px 14px",
+        // Positioned so it paints above the scroll surface, which is itself
+        // positioned. Otherwise a pulled-down screen slides over the nav.
+        position: "relative",
       }}
     >
       {item("home", "HOME", "house")}

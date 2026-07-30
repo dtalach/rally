@@ -206,6 +206,9 @@ export function Screen({
         gap,
         scrollbarWidth: "none",
         position: "relative",
+        // Clearance for the raised TRADE button, which overhangs the nav by
+        // ~30px. Without it the last row of a list sits under the button.
+        paddingBottom: scrollable ? 44 : undefined,
         transform: pull > 0 ? `translateY(${pull}px)` : undefined,
         transition: startY.current === null ? "transform 260ms cubic-bezier(0.22,1,0.36,1)" : undefined,
         ...style,

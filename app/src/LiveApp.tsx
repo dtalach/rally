@@ -311,10 +311,6 @@ function LiveRace({ version, onNavigate }: { version: number; onNavigate: (t: Ta
   if (race.error) return <Failed message={race.error} onRetry={race.reload} />;
   if (!race.data) return <Booting />;
 
-  const monthLabel = new Date()
-    .toLocaleString("en-US", { month: "long" })
-    .toUpperCase();
-
   // The race and the high-score board are two views of the same period; the
   // race row list doubles as the switch into the full standings.
   if (board === "ranks" && ranks.data) {
@@ -339,7 +335,7 @@ function LiveRace({ version, onNavigate }: { version: number; onNavigate: (t: Ta
     <Race
       onNavigate={onNavigate}
       live={{
-        monthLabel,
+        label: race.data.label,
         streak: race.data.streak,
         standings: race.data.standings,
         period,

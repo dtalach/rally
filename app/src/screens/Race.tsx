@@ -13,7 +13,8 @@ import { RACE_LINES, RACE_STANDINGS, SEASON } from "../data";
    reproduced as designed. See README for the flagged inconsistency. */
 
 export type RaceLive = {
-  monthLabel: string;
+  /** JULY · Q3 · FY2026 — follows the MO/QTR/YR toggle. */
+  label: string;
   streak: number;
   standings: {
     id: number;
@@ -75,7 +76,7 @@ export function Race({ onNavigate, live }: { onNavigate?: (t: Tab) => void; live
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
             <Title>THE RACE</Title>
-            <Chip role="gold">{live ? live.monthLabel : SEASON.month}</Chip>
+            <Chip role="gold">{live ? live.label : SEASON.month}</Chip>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <div

@@ -118,6 +118,21 @@ export function periodStart(period: Period, now = new Date()): string {
 export const today = (now = new Date()) => now.toISOString().slice(0, 10);
 
 /**
+ * What the current period is called, for the chip beside THE RACE.
+ * Months read as their own name, quarters as Q1–Q4, years as a fiscal year —
+ * the seasons are calendar-aligned, so FY is simply the calendar year.
+ */
+export function periodLabel(period: Period, now = new Date()): string {
+  if (period === "month") {
+    return now.toLocaleString("en-US", { month: "long", timeZone: "UTC" }).toUpperCase();
+  }
+  if (period === "quarter") {
+    return `Q${Math.floor(now.getUTCMonth() / 3) + 1}`;
+  }
+  return `FY${now.getUTCFullYear()}`;
+}
+
+/**
  * Record today's value so tomorrow has a baseline. Called on portfolio reads —
  * cheap, idempotent, and it means the history builds itself without a cron job.
  */

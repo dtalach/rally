@@ -165,7 +165,9 @@ export const api = {
     }>("trade", order),
 
   race: (period: Period) =>
-    get<{ period: Period; streak: number; standings: Standing[] }>(`race?period=${period}`),
+    get<{ period: Period; label: string; streak: number; standings: Standing[] }>(
+      `race?period=${period}`
+    ),
   leaderboard: (period: Period) =>
     get<{
       period: Period;
