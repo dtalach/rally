@@ -152,6 +152,7 @@ export function Button({
   blink,
   icon,
   onClick,
+  disabled,
   style,
 }: {
   children: ReactNode;
@@ -162,6 +163,7 @@ export function Button({
   blink?: boolean;
   icon?: string;
   onClick?: () => void;
+  disabled?: boolean;
   style?: CSSProperties;
 }) {
   const skins: Record<string, CSSProperties> = {
@@ -190,9 +192,12 @@ export function Button({
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       style={{
         height,
         width: "100%",
+        // A disabled action still reads as the same control, just muted.
+        opacity: disabled ? 0.45 : 1,
         border: "none",
         borderRadius: "var(--r-tile)",
         display: "flex",
@@ -203,7 +208,7 @@ export function Button({
         fontSize,
         fontWeight: 700,
         letterSpacing: "0.06em",
-        cursor: onClick ? "pointer" : "default",
+        cursor: disabled ? "not-allowed" : onClick ? "pointer" : "default",
         ...skins[variant],
         ...style,
       }}

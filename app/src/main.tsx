@@ -13,6 +13,7 @@ import "@phosphor-icons/web/fill/style.css";
 
 import "./styles/tokens.css";
 import App from "./App.tsx";
+import { DeviceProvider } from "./device";
 
 // Path routing for a normal deploy; hash routing when the app is bundled into a
 // single self-contained HTML file, where there is no server to rewrite paths.
@@ -21,7 +22,9 @@ const Router = import.meta.env.VITE_HASH_ROUTER === "1" ? HashRouter : BrowserRo
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Router>
-      <App />
+      <DeviceProvider>
+        <App />
+      </DeviceProvider>
     </Router>
   </StrictMode>
 );

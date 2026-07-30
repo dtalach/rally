@@ -1,9 +1,16 @@
 import type { CSSProperties, ReactNode } from "react";
+import { useDeviceMode } from "../useDeviceMode";
 
 /**
- * The iOS frame every screen lives in: 390x844, 44px radius, a single cyan
- * hairline ring, ambient scanlines and a cyan top bloom (both from `.frame`).
- * `glow` is the third box-shadow — each screen tints it by its own role colour.
+ * On desktop: the iOS frame every screen is reviewed in — 390x844, 44px radius,
+ * a cyan hairline ring, ambient scanlines and a cyan top bloom (both from
+ * `.frame`), plus a drawn status bar and notch. `glow` is the third box-shadow;
+ * each screen tints it by its own role colour.
+ *
+ * On a real phone: none of that chrome, because the hardware already supplies
+ * it. The frame fills the viewport and pads itself out of the notch and home
+ * indicator via the safe-area insets. The scanlines and bloom stay — they're
+ * the design's ambient texture, not part of the bezel.
  */
 export function PhoneFrame({
   children,
@@ -16,6 +23,30 @@ export function PhoneFrame({
   background?: string;
   style?: CSSProperties;
 }) {
+  const device = useDeviceMode();
+
+  if (device) {
+    return (
+      <div
+        className="frame"
+        style={{
+          width: "100%",
+          height: "100dvh",
+          background,
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          color: "#fff",
+          paddingTop: "env(safe-area-inset-top)",
+          ...style,
+        }}
+      >
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div
       className="frame"
@@ -89,7 +120,8 @@ export function Notch() {
  * The padded scroll surface between the status bar and the tab bar.
  * `overflow:hidden` in the prototype (frames were static); here the feed and
  * list screens are allowed to scroll, which is what the design intends —
- * "the feed is meant to scroll".
+ * "the feed is meant to scroll". On a real phone every screen scrolls, since
+ * the viewport is whatever the device gives us rather than a fixed 844px.
  */
 export function Screen({
   children,
@@ -104,13 +136,16 @@ export function Screen({
   style?: CSSProperties;
   scroll?: boolean;
 }) {
+  const device = useDeviceMode();
   return (
     <div
       style={{
         flex: 1,
         minHeight: 0,
-        overflowY: scroll ? "auto" : "hidden",
+        overflowY: scroll || device ? "auto" : "hidden",
         overflowX: "hidden",
+        WebkitOverflowScrolling: "touch",
+        overscrollBehaviorY: "contain",
         padding,
         display: "flex",
         flexDirection: "column",

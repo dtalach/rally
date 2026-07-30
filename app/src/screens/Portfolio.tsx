@@ -6,22 +6,63 @@ import { ALLOCATION, HOLDINGS, PLAYER, STACK } from "../data";
 /* 03 · PORTFOLIO — invested vs cash with a colour-keyed allocation bar, then
    every holding with shares, weight, value and day change. */
 
+export type PortfolioLive = {
+  investedLabel: string;
+  cashLabel: string;
+  positions: {
+    symbol: string;
+    name: string;
+    badge: string;
+    role: string;
+    sharesLabel: string;
+    weightLabel: string;
+    weight: number;
+    valueLabel: string;
+    changeLabel: string;
+    up: boolean;
+  }[];
+};
+
+/** Allocation bar colours, in the palette's own order. */
+const BAR_COLORS = ["#22f7ff", "#39ff14", "#ffe600", "#ff2bd6", "#087f92", "#9df4ff"];
+
+/** Adapts a design-mock holding to the same shape the live rows use. */
+const mockToRow = (h: (typeof HOLDINGS)[number]): PortfolioLive["positions"][number] => ({
+  symbol: h.ticker,
+  name: h.name,
+  badge: h.ticker,
+  role: h.role,
+  sharesLabel: h.shares,
+  weightLabel: h.weight,
+  weight: parseFloat(h.weight) / 100,
+  valueLabel: h.value,
+  changeLabel: h.change,
+  up: h.up,
+});
+
 export function Portfolio({
   onNavigate,
   onProfile,
   onOpenHolding,
+  live,
 }: {
   onNavigate?: (t: Tab) => void;
   onProfile?: () => void;
-  onOpenHolding?: () => void;
+  onOpenHolding?: (symbol: string) => void;
+  live?: PortfolioLive;
 }) {
+  const positions = live?.positions ?? null;
+  const allocation =
+    positions?.map((p, i) => ({ pct: p.weight * 100, color: BAR_COLORS[i % BAR_COLORS.length] })) ??
+    ALLOCATION;
+
   return (
     <PhoneFrame>
       <Screen scroll>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Title>MY HOLDINGS</Title>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <Chip role="cyan">{HOLDINGS.length} POSITIONS</Chip>
+            <Chip role="cyan">{(positions ?? HOLDINGS).length} POSITIONS</Chip>
             <Avatar pip={PLAYER.trophies} onClick={onProfile} />
           </div>
         </div>
@@ -35,39 +76,48 @@ export function Portfolio({
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
             <span style={{ color: "var(--text-2)" }}>Invested</span>
             <span className="num" style={{ fontWeight: 700, color: "var(--cyan)" }}>
-              {STACK.invested}
+              {live ? live.investedLabel : STACK.invested}
             </span>
           </div>
-          <div style={{ height: 12, borderRadius: 6, overflow: "hidden", display: "flex" }}>
-            {ALLOCATION.map((a, i) => (
+          <div style={{ height: 12, borderRadius: 6, overflow: "hidden", display: "flex", background: "var(--bg-hairline)" }}>
+            {allocation.map((a, i) => (
               <div key={i} style={{ width: `${a.pct}%`, background: a.color }} />
             ))}
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
             <span style={{ color: "var(--text-2)" }}>Cash ready to trade</span>
             <span className="num" style={{ fontWeight: 700, color: "var(--gold)" }}>
-              {STACK.cash}
+              {live ? live.cashLabel : STACK.cash}
             </span>
           </div>
         </Card>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
-          {HOLDINGS.map((h) => (
+          {positions && positions.length === 0 && (
+            <Card style={{ padding: "18px 16px", textAlign: "center" }}>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>All cash. Zero plays.</div>
+              <div style={{ fontSize: 13, color: "var(--text-2)" }}>
+                Your coins don’t race while they’re parked. Tap TRADE to make your first play.
+              </div>
+            </Card>
+          )}
+
+          {(positions ?? HOLDINGS.map(mockToRow)).map((h) => (
             <Card
               key={h.name}
-              onClick={onOpenHolding}
+              onClick={onOpenHolding ? () => onOpenHolding(h.symbol) : undefined}
               style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px" }}
             >
-              <Ticker role={h.role}>{h.ticker}</Ticker>
+              <Ticker role={h.role}>{h.badge}</Ticker>
               <div style={{ flex: 1, textAlign: "left" }}>
                 <div style={{ fontSize: 15, fontWeight: 700 }}>{h.name}</div>
                 <div className="num" style={{ fontSize: 12, color: "var(--text-2)" }}>
-                  {h.shares} · {h.weight}
+                  {h.sharesLabel} · {h.weightLabel}
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
                 <div className="num" style={{ fontSize: 15, fontWeight: 700 }}>
-                  {h.value}
+                  {h.valueLabel}
                 </div>
                 <div
                   className="num"
@@ -77,7 +127,7 @@ export function Portfolio({
                     color: h.up ? "var(--green)" : "var(--magenta)",
                   }}
                 >
-                  {h.up ? "▲" : "▼"} {h.change}
+                  {h.up ? "▲" : "▼"} {h.changeLabel}
                 </div>
               </div>
             </Card>

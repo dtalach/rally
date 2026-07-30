@@ -72,13 +72,42 @@ function Strong({ children, color = "#fff" }: { children: React.ReactNode; color
   );
 }
 
+/** Real data from the API, when the app is running live. */
+export type HomeLive = {
+  player: { name: string; initials: string };
+  vitals: { level: number; rank: number; streak: number; duels: number };
+  stack: { totalLabel: string; allTimeLabel: string; todayLabel: string; cashLabel: string };
+  newPlays: number;
+  posts: {
+    id: number;
+    name: string;
+    initials: string;
+    role: string;
+    time: string;
+    verb: string;
+    amountLabel: string;
+    side: string;
+  }[];
+};
+
 export function Home({
   onNavigate,
   onProfile,
+  live,
+  onTrade,
 }: {
   onNavigate?: (t: Tab) => void;
   onProfile?: () => void;
+  live?: HomeLive;
+  onTrade?: () => void;
 }) {
+  const vitals = live?.vitals ?? {
+    level: PLAYER.level,
+    rank: PLAYER.rank,
+    streak: PLAYER.streak,
+    duels: PLAYER.liveDuels,
+  };
+
   return (
     <PhoneFrame>
       <Screen scroll>
@@ -109,7 +138,7 @@ export function Home({
             TOTAL STACK
           </div>
           <div className="num" style={{ fontSize: 44, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1 }}>
-            {STACK.total}
+            {live ? live.stack.totalLabel : STACK.total}
           </div>
           <div style={{ display: "flex", gap: 14, alignItems: "baseline" }}>
             <div
@@ -121,12 +150,12 @@ export function Home({
                 textShadow: "0 0 12px rgba(57,255,20,0.5)",
               }}
             >
-              ▲ {STACK.allTime}
+              ▲ {live ? live.stack.allTimeLabel : STACK.allTime}
             </div>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <Pill role="green">{STACK.today}</Pill>
-            <Pill role="gold">Cash {STACK.cash}</Pill>
+            <Pill role="green">{live ? live.stack.todayLabel : STACK.today}</Pill>
+            <Pill role="gold">Cash {live ? live.stack.cashLabel : STACK.cash}</Pill>
           </div>
         </div>
 
@@ -143,13 +172,13 @@ export function Home({
             flexShrink: 0,
           }}
         >
-          <Vital value={PLAYER.level} label="LVL" color="var(--green)" />
+          <Vital value={vitals.level} label="LVL" color="var(--green)" />
           <Divider />
-          <Vital value={`#${PLAYER.rank}`} label="RANK" color="var(--cyan)" />
+          <Vital value={`#${vitals.rank}`} label="RANK" color="var(--cyan)" />
           <Divider />
-          <Vital value={PLAYER.streak} label="STREAK" color="var(--gold)" icon="ph-fill ph-flame" />
+          <Vital value={vitals.streak} label="STREAK" color="var(--gold)" icon="ph-fill ph-flame" />
           <Divider />
-          <Vital value={PLAYER.liveDuels} label="DUELS" color="var(--magenta)" icon="ph-fill ph-sword" />
+          <Vital value={vitals.duels} label="DUELS" color="var(--magenta)" icon="ph-fill ph-sword" />
         </div>
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
@@ -175,11 +204,80 @@ export function Home({
                 boxShadow: "0 0 8px var(--magenta)",
               }}
             />
-            3 NEW PLAYS
+            {live ? live.newPlays : 3} NEW PLAYS
           </div>
         </div>
 
-        {FEED.map((post) => (
+        {live &&
+          (live.posts.length === 0 ? (
+            <Card style={{ padding: "16px 14px", flexShrink: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>Nobody's played yet</div>
+              <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.4 }}>
+                When someone in your crew buys or sells, it lands here. Make the first move.
+              </div>
+            </Card>
+          ) : (
+            live.posts.map((post) => {
+              const tint = ROLE[(post.role as Role) in ROLE ? (post.role as Role) : "cyan"];
+              const sold = post.side === "sell";
+              return (
+                <Card key={post.id} style={{ display: "flex", gap: 12, padding: "13px 14px", flexShrink: 0 }}>
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      background: `${tint.base}22`,
+                      boxShadow: `inset 0 0 0 1.5px ${tint.base}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: tint.base,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {post.initials}
+                  </div>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                      <span style={{ fontSize: 14, fontWeight: 700 }}>{post.name}</span>
+                      <span className="num" style={{ fontSize: 11, color: "var(--text-3)" }}>
+                        {post.time}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.4 }}>
+                      {post.verb} <Strong color={sold ? "var(--magenta)" : "#fff"}>{post.amountLabel}</Strong>
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        type="button"
+                        onClick={onTrade}
+                        style={{
+                          padding: "6px 12px",
+                          borderRadius: 9,
+                          border: "none",
+                          background: "transparent",
+                          fontFamily: "inherit",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: "var(--cyan)",
+                          boxShadow: "inset 0 0 0 1.5px rgba(34,247,255,0.5)",
+                          cursor: "pointer",
+                        }}
+                      >
+                        COPY PLAY
+                      </button>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })
+          ))}
+
+        {!live &&
+          FEED.map((post) => (
           <Card
             key={post.name}
             style={{ display: "flex", gap: 12, padding: "13px 14px", flexShrink: 0 }}

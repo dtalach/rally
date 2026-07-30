@@ -15,16 +15,37 @@ const RANKS = [
   { rank: 6, name: "Theo B.", move: 6, up: true, pct: "+24%" },
 ];
 
+export type Ranked = { id: number; name: string; initials: string; you: boolean; rank: number; returnLabel: string };
+
+export type LeaderboardLive = {
+  subtitle: string;
+  podium: Ranked[];
+  rest: Ranked[];
+  you: (Ranked & { gapLabel: string }) | null;
+  period: "month" | "quarter" | "year";
+  onPeriod: (p: "month" | "quarter" | "year") => void;
+};
+
+/** 2nd, 1st, 3rd — the podium reads centre-tallest, so first place sits between. */
+const PODIUM_ORDER = [1, 0, 2];
+const PODIUM_SKIN = [
+  { accent: "#ffe600", height: 66, gradient: "linear-gradient(180deg,#ffe600,#c98b00)", color: "#3a2b00", font: 11 },
+  { accent: "#9df4ff", height: 44, gradient: "linear-gradient(180deg,#22f7ff,#00aec4)", color: "#fff", font: 10 },
+  { accent: "#ff8ae0", height: 32, gradient: "linear-gradient(180deg,#ff2bd6,#9c0f84)", color: "#fff", font: 10 },
+];
+
 export function Leaderboards({
   onNavigate,
   onProfile,
   onTrade,
+  live,
 }: {
   onNavigate?: (t: Tab) => void;
   onProfile?: () => void;
   onTrade?: () => void;
+  live?: LeaderboardLive;
 }) {
-  const [period, setPeriod] = useState<"month" | "quarter" | "year">("month");
+  const [period, setPeriod] = useState<"month" | "quarter" | "year">(live?.period ?? "month");
 
   return (
     <PhoneFrame glow="rgba(255,230,0,0.12)">
@@ -45,8 +66,11 @@ export function Leaderboards({
             HIGH SCORES
           </div>
           <div style={{ fontSize: 13, color: "var(--text-2)" }}>
-            Highest % gain · {SEASON.month[0]}
-            {SEASON.month.slice(1).toLowerCase()} ends in {SEASON.endsIn} · {SEASON.players} players
+            {live
+              ? live.subtitle
+              : `Highest % gain · ${SEASON.month[0]}${SEASON.month
+                  .slice(1)
+                  .toLowerCase()} ends in ${SEASON.endsIn} · ${SEASON.players} players`}
           </div>
         </div>
 
@@ -57,7 +81,10 @@ export function Leaderboards({
             { id: "year", label: "YEAR" },
           ]}
           value={period}
-          onChange={setPeriod}
+          onChange={(p) => {
+            setPeriod(p);
+            live?.onPeriod(p);
+          }}
           activeSkin="cyan"
           fontSize={13}
           style={{ flexShrink: 0 }}
@@ -76,79 +103,105 @@ export function Leaderboards({
             flexShrink: 0,
           }}
         >
-          <PodiumSlot
-            place={2}
-            initials="KL"
-            name="Kai L."
-            pct="+38%"
-            accent="#9df4ff"
-            blockHeight={44}
-            blockGradient="linear-gradient(180deg,#22f7ff,#00aec4)"
-            blockColor="#fff"
-            blockFont={10}
-          />
-          <PodiumSlot
-            place={1}
-            initials="AZ"
-            name="Ava Z."
-            pct="+52%"
-            accent="#ffe600"
-            blockHeight={66}
-            blockGradient="linear-gradient(180deg,#ffe600,#c98b00)"
-            blockColor="#3a2b00"
-            blockFont={11}
-            crown
-          />
-          <PodiumSlot
-            place={3}
-            initials="MR"
-            name="Maya R."
-            pct="+31%"
-            accent="#ff8ae0"
-            blockHeight={32}
-            blockGradient="linear-gradient(180deg,#ff2bd6,#9c0f84)"
-            blockColor="#fff"
-            blockFont={10}
-          />
+          {live
+            ? PODIUM_ORDER.filter((i) => live.podium[i]).map((i) => {
+                const p = live.podium[i];
+                const skin = PODIUM_SKIN[i];
+                return (
+                  <PodiumSlot
+                    key={p.id}
+                    place={p.rank}
+                    initials={p.initials}
+                    name={p.name}
+                    pct={p.returnLabel}
+                    accent={skin.accent}
+                    blockHeight={skin.height}
+                    blockGradient={skin.gradient}
+                    blockColor={skin.color}
+                    blockFont={skin.font}
+                    crown={i === 0}
+                  />
+                );
+              })
+            : (
+              <>
+                <PodiumSlot place={2} initials="KL" name="Kai L." pct="+38%" accent="#9df4ff" blockHeight={44} blockGradient="linear-gradient(180deg,#22f7ff,#00aec4)" blockColor="#fff" blockFont={10} />
+                <PodiumSlot place={1} initials="AZ" name="Ava Z." pct="+52%" accent="#ffe600" blockHeight={66} blockGradient="linear-gradient(180deg,#ffe600,#c98b00)" blockColor="#3a2b00" blockFont={11} crown />
+                <PodiumSlot place={3} initials="MR" name="Maya R." pct="+31%" accent="#ff8ae0" blockHeight={32} blockGradient="linear-gradient(180deg,#ff2bd6,#9c0f84)" blockColor="#fff" blockFont={10} />
+              </>
+            )}
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", flexShrink: 0 }}>
-          {RANKS.map((r, i) => (
-            <div
-              key={r.rank}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "11px 4px",
-                borderBottom: i < RANKS.length - 1 ? "1px solid rgba(34,247,255,0.15)" : undefined,
-              }}
-            >
-              <div className="num" style={{ width: 30, fontSize: 14, fontWeight: 700, color: "var(--text-2)" }}>
-                {r.rank}
-              </div>
-              <div style={{ flex: 1, fontSize: 15, fontWeight: 600 }}>{r.name}</div>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: r.up ? "var(--green)" : "var(--magenta)",
-                  display: "flex",
-                  gap: 2,
-                  alignItems: "center",
-                }}
-              >
-                <i className={`ph-fill ph-caret-${r.up ? "up" : "down"}`} />
-                {r.move}
-              </div>
-              <div
-                className="num"
-                style={{ fontSize: 15, fontWeight: 800, color: "var(--green)", minWidth: 56, textAlign: "right" }}
-              >
-                {r.pct}
-              </div>
-            </div>
-          ))}
+          {live
+            ? live.rest.map((r, i) => (
+                <div
+                  key={r.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "11px 4px",
+                    borderBottom: i < live.rest.length - 1 ? "1px solid rgba(34,247,255,0.15)" : undefined,
+                  }}
+                >
+                  <div className="num" style={{ width: 30, fontSize: 14, fontWeight: 700, color: "var(--text-2)" }}>
+                    {r.rank}
+                  </div>
+                  <div style={{ flex: 1, fontSize: 15, fontWeight: r.you ? 800 : 600 }}>
+                    {r.name}
+                    {r.you && <span style={{ fontSize: 11, color: "var(--cyan)" }}> ◄ YOU</span>}
+                  </div>
+                  <div
+                    className="num"
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 800,
+                      color: r.returnLabel.startsWith("−") ? "var(--magenta)" : "var(--green)",
+                      minWidth: 56,
+                      textAlign: "right",
+                    }}
+                  >
+                    {r.returnLabel}
+                  </div>
+                </div>
+              ))
+            : RANKS.map((r, i) => (
+                <div
+                  key={r.rank}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "11px 4px",
+                    borderBottom: i < RANKS.length - 1 ? "1px solid rgba(34,247,255,0.15)" : undefined,
+                  }}
+                >
+                  <div className="num" style={{ width: 30, fontSize: 14, fontWeight: 700, color: "var(--text-2)" }}>
+                    {r.rank}
+                  </div>
+                  <div style={{ flex: 1, fontSize: 15, fontWeight: 600 }}>{r.name}</div>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 800,
+                      color: r.up ? "var(--green)" : "var(--magenta)",
+                      display: "flex",
+                      gap: 2,
+                      alignItems: "center",
+                    }}
+                  >
+                    <i className={`ph-fill ph-caret-${r.up ? "up" : "down"}`} />
+                    {r.move}
+                  </div>
+                  <div
+                    className="num"
+                    style={{ fontSize: 15, fontWeight: 800, color: "var(--green)", minWidth: 56, textAlign: "right" }}
+                  >
+                    {r.pct}
+                  </div>
+                </div>
+              ))}
         </div>
 
         {/* pinned "you" row */}
@@ -165,14 +218,19 @@ export function Leaderboards({
           }}
         >
           <div className="num" style={{ fontSize: 14, fontWeight: 700, color: "var(--cyan)" }}>
-            {PLAYER.rank}
+            {live?.you?.rank ?? PLAYER.rank}
           </div>
-          <Avatar size={32} ring={false} />
+          <Avatar size={32} ring={false} initials={live?.you?.initials ?? PLAYER.initials} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 15, fontWeight: 700 }}>
-              YOU <span style={{ fontSize: 11, color: "var(--cyan)" }}>· {PLAYER.name}</span>
+              YOU{" "}
+              <span style={{ fontSize: 11, color: "var(--cyan)" }}>
+                · {live?.you?.name ?? PLAYER.name}
+              </span>
             </div>
-            <div style={{ fontSize: 11, color: "var(--text-2)" }}>Top 3% · beat +24% to crack the board</div>
+            <div style={{ fontSize: 11, color: "var(--text-2)" }}>
+              {live?.you?.gapLabel ?? "Top 3% · beat +24% to crack the board"}
+            </div>
           </div>
           <div
             className="num"
@@ -183,7 +241,7 @@ export function Leaderboards({
               textShadow: "0 0 12px rgba(34,247,255,0.5)",
             }}
           >
-            +14.4%
+            {live?.you?.returnLabel ?? "+14.4%"}
           </div>
         </div>
 

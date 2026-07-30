@@ -40,19 +40,56 @@ const BOARDS: Record<string, Mover[]> = {
 
 const CATEGORIES = ["GAMING", "AI", "SNEAKERS", "FOOD"];
 
+export type DiscoverLive = {
+  rows: {
+    symbol: string;
+    name: string;
+    badge: string;
+    role: string;
+    note: string;
+    priceLabel: string;
+    changeLabel: string;
+    up: boolean;
+  }[];
+  board: "gainers" | "losers" | "traded";
+  onBoard: (b: "gainers" | "losers" | "traded") => void;
+  query: string;
+  onQuery: (q: string) => void;
+  loading: boolean;
+};
+
 export function Discover({
   onNavigate,
   onProfile,
   onOpenStock,
+  live,
 }: {
   onNavigate?: (t: Tab) => void;
   onProfile?: () => void;
-  onOpenStock?: () => void;
+  onOpenStock?: (symbol: string) => void;
+  live?: DiscoverLive;
 }) {
-  const [board, setBoard] = useState<"gainers" | "losers" | "traded">("gainers");
+  const [localBoard, setLocalBoard] = useState<"gainers" | "losers" | "traded">("gainers");
   const [category, setCategory] = useState("GAMING");
 
-  const rows = BOARDS[board];
+  const board = live?.board ?? localBoard;
+  const setBoard = (b: "gainers" | "losers" | "traded") =>
+    live ? live.onBoard(b) : setLocalBoard(b);
+
+  /** Live rows and design-mock rows normalised to one shape. */
+  const rows: {
+    symbol: string;
+    name: string;
+    badge: string;
+    role: string;
+    note: string;
+    price: string;
+    change: string;
+    up: boolean;
+    rank: number;
+  }[] = live
+    ? live.rows.map((r, i) => ({ ...r, rank: i + 1, price: r.priceLabel, change: r.changeLabel }))
+    : BOARDS[board].map((m) => ({ ...m, symbol: m.ticker, badge: m.ticker }));
   const rowRing = board === "losers" ? "rgba(255,43,214,0.3)" : "rgba(57,255,20,0.3)";
 
   return (
@@ -76,7 +113,25 @@ export function Discover({
           }}
         >
           <i className="ph ph-magnifying-glass" style={{ fontSize: 19, color: "var(--cyan-soft)" }} />
-          <div style={{ fontSize: 14, color: "var(--text-3)", flex: 1 }}>Search any stock or ETF…</div>
+          {live ? (
+            <input
+              value={live.query}
+              onChange={(e) => live.onQuery(e.target.value)}
+              placeholder="Search any stock or ETF…"
+              style={{
+                flex: 1,
+                minWidth: 0,
+                border: "none",
+                background: "transparent",
+                color: "#fff",
+                fontSize: 14,
+                outline: "none",
+                padding: 0,
+              }}
+            />
+          ) : (
+            <div style={{ fontSize: 14, color: "var(--text-3)", flex: 1 }}>Search any stock or ETF…</div>
+          )}
           <div
             className="num"
             style={{ fontSize: 10, fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.06em" }}
@@ -134,10 +189,18 @@ export function Discover({
         />
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
+          {live?.loading && rows.length === 0 && (
+            <div style={{ fontSize: 13, color: "var(--text-2)", padding: "8px 2px" }}>Pricing the market…</div>
+          )}
+          {live && !live.loading && rows.length === 0 && (
+            <div style={{ fontSize: 13, color: "var(--text-2)", padding: "8px 2px" }}>
+              Nothing matches “{live.query}”. Try a ticker like NVDA.
+            </div>
+          )}
           {rows.map((m) => (
             <Card
-              key={`${board}-${m.rank}`}
-              onClick={onOpenStock}
+              key={`${board}-${m.symbol}`}
+              onClick={onOpenStock ? () => onOpenStock(m.symbol) : undefined}
               ring={`0 0 0 1.5px ${rowRing}`}
               style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px" }}
             >
@@ -154,7 +217,7 @@ export function Discover({
                 {m.rank}
               </div>
               <Ticker role={m.role} size={38} radius={11} fontSize={12}>
-                {m.ticker}
+                {m.badge}
               </Ticker>
               <div style={{ flex: 1, textAlign: "left" }}>
                 <div style={{ fontSize: 14, fontWeight: 700 }}>{m.name}</div>

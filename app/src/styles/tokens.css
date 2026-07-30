@@ -112,6 +112,38 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* On a phone the app owns the viewport: no page scroll behind the app, no
+   grey flash from the tap highlight, no long-press callout on a control, and
+   no zoom-on-double-tap while someone is jabbing at BUY. Text inside content
+   stays selectable. */
+@media (max-width: 520px) {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+  }
+
+  button {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* iOS zooms the page when a focused input is under 16px. */
+input,
+select,
+textarea {
+  font-size: 16px;
+  font-family: inherit;
+}
+
 a {
   color: var(--cyan);
 }

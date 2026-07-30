@@ -3,6 +3,7 @@ import { Link, Navigate, Route, Routes, useNavigate, useParams } from "react-rou
 import { SCREENS, SCREEN_BY_ID, TAB_ROOT, type Nav, type ScreenId } from "./screens";
 import type { Tab } from "./components/TabBar";
 import { Chip } from "./components/ui";
+import LiveApp from "./LiveApp";
 
 /* Two ways in:
      /             the design canvas — all 20 frames side by side, for review
@@ -11,7 +12,10 @@ import { Chip } from "./components/ui";
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Gallery />} />
+      {/* The running app, backed by the API. */}
+      <Route path="/" element={<LiveApp />} />
+      {/* The design canvas: all 20 frames with their original mock data. */}
+      <Route path="/design" element={<Gallery />} />
       <Route path="/app" element={<Navigate to="/app/press-start" replace />} />
       <Route path="/app/:screen" element={<AppShell />} />
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -74,7 +78,7 @@ function Gallery() {
           Neon-glass surfaces, rounded cards and readable type carry the UI; the arcade brings the soul — the
           pixel logo, P1/P2 tags, HIGH SCORES, health bars, trophies and trash-talk copy. Twenty frames, built
           from the Claude Design handoff. Tap any frame label, or open{" "}
-          <Link to="/app/press-start">the navigable app</Link>.
+          <Link to="/">the running app</Link>.
         </p>
       </div>
 

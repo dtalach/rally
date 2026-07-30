@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useDeviceMode } from "../useDeviceMode";
 
 /**
  * HOME · FOLIO · [TRADE] · RACE · DUELS
@@ -16,6 +17,7 @@ export function TabBar({
   active?: Tab;
   onNavigate?: (tab: Tab) => void;
 }) {
+  const device = useDeviceMode();
   const tradeActive = active === "trade";
 
   const item = (id: Exclude<Tab, "trade">, label: string, icon: string) => {
@@ -49,14 +51,16 @@ export function TabBar({
   return (
     <div
       style={{
-        height: "var(--nav-h)",
+        // On a real phone the bar grows by the home-indicator inset so the
+        // labels sit above it rather than under the swipe area.
+        height: device ? "calc(var(--nav-h) + env(safe-area-inset-bottom))" : "var(--nav-h)",
         flexShrink: 0,
         borderTop: "2px solid var(--cyan-rule)",
         background: "var(--grad-nav)",
         boxShadow: "0 -10px 30px rgba(0,217,232,0.25)",
         display: "flex",
         alignItems: "center",
-        padding: "0 6px 14px",
+        padding: device ? "0 6px calc(14px + env(safe-area-inset-bottom))" : "0 6px 14px",
       }}
     >
       {item("home", "HOME", "house")}
