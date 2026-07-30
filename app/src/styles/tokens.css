@@ -274,3 +274,26 @@ a:hover {
   outline: 2px solid var(--cyan);
   outline-offset: 2px;
 }
+
+/* Tappable surfaces that carry no chevron or button styling of their own —
+   the stack card, for one. Identical at rest, so the design is untouched;
+   it only announces itself under the finger. */
+.press {
+  transition:
+    transform 120ms ease,
+    filter 120ms ease;
+}
+
+.press:active {
+  transform: scale(0.985);
+  filter: brightness(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .press {
+    transition: none;
+  }
+  .press:active {
+    transform: none;
+  }
+}

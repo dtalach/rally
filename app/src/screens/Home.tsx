@@ -121,8 +121,14 @@ export function Home({
           <Avatar pip={PLAYER.trophies} onClick={onProfile} />
         </div>
 
-        {/* Stack card — pure money, no gamification chips. */}
-        <div
+        {/* Stack card — pure money, no gamification chips. Tapping it opens
+            FOLIO: the total is the sum of what's in there, so the card is the
+            natural way in. */}
+        <button
+          type="button"
+          className="press"
+          onClick={() => onNavigate?.("folio")}
+          aria-label="View my holdings"
           style={{
             borderRadius: "var(--r-card)",
             padding: 20,
@@ -132,6 +138,13 @@ export function Home({
             flexDirection: "column",
             gap: 8,
             flexShrink: 0,
+            border: "none",
+            font: "inherit",
+            color: "inherit",
+            textAlign: "left",
+            alignItems: "stretch",
+            cursor: "pointer",
+            width: "100%",
           }}
         >
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", color: "var(--cyan-soft)" }}>
@@ -157,7 +170,7 @@ export function Home({
             <Pill role="green">{live ? live.stack.todayLabel : STACK.today}</Pill>
             <Pill role="gold">Cash {live ? live.stack.cashLabel : STACK.cash}</Pill>
           </div>
-        </div>
+        </button>
 
         {/* Vitals strip — the single gamification row. */}
         <div
