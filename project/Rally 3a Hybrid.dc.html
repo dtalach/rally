@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/nocturne-de0000bc-4bdb-47c5-b41f-9f3691d4bb72/styles.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Chakra+Petch:wght@400;500;600;700&display=swap">
+<style>
+  body { background: #05010d; margin: 0; font-family: "Chakra Petch", system-ui, sans-serif; }
+  a { color: #22f7ff; }
+  a:hover { color: #9df4ff; }
+  .num { font-variant-numeric: tabular-nums; }
+  .pixel { font-family: "Press Start 2P", monospace; letter-spacing: 0.02em; }
+  .chip { font-family: "Press Start 2P", monospace; font-size: 8px; line-height: 1; padding: 5px 8px; border-radius: 7px;
+    background: rgba(34,247,255,0.1); box-shadow: inset 0 0 0 1px rgba(34,247,255,0.45); color: #9df4ff; }
+  .frame::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0 2px, transparent 2px 4px); }
+  .frame::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 220px; pointer-events: none; border-radius: inherit;
+    background: radial-gradient(120% 100% at 50% 0, rgba(34,247,255,0.12), transparent 70%); }
+  @media (prefers-reduced-motion: reduce) { .frame * { animation: none !important; } }
+  @keyframes blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+  @keyframes coinfall { 0% { transform: translateY(-70px); opacity: 0; } 8% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(430px); opacity: 0; } }
+  @keyframes coinflip { 0%,100% { transform: scaleX(1); } 50% { transform: scaleX(0.22); } }
+  @keyframes pileglow { 0%,100% { opacity: 0.55; } 50% { opacity: 0.95; } }
+  @keyframes rowin { 0%, 4% { opacity: 0; transform: translateY(16px) scale(0.75); } 10% { opacity: 1; transform: translateY(-3px) scale(1.06); } 14%, 100% { opacity: 1; transform: none; } }
+  @keyframes settle { 0%, 6% { opacity: 0; } 10%, 100% { opacity: 1; } }
+  @keyframes spinY { 0% { transform: rotateY(0); } 100% { transform: rotateY(360deg); } }
+  @keyframes stepin { 0%, 4% { opacity: 0; } 9%, 100% { opacity: 1; } }
+  @keyframes tick { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+</style>
+</helmet>
+
+<section style="padding:64px 72px 120px;display:flex;flex-direction:column;gap:40px">
+  <div style="display:flex;flex-direction:column;gap:10px;max-width:880px">
+    <div class="pixel" style="font-size:10px;color:#ff2bd6;text-shadow:0 0 10px #ff2bd6">TURN 4 · OPTION 3A · THE BLEND</div>
+    <h1 style="font-size:42px;margin:0;color:#fff;font-weight:700;letter-spacing:-0.03em">Neon Glass × Arcade</h1>
+    <p style="color:#a3a6d8;font-size:17px;margin:0;max-width:740px;text-wrap:pretty">Neon-glass surfaces, rounded cards, and readable type carry the UI; the arcade brings the soul — pixel logo, P1/P2 tags, HIGH SCORES, health bars, pixel trophies, and trash-talk copy. Compare <a href="Rally 1a Portfolio-first.dc.html">1a</a> · <a href="Rally 2b Arcade Refined.dc.html">2b</a>.</p>
+  </div>
+
+  <div id="3a" style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+
+    <!-- H1 title + coin drop -->
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">01 · PRESS START · COIN DROP</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(255,230,0,0.16);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1;position:relative;z-index:3"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f;z-index:4"></div>
+
+        <div style="position:absolute;left:0;right:0;bottom:0;height:300px;overflow:hidden;z-index:0;border-radius:0 0 44px 44px">
+          <div style="position:absolute;left:-50%;right:-50%;top:0;bottom:-110px;background:repeating-linear-gradient(90deg,rgba(255,43,214,0.7) 0 2px,transparent 2px 46px),repeating-linear-gradient(0deg,rgba(255,43,214,0.7) 0 2px,transparent 2px 38px);opacity:0.25;transform:perspective(240px) rotateX(62deg)"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,#0a0420 0%,transparent 55%)"></div>
+        </div>
+        <div style="position:absolute;left:0;right:0;top:0;height:620px;overflow:hidden;z-index:1;perspective:600px">
+          <div style="position:absolute;left:10%;top:0;animation:coinfall 2.6s linear infinite;animation-delay:0s"><div style="width:26px;height:30px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;animation:spinY 0.9s steps(6) infinite;"><div style="width:20px;height:24px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:3px;top:3px;width:3px;height:6px;background:#fff8b0"></div><div style="width:3px;height:12px;background:#c98b00"></div></div></div></div>
+          <div style="position:absolute;left:26%;top:0;animation:coinfall 3.2s linear infinite;animation-delay:0.7s"><div style="width:20px;height:23px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;animation:spinY 1.2s steps(6) infinite;"><div style="width:14px;height:17px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:3px;top:3px;width:3px;height:6px;background:#fff8b0"></div><div style="width:3px;height:9px;background:#c98b00"></div></div></div></div>
+          <div style="position:absolute;left:44%;top:0;animation:coinfall 2.9s linear infinite;animation-delay:1.4s"><div style="width:30px;height:35px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;animation:spinY 0.8s steps(6) infinite;"><div style="width:22px;height:27px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff8b0"></div><div style="width:4px;height:14px;background:#c98b00"></div></div></div></div>
+          <div style="position:absolute;left:60%;top:0;animation:coinfall 3.5s linear infinite;animation-delay:0.35s"><div style="width:22px;height:26px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;animation:spinY 1.1s steps(6) infinite;"><div style="width:16px;height:20px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:3px;top:3px;width:3px;height:6px;background:#fff8b0"></div><div style="width:3px;height:10px;background:#c98b00"></div></div></div></div>
+          <div style="position:absolute;left:76%;top:0;animation:coinfall 2.7s linear infinite;animation-delay:2.1s"><div style="width:26px;height:30px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;animation:spinY 1s steps(6) infinite;"><div style="width:20px;height:24px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:3px;top:3px;width:3px;height:6px;background:#fff8b0"></div><div style="width:3px;height:12px;background:#c98b00"></div></div></div></div>
+          <div style="position:absolute;left:88%;top:0;animation:coinfall 3.8s linear infinite;animation-delay:1.1s"><div style="width:18px;height:21px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;animation:spinY 1.3s steps(6) infinite;"><div style="width:12px;height:15px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:3px;top:3px;width:3px;height:6px;background:#fff8b0"></div><div style="width:3px;height:8px;background:#c98b00"></div></div></div></div>
+          <div style="position:absolute;left:35%;top:0;animation:coinfall 3.3s linear infinite;animation-delay:2.6s"><div style="width:22px;height:26px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;animation:spinY 0.9s steps(6) infinite;"><div style="width:16px;height:20px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:3px;top:3px;width:3px;height:6px;background:#fff8b0"></div><div style="width:3px;height:10px;background:#c98b00"></div></div></div></div>
+          <div style="position:absolute;left:68%;top:0;animation:coinfall 3s linear infinite;animation-delay:1.8s"><div style="width:24px;height:28px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;animation:spinY 1.15s steps(6) infinite;"><div style="width:18px;height:22px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:3px;top:3px;width:3px;height:6px;background:#fff8b0"></div><div style="width:3px;height:11px;background:#c98b00"></div></div></div></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:22px 30px 0;gap:18px;position:relative;z-index:3;text-align:center">
+          <div style="font-size:13px;font-weight:700;letter-spacing:0.3em;color:#22f7ff;text-shadow:0 0 12px rgba(34,247,255,0.7)">STOCK COMBAT SYSTEM</div>
+          <div class="pixel" style="font-size:42px;line-height:1;color:#ffe600;animation:logoglow 2.4s ease-in-out infinite">RALLY</div>
+          <div class="chip" style="color:#ffe600;background:rgba(255,230,0,0.12);box-shadow:inset 0 0 0 1px rgba(255,230,0,0.5)">STACK LOADING…</div>
+          <div style="border-radius:20px;padding:16px 22px;background:linear-gradient(165deg,rgba(58,43,0,0.85),rgba(14,5,38,0.85));box-shadow:0 0 0 1.5px #ffe600,0 0 34px rgba(255,230,0,0.35);display:flex;flex-direction:column;gap:4px">
+            <div class="num" style="font-size:44px;font-weight:700;letter-spacing:-0.02em;color:#ffe600;text-shadow:0 0 22px rgba(255,230,0,0.7);animation:tick 0.5s steps(2) infinite">$1,000,000</div>
+            <div style="font-size:13px;color:#ffe6a8">1,000,000 coins credited</div>
+          </div>
+          <div style="font-size:14px;color:#c0c3ee;max-width:290px">Fake money. Real prices. Real bragging rights.<br>Every coin is a dollar of buying power.</div>
+        </div>
+
+        <div style="position:absolute;left:0;right:0;bottom:120px;height:300px;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;pointer-events:none">
+          <div style="position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:420px;height:230px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(255,230,0,0.45),transparent 65%);opacity:0.7"></div>
+          <div style="position:absolute;left:0;right:0;bottom:0;width:272px;height:250px;margin:0 auto">
+            <div style="position:absolute;left:50%;margin-left:-140px;bottom:-4px;width:280px;height:24px;border-radius:4px;background:rgba(0,0,0,0.5)"></div>
+            <div style="position:absolute;left:2px;bottom:-6px;transform:rotate(-9deg)"><div style="width:34px;height:34px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#5c3d00;display:flex;align-items:center;justify-content:center;"><div style="width:26px;height:26px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#cfa900;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#ffe27a"></div><div style="width:4px;height:14px;background:#8a5f00"></div></div></div></div>
+            <div style="position:absolute;left:36px;bottom:-4px;transform:rotate(7deg)"><div style="width:34px;height:34px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#5c3d00;display:flex;align-items:center;justify-content:center;"><div style="width:26px;height:26px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#cfa900;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#ffe27a"></div><div style="width:4px;height:14px;background:#8a5f00"></div></div></div></div>
+            <div style="position:absolute;left:70px;bottom:-7px;transform:rotate(-4deg)"><div style="width:34px;height:34px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#5c3d00;display:flex;align-items:center;justify-content:center;"><div style="width:26px;height:26px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#cfa900;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#ffe27a"></div><div style="width:4px;height:14px;background:#8a5f00"></div></div></div></div>
+            <div style="position:absolute;left:104px;bottom:-5px;transform:rotate(11deg)"><div style="width:34px;height:34px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#5c3d00;display:flex;align-items:center;justify-content:center;"><div style="width:26px;height:26px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#cfa900;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#ffe27a"></div><div style="width:4px;height:14px;background:#8a5f00"></div></div></div></div>
+            <div style="position:absolute;left:138px;bottom:-6px;transform:rotate(-8deg)"><div style="width:34px;height:34px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#5c3d00;display:flex;align-items:center;justify-content:center;"><div style="width:26px;height:26px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#cfa900;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#ffe27a"></div><div style="width:4px;height:14px;background:#8a5f00"></div></div></div></div>
+            <div style="position:absolute;left:172px;bottom:-4px;transform:rotate(5deg)"><div style="width:34px;height:34px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#5c3d00;display:flex;align-items:center;justify-content:center;"><div style="width:26px;height:26px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#cfa900;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#ffe27a"></div><div style="width:4px;height:14px;background:#8a5f00"></div></div></div></div>
+            <div style="position:absolute;left:206px;bottom:-7px;transform:rotate(-11deg)"><div style="width:34px;height:34px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#5c3d00;display:flex;align-items:center;justify-content:center;"><div style="width:26px;height:26px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#cfa900;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#ffe27a"></div><div style="width:4px;height:14px;background:#8a5f00"></div></div></div></div>
+            <div style="position:absolute;left:238px;bottom:-5px;transform:rotate(8deg)"><div style="width:34px;height:34px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#5c3d00;display:flex;align-items:center;justify-content:center;"><div style="width:26px;height:26px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#cfa900;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#ffe27a"></div><div style="width:4px;height:14px;background:#8a5f00"></div></div></div></div>
+            <div style="position:absolute;left:26px;bottom:20px;transform:rotate(6deg)"><div style="width:32px;height:32px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#6b4700;display:flex;align-items:center;justify-content:center;"><div style="width:24px;height:24px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#e6cf00;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff0a0"></div><div style="width:4px;height:13px;background:#a87400"></div></div></div></div>
+            <div style="position:absolute;left:60px;bottom:22px;transform:rotate(-6deg)"><div style="width:32px;height:32px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#6b4700;display:flex;align-items:center;justify-content:center;"><div style="width:24px;height:24px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#e6cf00;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff0a0"></div><div style="width:4px;height:13px;background:#a87400"></div></div></div></div>
+            <div style="position:absolute;left:94px;bottom:19px;transform:rotate(10deg)"><div style="width:32px;height:32px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#6b4700;display:flex;align-items:center;justify-content:center;"><div style="width:24px;height:24px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#e6cf00;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff0a0"></div><div style="width:4px;height:13px;background:#a87400"></div></div></div></div>
+            <div style="position:absolute;left:128px;bottom:21px;transform:rotate(-7deg)"><div style="width:32px;height:32px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#6b4700;display:flex;align-items:center;justify-content:center;"><div style="width:24px;height:24px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#e6cf00;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff0a0"></div><div style="width:4px;height:13px;background:#a87400"></div></div></div></div>
+            <div style="position:absolute;left:162px;bottom:20px;transform:rotate(9deg)"><div style="width:32px;height:32px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#6b4700;display:flex;align-items:center;justify-content:center;"><div style="width:24px;height:24px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#e6cf00;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff0a0"></div><div style="width:4px;height:13px;background:#a87400"></div></div></div></div>
+            <div style="position:absolute;left:196px;bottom:18px;transform:rotate(-5deg)"><div style="width:32px;height:32px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#6b4700;display:flex;align-items:center;justify-content:center;"><div style="width:24px;height:24px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#e6cf00;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff0a0"></div><div style="width:4px;height:13px;background:#a87400"></div></div></div></div>
+            <div style="position:absolute;left:62px;bottom:42px;transform:rotate(4deg)"><div style="width:31px;height:31px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#6b4700;display:flex;align-items:center;justify-content:center;"><div style="width:23px;height:23px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#e6cf00;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff0a0"></div><div style="width:4px;height:12px;background:#a87400"></div></div></div></div>
+            <div style="position:absolute;left:96px;bottom:44px;transform:rotate(-9deg)"><div style="width:31px;height:31px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#6b4700;display:flex;align-items:center;justify-content:center;"><div style="width:23px;height:23px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#e6cf00;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff0a0"></div><div style="width:4px;height:12px;background:#a87400"></div></div></div></div>
+            <div style="position:absolute;left:130px;bottom:41px;transform:rotate(7deg)"><div style="width:31px;height:31px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#6b4700;display:flex;align-items:center;justify-content:center;"><div style="width:23px;height:23px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#e6cf00;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff0a0"></div><div style="width:4px;height:12px;background:#a87400"></div></div></div></div>
+            <div style="position:absolute;left:164px;bottom:43px;transform:rotate(-4deg)"><div style="width:31px;height:31px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#6b4700;display:flex;align-items:center;justify-content:center;"><div style="width:23px;height:23px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#e6cf00;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff0a0"></div><div style="width:4px;height:12px;background:#a87400"></div></div></div></div>
+            <div style="position:absolute;left:80px;bottom:62px;transform:rotate(11deg)"><div style="width:30px;height:30px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;"><div style="width:22px;height:22px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff8b0"></div><div style="width:4px;height:12px;background:#c98b00"></div></div></div></div>
+            <div style="position:absolute;left:112px;bottom:64px;transform:rotate(-8deg)"><div style="width:30px;height:30px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;"><div style="width:22px;height:22px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff8b0"></div><div style="width:4px;height:12px;background:#c98b00"></div></div></div></div>
+            <div style="position:absolute;left:144px;bottom:61px;transform:rotate(5deg)"><div style="width:30px;height:30px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;"><div style="width:22px;height:22px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:4px;top:4px;width:4px;height:8px;background:#fff8b0"></div><div style="width:4px;height:12px;background:#c98b00"></div></div></div></div>
+            <div style="position:absolute;left:98px;bottom:82px;transform:rotate(-11deg)"><div style="width:29px;height:29px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;"><div style="width:23px;height:23px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:3px;top:3px;width:3px;height:6px;background:#fff8b0"></div><div style="width:3px;height:12px;background:#c98b00"></div></div></div></div>
+            <div style="position:absolute;left:126px;bottom:84px;transform:rotate(8deg)"><div style="width:29px;height:29px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;"><div style="width:23px;height:23px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:3px;top:3px;width:3px;height:6px;background:#fff8b0"></div><div style="width:3px;height:12px;background:#c98b00"></div></div></div></div>
+            <div style="position:absolute;left:112px;bottom:102px;transform:rotate(6deg)"><div style="width:28px;height:28px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#7a5200;display:flex;align-items:center;justify-content:center;"><div style="width:22px;height:22px;clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%);background:#ffe600;position:relative;display:flex;align-items:center;justify-content:center"><div style="position:absolute;left:3px;top:3px;width:3px;height:6px;background:#fff8b0"></div><div style="width:3px;height:11px;background:#c98b00"></div></div></div></div>
+            <div style="position:absolute;left:92px;bottom:132px;width:5px;height:5px;background:#fff8b0;box-shadow:5px 0 #fff8b0,-5px 0 #fff8b0,0 5px #fff8b0,0 -5px #fff8b0"></div>
+            <div style="position:absolute;left:152px;bottom:120px;width:4px;height:4px;background:#fff;box-shadow:4px 0 #fff,-4px 0 #fff,0 4px #fff,0 -4px #fff"></div>
+            <div style="position:absolute;left:68px;bottom:102px;width:4px;height:4px;background:#fff8b0;box-shadow:4px 0 #fff8b0,-4px 0 #fff8b0,0 4px #fff8b0,0 -4px #fff8b0"></div>
+            <div style="position:absolute;left:172px;bottom:94px;width:4px;height:4px;background:#fff;box-shadow:4px 0 #fff,-4px 0 #fff,0 4px #fff,0 -4px #fff"></div>
+          </div>
+        </div>
+
+        <div style="padding:0 28px 42px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:3">
+          <div style="height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:700;letter-spacing:0.06em;background:linear-gradient(160deg,#ffe600,#c98b00);color:#2b1f00;box-shadow:0 0 26px rgba(255,230,0,0.5),inset 0 -4px 0 rgba(0,0,0,0.2)"><span class="pixel" style="font-size:10px;animation:blink 1.1s step-end infinite">►</span>PRESS START · CLAIM MY STACK</div>
+          <div style="text-align:center;font-size:13px;color:#8a83c9">Next: pick 3 rivals to race · 13+ with a parent’s OK · fake money, not investing advice</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- H1c home -->
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">02 · HOME</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(34,247,255,0.12);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="pixel" style="font-size:15px;color:#ffe600;text-shadow:0 0 14px rgba(255,230,0,0.7)">RALLY</div>
+            <div style="position:relative"><div style="width:34px;height:34px;border-radius:50%;background:#087f92;box-shadow:0 0 0 1.5px rgba(34,247,255,0.5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#c8fbff">JD</div><div class="num" style="position:absolute;right:-7px;top:-7px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#ffe600;color:#3a2b00;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(255,230,0,0.7)"><i class="ph-fill ph-trophy" style="font-size:9px;margin-right:1px"></i>11</div></div>
+          </div>
+          <div style="border-radius:20px;padding:20px;background:linear-gradient(165deg,#3a0a53,#0e0526);box-shadow:0 0 0 1.5px #22f7ff,0 0 30px rgba(34,247,255,0.3);display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.14em;color:#9df4ff">TOTAL STACK</div>
+            <div class="num" style="font-size:44px;font-weight:700;letter-spacing:-0.02em;line-height:1">$1,140,230</div>
+            <div style="display:flex;gap:14px;align-items:baseline">
+              <div class="num" style="font-size:15px;font-weight:700;color:#39ff14;text-shadow:0 0 12px rgba(57,255,20,0.5)">▲ +$140,230 all-time (+14.0%)</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <div class="num" style="padding:5px 10px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(57,255,20,0.12);color:#39ff14;box-shadow:inset 0 0 0 1px rgba(57,255,20,0.4)">Today +$3,420</div>
+              <div class="num" style="padding:5px 10px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(255,230,0,0.1);color:#ffe600;box-shadow:inset 0 0 0 1px rgba(255,230,0,0.4)">Cash $527,830</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:14px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)">
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px"><span class="num" style="font-size:14px;font-weight:700;color:#39ff14">7</span><span style="font-size:10px;font-weight:700;color:#a3a6d8">LVL</span></div>
+            <div style="width:1px;height:18px;background:#241442"></div>
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px"><span class="num" style="font-size:14px;font-weight:700;color:#22f7ff">#412</span><span style="font-size:10px;font-weight:700;color:#a3a6d8">RANK</span></div>
+            <div style="width:1px;height:18px;background:#241442"></div>
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px"><i class="ph-fill ph-flame" style="font-size:15px;color:#ffe600"></i><span class="num" style="font-size:14px;font-weight:700;color:#ffe600">9</span><span style="font-size:10px;font-weight:700;color:#a3a6d8">STREAK</span></div>
+            <div style="width:1px;height:18px;background:#241442"></div>
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px"><i class="ph-fill ph-sword" style="font-size:15px;color:#ff2bd6"></i><span class="num" style="font-size:14px;font-weight:700;color:#ff2bd6">2</span><span style="font-size:10px;font-weight:700;color:#a3a6d8">DUELS</span></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.1em;color:#9df4ff">YOUR CREW</div>
+            <div style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#ff2bd6"><span style="width:7px;height:7px;border-radius:50%;background:#ff2bd6;box-shadow:0 0 8px #ff2bd6"></span>3 NEW PLAYS</div>
+          </div>
+          <div style="display:flex;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)">
+              <div style="width:40px;height:40px;border-radius:50%;background:#ff2bd622;box-shadow:inset 0 0 0 1.5px #ff2bd6;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#ff2bd6;flex-shrink:0">MR</div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span style="font-size:14px;font-weight:700">Maya R.</span><span class="num" style="font-size:11px;color:#9499d1">12m</span></div>
+                <div style="font-size:13px;color:#c0c3ee;line-height:1.4">Bought <span class="num" style="color:#fff;font-weight:700">$18,000 NVIDIA</span> — her 3rd buy this week. She’s now <span class="num" style="color:#39ff14;font-weight:700">+21.4%</span> and leading your race.</div>
+                <div style="display:flex;gap:8px"><div style="padding:6px 12px;border-radius:9px;font-size:12px;font-weight:700;color:#22f7ff;box-shadow:inset 0 0 0 1.5px rgba(34,247,255,0.5)">COPY PLAY</div><div style="padding:6px 12px;border-radius:9px;font-size:12px;font-weight:700;color:#ff2bd6;box-shadow:inset 0 0 0 1.5px rgba(255,43,214,0.5)">DUEL HER</div></div>
+              </div>
+            </div>
+          <div style="display:flex;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)">
+              <div style="width:40px;height:40px;border-radius:50%;background:#39ff1422;box-shadow:inset 0 0 0 1.5px #39ff14;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#39ff14;flex-shrink:0">MD</div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span style="font-size:14px;font-weight:700">Mom</span><span class="num" style="font-size:11px;color:#9499d1">45m</span></div>
+                <div style="font-size:13px;color:#c0c3ee;line-height:1.4">Joined Rally with your crew code and made her first play: <span class="num" style="color:#fff;font-weight:700">$50,000 S&P 500 ETF</span>.</div>
+                <div style="display:flex;gap:8px"><div style="padding:6px 12px;border-radius:9px;font-size:12px;font-weight:700;color:#39ff14;box-shadow:inset 0 0 0 1.5px rgba(57,255,20,0.5)">SEND HER $1K</div><div style="padding:6px 12px;border-radius:9px;font-size:12px;font-weight:700;color:#ff2bd6;box-shadow:inset 0 0 0 1.5px rgba(255,43,214,0.5)">DUEL</div></div>
+              </div>
+            </div>
+          <div style="display:flex;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)">
+              <div style="width:40px;height:40px;border-radius:50%;background:#22f7ff22;box-shadow:inset 0 0 0 1.5px #22f7ff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#22f7ff;flex-shrink:0">DN</div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span style="font-size:14px;font-weight:700">Dev N.</span><span class="num" style="font-size:11px;color:#9499d1">1h</span></div>
+                <div style="font-size:13px;color:#c0c3ee;line-height:1.4">Sold all his <span class="num" style="color:#fff;font-weight:700">Tesla</span> at <span class="num" style="color:#ff2bd6;font-weight:700">−4.2%</span>. First loss he’s locked in this season.</div>
+                <div style="display:flex;gap:8px"><div style="padding:6px 12px;border-radius:9px;font-size:12px;font-weight:700;color:#22f7ff;box-shadow:inset 0 0 0 1.5px rgba(34,247,255,0.5)">SEE HIS FOLIO</div></div>
+              </div>
+            </div>
+        </div>
+        <div style="height:88px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#0c1f3f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.25);display:flex;align-items:center;padding:0 6px 14px"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:700;letter-spacing:0.05em;text-shadow:0 0 14px #22f7ff"><i class="ph-fill ph-house" style="font-size:23px"></i>HOME</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-chart-pie-slice" style="font-size:23px"></i>FOLIO</div><div style="flex:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:-30px"><div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(160deg,#ff2bd6,#b0129a);box-shadow:0 0 0 4px #0a0420,0 0 24px rgba(255,43,214,0.55),inset 0 -4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-arrows-left-right" style="font-size:26px;color:#fff"></i></div><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#ff9bea">TRADE</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-flag-checkered" style="font-size:23px"></i>RACE</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-sword" style="font-size:23px"></i>DUELS</div></div>
+      </div>
+    </div>
+
+    <!-- H1d portfolio -->
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">03 · PORTFOLIO</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(34,247,255,0.12);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:26px;font-weight:700;letter-spacing:0.04em">MY HOLDINGS</div>
+            <div style="display:flex;gap:12px;align-items:center"><div class="chip" style="color:#22f7ff;background:rgba(34,247,255,0.12);box-shadow:inset 0 0 0 1px rgba(34,247,255,0.5)">6 POSITIONS</div><div style="position:relative"><div style="width:34px;height:34px;border-radius:50%;background:#087f92;box-shadow:0 0 0 1.5px rgba(34,247,255,0.5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#c8fbff">JD</div><div class="num" style="position:absolute;right:-7px;top:-7px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#ffe600;color:#3a2b00;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(255,230,0,0.7)"><i class="ph-fill ph-trophy" style="font-size:9px;margin-right:1px"></i>11</div></div></div>
+          </div>
+          <div style="border-radius:20px;padding:16px;background:linear-gradient(165deg,#160b38,#0e0526);box-shadow:0 0 0 1.5px rgba(34,247,255,0.22);display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#a3a6d8">Invested</span><span class="num" style="font-weight:700;color:#22f7ff">$612,400</span></div>
+            <div style="height:12px;border-radius:6px;overflow:hidden;display:flex">
+              <div style="width:34%;background:#22f7ff"></div><div style="width:24%;background:#39ff14"></div><div style="width:17%;background:#ffe600"></div><div style="width:13%;background:#ff2bd6"></div><div style="width:12%;background:#087f92"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#a3a6d8">Cash ready to trade</span><span class="num" style="font-weight:700;color:#ffe600">$527,830</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:42px;height:42px;border-radius:12px;background:#22f7ff22;box-shadow:inset 0 0 0 1.5px #22f7ff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#22f7ff">NV</div><div style="flex:1"><div style="font-size:15px;font-weight:700">NVIDIA</div><div class="num" style="font-size:12px;color:#a3a6d8">145 shares · 34%</div></div><div style="text-align:right"><div class="num" style="font-size:15px;font-weight:700">$208,200</div><div class="num" style="font-size:13px;font-weight:700;color:#39ff14">▲ +2.4%</div></div></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:42px;height:42px;border-radius:12px;background:#39ff1422;box-shadow:inset 0 0 0 1.5px #39ff14;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#39ff14">SP</div><div style="flex:1"><div style="font-size:15px;font-weight:700">S&P 500 ETF</div><div class="num" style="font-size:12px;color:#a3a6d8">310 shares · 24%</div></div><div style="text-align:right"><div class="num" style="font-size:15px;font-weight:700">$146,900</div><div class="num" style="font-size:13px;font-weight:700;color:#39ff14">▲ +0.6%</div></div></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:42px;height:42px;border-radius:12px;background:#ffe60022;box-shadow:inset 0 0 0 1.5px #ffe600;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#ffe600">AP</div><div style="flex:1"><div style="font-size:15px;font-weight:700">Apple</div><div class="num" style="font-size:12px;color:#a3a6d8">480 shares · 17%</div></div><div style="text-align:right"><div class="num" style="font-size:15px;font-weight:700">$104,100</div><div class="num" style="font-size:13px;font-weight:700;color:#39ff14">▲ +1.1%</div></div></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:42px;height:42px;border-radius:12px;background:#ff2bd622;box-shadow:inset 0 0 0 1.5px #ff2bd6;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#ff2bd6">RB</div><div style="flex:1"><div style="font-size:15px;font-weight:700">Roblox</div><div class="num" style="font-size:12px;color:#a3a6d8">920 shares · 13%</div></div><div style="text-align:right"><div class="num" style="font-size:15px;font-weight:700">$79,600</div><div class="num" style="font-size:13px;font-weight:700;color:#ff2bd6">▼ −0.9%</div></div></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:42px;height:42px;border-radius:12px;background:#9df4ff22;box-shadow:inset 0 0 0 1.5px #9df4ff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#9df4ff">TS</div><div style="flex:1"><div style="font-size:15px;font-weight:700">Tesla</div><div class="num" style="font-size:12px;color:#a3a6d8">40 shares · 7%</div></div><div style="text-align:right"><div class="num" style="font-size:15px;font-weight:700">$44,700</div><div class="num" style="font-size:13px;font-weight:700;color:#ff2bd6">▼ −1.8%</div></div></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:42px;height:42px;border-radius:12px;background:#c8fbff22;box-shadow:inset 0 0 0 1.5px #c8fbff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#c8fbff">NK</div><div style="flex:1"><div style="font-size:15px;font-weight:700">Nike</div><div class="num" style="font-size:12px;color:#a3a6d8">380 shares · 5%</div></div><div style="text-align:right"><div class="num" style="font-size:15px;font-weight:700">$28,900</div><div class="num" style="font-size:13px;font-weight:700;color:#39ff14">▲ +0.3%</div></div></div>
+          </div>
+        </div>
+        <div style="height:88px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#0c1f3f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.25);display:flex;align-items:center;padding:0 6px 14px"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-house" style="font-size:23px"></i>HOME</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:700;letter-spacing:0.05em;text-shadow:0 0 14px #22f7ff"><i class="ph-fill ph-chart-pie-slice" style="font-size:23px"></i>FOLIO</div><div style="flex:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:-30px"><div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(160deg,#ff2bd6,#b0129a);box-shadow:0 0 0 4px #0a0420,0 0 24px rgba(255,43,214,0.55),inset 0 -4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-arrows-left-right" style="font-size:26px;color:#fff"></i></div><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#ff9bea">TRADE</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-flag-checkered" style="font-size:23px"></i>RACE</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-sword" style="font-size:23px"></i>DUELS</div></div>
+      </div>
+    </div>
+
+    <!-- H1e discover -->
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">04 · TRADE · DISCOVER</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(255,43,214,0.12);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:26px;font-weight:700;letter-spacing:0.04em">FIND YOUR NEXT PLAY</div><div style="position:relative"><div style="width:34px;height:34px;border-radius:50%;background:#087f92;box-shadow:0 0 0 1.5px rgba(34,247,255,0.5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#c8fbff">JD</div><div class="num" style="position:absolute;right:-7px;top:-7px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#ffe600;color:#3a2b00;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(255,230,0,0.7)"><i class="ph-fill ph-trophy" style="font-size:9px;margin-right:1px"></i>11</div></div></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:16px;background:#150a33;box-shadow:inset 0 0 0 1.5px rgba(34,247,255,0.35)">
+            <i class="ph ph-magnifying-glass" style="font-size:19px;color:#9df4ff"></i>
+            <div style="font-size:14px;color:#9499d1;flex:1">Search any stock or ETF…</div><div class="num" style="font-size:10px;font-weight:700;color:#9499d1;letter-spacing:0.06em">15-MIN DELAY</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div style="padding:8px 14px;border-radius:20px;font-size:13px;font-weight:700;background:linear-gradient(160deg,#ff2bd6,#b0129a);color:#fff;box-shadow:0 0 14px rgba(255,43,214,0.4)">GAMING</div>
+            <div style="padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;color:#9df4ff;box-shadow:inset 0 0 0 1.5px rgba(34,247,255,0.4)">AI</div>
+            <div style="padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;color:#9df4ff;box-shadow:inset 0 0 0 1.5px rgba(34,247,255,0.4)">SNEAKERS</div>
+            <div style="padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;color:#9df4ff;box-shadow:inset 0 0 0 1.5px rgba(34,247,255,0.4)">FOOD</div>
+          </div>
+          <div style="display:flex;gap:6px;padding:4px;border-radius:12px;background:#150a33">
+            <div style="flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:12.5px;font-weight:700;background:linear-gradient(160deg,#39ff14,#1f9e18);color:#062800;box-shadow:0 0 14px rgba(57,255,20,0.4)">TOP GAINERS</div>
+            <div style="flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:12.5px;font-weight:700;color:#a3a6d8">TOP LOSERS</div>
+            <div style="flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:12.5px;font-weight:700;color:#a3a6d8">MOST TRADED</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(57,255,20,0.3)"><div class="num" style="width:20px;text-align:center;font-size:13px;font-weight:700;color:#39ff14">1</div><div style="width:38px;height:38px;border-radius:11px;background:#39ff1422;box-shadow:inset 0 0 0 1.5px #39ff14;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#39ff14">AM</div><div style="flex:1"><div style="font-size:14px;font-weight:700">AMD</div><div style="font-size:11px;color:#a3a6d8">Chips · crushing earnings</div></div><div style="text-align:right"><div class="num" style="font-size:14px;font-weight:700">$196.10</div><div class="num" style="font-size:13px;font-weight:700;color:#39ff14">▲ +6.8%</div></div></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(57,255,20,0.3)"><div class="num" style="width:20px;text-align:center;font-size:13px;font-weight:700;color:#39ff14">2</div><div style="width:38px;height:38px;border-radius:11px;background:#ff2bd622;box-shadow:inset 0 0 0 1.5px #ff2bd6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#ff2bd6">RB</div><div style="flex:1"><div style="font-size:14px;font-weight:700">Roblox</div><div style="font-size:11px;color:#a3a6d8">Gaming · Maya + 2 own it</div></div><div style="text-align:right"><div class="num" style="font-size:14px;font-weight:700">$41.20</div><div class="num" style="font-size:13px;font-weight:700;color:#39ff14">▲ +3.1%</div></div></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(57,255,20,0.3)"><div class="num" style="width:20px;text-align:center;font-size:13px;font-weight:700;color:#39ff14">3</div><div style="width:38px;height:38px;border-radius:11px;background:#22f7ff22;box-shadow:inset 0 0 0 1.5px #22f7ff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#22f7ff">NV</div><div style="flex:1"><div style="font-size:14px;font-weight:700">NVIDIA</div><div style="font-size:11px;color:#a3a6d8">Chips · most traded on Rally</div></div><div style="text-align:right"><div class="num" style="font-size:14px;font-weight:700">$172.40</div><div class="num" style="font-size:13px;font-weight:700;color:#39ff14">▲ +2.4%</div></div></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px">
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.1em;color:#9df4ff">STOCK IDEAS</div>
+            <div class="num" style="font-size:10px;font-weight:700;color:#9499d1;letter-spacing:0.06em">15-MIN DELAY</div>
+          </div>
+          <div style="display:flex;gap:10px;overflow:hidden">
+            <div style="flex:1;border-radius:16px;padding:13px;background:linear-gradient(165deg,#0c2d4a,#0e0526);box-shadow:0 0 0 1.5px rgba(34,247,255,0.4)">
+              <i class="ph-fill ph-fire" style="font-size:20px;color:#22f7ff"></i>
+              <div style="font-size:13px;font-weight:700;margin-top:6px;line-height:1.3">Stocks you know</div>
+              <div style="font-size:11px;color:#a3a6d8;margin-top:2px">Brands from your world — games, food, sneakers</div>
+            </div>
+            <div style="flex:1;border-radius:16px;padding:13px;background:linear-gradient(165deg,#0e3a12,#0e0526);box-shadow:0 0 0 1.5px rgba(57,255,20,0.4)">
+              <i class="ph-fill ph-shield-check" style="font-size:20px;color:#39ff14"></i>
+              <div style="font-size:13px;font-weight:700;margin-top:6px;line-height:1.3">Steady starters</div>
+              <div style="font-size:11px;color:#a3a6d8;margin-top:2px">ETFs · the whole market in one buy</div>
+            </div>
+            <div style="flex:1;border-radius:16px;padding:13px;background:linear-gradient(165deg,#3a0a2e,#0e0526);box-shadow:0 0 0 1.5px rgba(255,43,214,0.4)">
+              <i class="ph-fill ph-rocket-launch" style="font-size:20px;color:#ff2bd6"></i>
+              <div style="font-size:13px;font-weight:700;margin-top:6px;line-height:1.3">High risk, high reward</div>
+              <div style="font-size:11px;color:#a3a6d8;margin-top:2px">Big swings · not for your whole stack</div>
+            </div>
+          </div>
+        </div>
+        <div style="height:88px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#0c1f3f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.25);display:flex;align-items:center;padding:0 6px 14px"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-house" style="font-size:23px"></i>HOME</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-chart-pie-slice" style="font-size:23px"></i>FOLIO</div><div style="flex:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:-30px"><div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(160deg,#ff2bd6,#b0129a);box-shadow:0 0 0 4px #0a0420,0 0 24px rgba(255,43,214,0.9),inset 0 -4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-arrows-left-right" style="font-size:26px;color:#fff"></i></div><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#fff">TRADE</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-flag-checkered" style="font-size:23px"></i>RACE</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-sword" style="font-size:23px"></i>DUELS</div></div>
+      </div>
+    </div>
+
+    <!-- H2 arena -->
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">05 · RACE</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(34,247,255,0.12);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;align-items:baseline;gap:10px"><div style="font-size:26px;font-weight:700;letter-spacing:0.04em">THE RACE</div><div class="chip" style="color:#ffe600;background:rgba(255,230,0,0.12);box-shadow:inset 0 0 0 1px rgba(255,230,0,0.5)">FEBRUARY</div></div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div style="display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;border:1.5px solid #ffe600;font-size:13px;font-weight:700;color:#ffe600;box-shadow:0 0 12px rgba(255,230,0,0.4)"><i class="ph-fill ph-flame"></i><span class="num">9</span></div>
+              <div style="width:34px;height:34px;border-radius:50%;background:#087f92;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#c8fbff">JD</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="flex:1;display:flex;gap:6px;padding:4px;border-radius:12px;background:#150a33">
+              <div style="flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:12.5px;font-weight:700;background:linear-gradient(160deg,#ff2bd6,#b0129a);color:#fff;box-shadow:0 0 16px rgba(255,43,214,0.45)">MY CREW</div>
+              <div style="flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:12.5px;font-weight:700;color:#a3a6d8">LEAGUE</div>
+            </div>
+            <div style="display:flex;gap:6px;padding:4px;border-radius:12px;background:#150a33">
+              <div class="num" style="text-align:center;padding:8px 10px;border-radius:9px;font-size:12px;font-weight:700;background:rgba(34,247,255,0.15);color:#22f7ff;box-shadow:inset 0 0 0 1px rgba(34,247,255,0.5)">MO</div>
+              <div class="num" style="text-align:center;padding:8px 10px;border-radius:9px;font-size:12px;font-weight:700;color:#a3a6d8">QTR</div>
+              <div class="num" style="text-align:center;padding:8px 10px;border-radius:9px;font-size:12px;font-weight:700;color:#a3a6d8">YR</div>
+            </div>
+          </div>
+          <div style="border-radius:20px;padding:14px 12px 8px;background:linear-gradient(170deg,#160b38,#0e0526);box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)">
+            <svg viewBox="0 0 340 240" style="width:100%;height:250px">
+              <line x1="0" y1="60" x2="340" y2="60" stroke="#241442" stroke-width="1"/>
+              <line x1="0" y1="120" x2="340" y2="120" stroke="#241442" stroke-width="1"/>
+              <line x1="0" y1="180" x2="340" y2="180" stroke="#241442" stroke-width="1"/>
+              <polyline points="0,226 28,212 56,200 84,182 112,186 140,154 168,142 196,122 224,98 252,82 280,56 310,34" fill="none" stroke="#39ff14" stroke-width="3.5" style="filter:drop-shadow(0 0 3px #39ff14) drop-shadow(0 0 12px #39ff14)"/>
+              <polyline points="0,226 28,220 56,206 84,212 112,194 140,180 168,172 196,154 224,146 252,122 280,110 310,86" fill="none" stroke="#22f7ff" stroke-width="4.5" style="filter:drop-shadow(0 0 3px #22f7ff) drop-shadow(0 0 14px #22f7ff)"/>
+              <polyline points="0,226 28,222 56,216 84,204 112,210 140,196 168,202 196,186 224,178 252,174 280,156 310,146" fill="none" stroke="#ff2bd6" stroke-width="3" style="filter:drop-shadow(0 0 3px #ff2bd6) drop-shadow(0 0 10px #ff2bd6)"/>
+              <circle cx="310" cy="34" r="5" fill="#39ff14" style="filter:drop-shadow(0 0 8px #39ff14)"/><text x="320" y="38" fill="#39ff14" font-size="11" font-weight="700" font-family="Chakra Petch">P1</text>
+              <circle cx="310" cy="86" r="6" fill="#22f7ff" style="filter:drop-shadow(0 0 8px #22f7ff)"/><text x="320" y="90" fill="#22f7ff" font-size="11" font-weight="700" font-family="Chakra Petch">P2</text>
+              <circle cx="310" cy="146" r="5" fill="#ff2bd6" style="filter:drop-shadow(0 0 8px #ff2bd6)"/><text x="320" y="150" fill="#ff2bd6" font-size="11" font-weight="700" font-family="Chakra Petch">P3</text>
+            </svg>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)">
+              <div class="chip" style="color:#39ff14;background:rgba(57,255,20,0.12);box-shadow:inset 0 0 0 1px rgba(57,255,20,0.5)">P1</div>
+              <div style="flex:1"><div style="font-size:15px;font-weight:700">Maya R.</div><div class="num" style="font-size:12px;color:#a3a6d8">$1.21M</div></div>
+              <div class="num" style="font-size:17px;font-weight:700;color:#39ff14;text-shadow:0 0 12px rgba(57,255,20,0.5)">+21.4%</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:16px;background:linear-gradient(165deg,#0c2d4a,#0e0526);box-shadow:0 0 0 1.5px #22f7ff,0 0 20px rgba(34,247,255,0.3)">
+              <div class="chip">P2</div>
+              <div style="flex:1"><div style="font-size:15px;font-weight:700">{{ playerName }} <span style="font-size:11px;color:#22f7ff">◄ YOU</span></div><div class="num" style="font-size:12px;color:#a3a6d8">$1.14M</div></div>
+              <div class="num" style="font-size:17px;font-weight:700;color:#22f7ff;text-shadow:0 0 12px rgba(34,247,255,0.5)">+14.4%</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)">
+              <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5)">P3</div>
+              <div style="flex:1"><div style="font-size:15px;font-weight:700">Dev N.</div><div class="num" style="font-size:12px;color:#a3a6d8">$1.09M</div></div>
+              <div class="num" style="font-size:17px;font-weight:700;color:#ff2bd6;text-shadow:0 0 12px rgba(255,43,214,0.5)">+8.8%</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:rgba(255,230,0,0.08);box-shadow:0 0 0 1.5px rgba(255,230,0,0.5)">
+            <i class="ph-fill ph-lightning" style="color:#ffe600;font-size:19px"></i>
+            <div style="font-size:14px;font-weight:600;color:#ffe600;flex:1">Maya passed you at 10:04. Avenge yourself.</div>
+          </div>
+        </div>
+        <div style="height:88px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#0c1f3f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.25);display:flex;align-items:center;padding:0 6px 14px"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-house" style="font-size:23px"></i>HOME</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-chart-pie-slice" style="font-size:23px"></i>FOLIO</div><div style="flex:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:-30px"><div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(160deg,#ff2bd6,#b0129a);box-shadow:0 0 0 4px #0a0420,0 0 24px rgba(255,43,214,0.55),inset 0 -4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-arrows-left-right" style="font-size:26px;color:#fff"></i></div><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#ff9bea">TRADE</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:700;letter-spacing:0.05em;text-shadow:0 0 14px #22f7ff"><i class="ph-fill ph-flag-checkered" style="font-size:23px"></i>RACE</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-sword" style="font-size:23px"></i>DUELS</div></div>
+      </div>
+    </div>
+
+    <!-- H3 high scores -->
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">06 · LEADERBOARDS</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(255,230,0,0.12);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+        <div style="flex:1;overflow:hidden;padding:14px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="text-align:center;display:flex;flex-direction:column;gap:6px;position:relative">
+            <div style="position:absolute;right:0;top:0"><div style="position:relative"><div style="width:34px;height:34px;border-radius:50%;background:#087f92;box-shadow:0 0 0 1.5px rgba(34,247,255,0.5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#c8fbff">JD</div><div class="num" style="position:absolute;right:-7px;top:-7px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#ffe600;color:#3a2b00;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(255,230,0,0.7)"><i class="ph-fill ph-trophy" style="font-size:9px;margin-right:1px"></i>11</div></div></div>
+            <div style="font-size:24px;font-weight:700;letter-spacing:0.16em;color:#ffe600;text-shadow:0 0 18px rgba(255,230,0,0.6)">HIGH SCORES</div>
+            <div style="font-size:13px;color:#a3a6d8">Highest % gain · February ends in 19 days · 18,402 players</div>
+          </div>
+          <div style="display:flex;gap:6px;padding:4px;border-radius:12px;background:#150a33">
+            <div style="flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:13px;font-weight:700;background:linear-gradient(160deg,#22f7ff,#00aec4);color:#08021a;box-shadow:0 0 14px rgba(34,247,255,0.45)">MONTH</div>
+            <div style="flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:13px;font-weight:700;color:#a3a6d8">QUARTER</div>
+            <div style="flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:13px;font-weight:700;color:#a3a6d8">YEAR</div>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:10px;padding:16px 12px 0;border-radius:20px;background:linear-gradient(170deg,#3a0a53,#0e0526);box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+              <div style="width:44px;height:44px;border-radius:50%;background:#150a33;box-shadow:0 0 0 2px #9df4ff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#9df4ff">KL</div>
+              <div style="font-size:12px;font-weight:700;color:#9df4ff">Kai L.</div>
+              <div class="num" style="font-size:14px;font-weight:700;color:#39ff14">+38%</div>
+              <div class="pixel" style="width:100%;height:44px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#22f7ff,#00aec4);display:flex;align-items:flex-start;justify-content:center;padding-top:6px;font-size:10px;color:#fff">2</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+              <i class="ph-fill ph-crown" style="color:#ffe600;font-size:28px;filter:drop-shadow(0 0 12px rgba(255,230,0,0.8))"></i>
+              <div style="width:54px;height:54px;border-radius:50%;background:#150a33;box-shadow:0 0 0 2.5px #ffe600,0 0 20px rgba(255,230,0,0.5);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#ffe600">AZ</div>
+              <div style="font-size:12px;font-weight:800;color:#fff">Ava Z.</div>
+              <div class="num" style="font-size:16px;font-weight:700;color:#39ff14;text-shadow:0 0 10px rgba(57,255,20,0.6)">+52%</div>
+              <div class="pixel" style="width:100%;height:66px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#ffe600,#c98b00);box-shadow:0 0 22px rgba(255,230,0,0.4);display:flex;align-items:flex-start;justify-content:center;padding-top:6px;font-size:11px;color:#3a2b00">1</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+              <div style="width:44px;height:44px;border-radius:50%;background:#150a33;box-shadow:0 0 0 2px #ff8ae0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#ff8ae0">MR</div>
+              <div style="font-size:12px;font-weight:700;color:#ff8ae0">Maya R.</div>
+              <div class="num" style="font-size:14px;font-weight:700;color:#39ff14">+31%</div>
+              <div class="pixel" style="width:100%;height:32px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#ff2bd6,#9c0f84);display:flex;align-items:flex-start;justify-content:center;padding-top:6px;font-size:10px;color:#fff">3</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid rgba(34,247,255,0.15)">
+              <div class="num" style="width:30px;font-size:14px;font-weight:700;color:#a3a6d8">4</div>
+              <div style="flex:1;font-size:15px;font-weight:600">Jules P.</div>
+              <div style="font-size:11px;font-weight:800;color:#39ff14;display:flex;gap:2px;align-items:center"><i class="ph-fill ph-caret-up"></i>3</div>
+              <div class="num" style="font-size:15px;font-weight:800;color:#39ff14;min-width:56px;text-align:right">+29%</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid rgba(34,247,255,0.15)">
+              <div class="num" style="width:30px;font-size:14px;font-weight:700;color:#a3a6d8">5</div>
+              <div style="flex:1;font-size:15px;font-weight:600">Dev N.</div>
+              <div style="font-size:11px;font-weight:800;color:#ff2bd6;display:flex;gap:2px;align-items:center"><i class="ph-fill ph-caret-down"></i>1</div>
+              <div class="num" style="font-size:15px;font-weight:800;color:#39ff14;min-width:56px;text-align:right">+27%</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:11px 4px">
+              <div class="num" style="width:30px;font-size:14px;font-weight:700;color:#a3a6d8">6</div>
+              <div style="flex:1;font-size:15px;font-weight:600">Theo B.</div>
+              <div style="font-size:11px;font-weight:800;color:#39ff14;display:flex;gap:2px;align-items:center"><i class="ph-fill ph-caret-up"></i>6</div>
+              <div class="num" style="font-size:15px;font-weight:800;color:#39ff14;min-width:56px;text-align:right">+24%</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:linear-gradient(165deg,#0c2d4a,#0e0526);box-shadow:0 0 0 1.5px #22f7ff,0 0 22px rgba(34,247,255,0.35)">
+            <div class="num" style="font-size:14px;font-weight:700;color:#22f7ff">412</div>
+            <div style="width:32px;height:32px;border-radius:50%;background:#087f92;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;color:#c8fbff">JD</div>
+            <div style="flex:1"><div style="font-size:15px;font-weight:700">YOU <span style="font-size:11px;color:#22f7ff">· {{ playerName }}</span></div><div style="font-size:11px;color:#a3a6d8">Top 3% · beat +24% to crack the board</div></div>
+            <div class="num" style="font-size:16px;font-weight:700;color:#22f7ff;text-shadow:0 0 12px rgba(34,247,255,0.5)">+14.4%</div>
+          </div>
+          <div style="height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:700;letter-spacing:0.06em;background:linear-gradient(160deg,#39ff14,#1f9e18);color:#062800;box-shadow:0 0 22px rgba(57,255,20,0.45),inset 0 -4px 0 rgba(0,0,0,0.2)"><span class="pixel" style="font-size:9px;animation:blink 1.2s step-end infinite">►</span>CONTINUE? TRADE NOW</div>
+        </div>
+        <div style="height:88px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#0c1f3f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.25);display:flex;align-items:center;padding:0 6px 14px"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-house" style="font-size:23px"></i>HOME</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-chart-pie-slice" style="font-size:23px"></i>FOLIO</div><div style="flex:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:-30px"><div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(160deg,#ff2bd6,#b0129a);box-shadow:0 0 0 4px #0a0420,0 0 24px rgba(255,43,214,0.55),inset 0 -4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-arrows-left-right" style="font-size:26px;color:#fff"></i></div><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#ff9bea">TRADE</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:700;letter-spacing:0.05em;text-shadow:0 0 14px #22f7ff"><i class="ph-fill ph-flag-checkered" style="font-size:23px"></i>RACE</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-sword" style="font-size:23px"></i>DUELS</div></div>
+      </div>
+    </div>
+
+    <!-- H4 VS duel -->
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">07 · VS DUEL</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(57,255,20,0.1);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+        <div style="flex:1;overflow:hidden;padding:14px 20px 0;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <div style="font-size:12px;font-weight:700;color:#22f7ff;letter-spacing:0.04em">P1 · YOU</div>
+              <div style="height:16px;border-radius:10px;box-shadow:inset 0 0 0 1.5px #22f7ff;padding:3px"><div style="width:44%;height:100%;border-radius:7px;background:linear-gradient(90deg,#39ff14,#ffe600);box-shadow:0 0 10px rgba(57,255,20,0.6)"></div></div>
+            </div>
+            <div class="pixel" style="font-size:13px;color:#ffe600;text-shadow:0 0 12px #ffe600">VS</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+              <div style="font-size:12px;font-weight:700;color:#ff2bd6;letter-spacing:0.04em">P2 · DEV</div>
+              <div style="height:16px;border-radius:10px;box-shadow:inset 0 0 0 1.5px #ff2bd6;padding:3px;width:100%;display:flex;justify-content:flex-end"><div style="width:56%;height:100%;border-radius:7px;background:linear-gradient(270deg,#ff2bd6,#ffe600);box-shadow:0 0 10px rgba(255,43,214,0.6)"></div></div>
+            </div>
+          </div>
+          <div style="text-align:center;font-size:14px;color:#c0c3ee"><span class="num" style="color:#ffe600;font-weight:700">$25,000 each</span> in the pot · 30-day duel · <span style="color:#ffe600;font-weight:700" class="num">6d left</span></div>
+          <div style="border-radius:20px;padding:20px 16px;background:linear-gradient(170deg,#3a0a53,#0e0526);box-shadow:0 0 0 1.5px rgba(34,247,255,0.22);display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;align-items:center;justify-content:center;gap:16px">
+              <div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center">
+                <div style="width:84px;height:84px;border-radius:20px;background:#0c2d4a;box-shadow:0 0 0 2.5px #22f7ff,0 0 24px rgba(34,247,255,0.45);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#22f7ff">JD</div>
+                <div style="font-size:14px;font-weight:700">{{ playerName }}</div>
+                <div class="num" style="font-size:26px;font-weight:700;color:#39ff14;text-shadow:0 0 14px rgba(57,255,20,0.6)">+3.4%</div>
+              </div>
+              <div class="pixel" style="font-size:24px;color:#ffe600;text-shadow:0 0 18px #ffe600,3px 3px 0 #ff2bd6">VS</div>
+              <div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center">
+                <div style="width:84px;height:84px;border-radius:20px;background:#3a0a2e;box-shadow:0 0 0 2.5px #ff2bd6,0 0 24px rgba(255,43,214,0.45);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#ff2bd6">DN</div>
+                <div style="font-size:14px;font-weight:700">Dev N.</div>
+                <div class="num" style="font-size:26px;font-weight:700;color:#39ff14;text-shadow:0 0 14px rgba(57,255,20,0.6)">+4.3%</div>
+              </div>
+            </div>
+            <div style="text-align:center;font-size:15px;font-weight:700;color:#ff2bd6;text-shadow:0 0 12px rgba(255,43,214,0.5)">Down 0.9% — two days to flip it.</div>
+          </div>
+          <svg viewBox="0 0 340 110" style="width:100%;height:120px">
+            <polyline points="0,92 28,86 56,88 84,72 112,76 140,58 168,62 196,48 224,52 252,38 280,30 310,22 340,18" fill="none" stroke="#22f7ff" stroke-width="3.5" style="filter:drop-shadow(0 0 3px #22f7ff) drop-shadow(0 0 10px #22f7ff)"/>
+            <polyline points="0,92 28,90 56,80 84,84 112,66 140,60 168,50 196,54 224,40 252,34 280,26 310,18 340,10" fill="none" stroke="#ff2bd6" stroke-width="3.5" style="filter:drop-shadow(0 0 3px #ff2bd6) drop-shadow(0 0 10px #ff2bd6)"/>
+          </svg>
+          <div style="display:flex;gap:10px">
+            <div style="flex:1;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:700;color:#22f7ff;box-shadow:inset 0 0 0 1.5px #22f7ff,0 0 14px rgba(34,247,255,0.25)"><i class="ph ph-chat-teardrop-text"></i>TAUNT ▾</div>
+            <div style="flex:1;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:700;background:linear-gradient(160deg,#39ff14,#1f9e18);color:#062800;box-shadow:0 0 20px rgba(57,255,20,0.45),inset 0 -4px 0 rgba(0,0,0,0.2)"><i class="ph-fill ph-lightning"></i>TRADE NOW</div>
+          </div>
+          <div style="text-align:center;font-size:13px;color:#a3a6d8">Biggest gain on the $25K takes the whole <span style="color:#ffe600;font-weight:700" class="num">$50,000</span> pot</div>
+        </div>
+        <div style="height:88px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#0c1f3f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.25);display:flex;align-items:center;padding:0 6px 14px"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-house" style="font-size:23px"></i>HOME</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-chart-pie-slice" style="font-size:23px"></i>FOLIO</div><div style="flex:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:-30px"><div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(160deg,#ff2bd6,#b0129a);box-shadow:0 0 0 4px #0a0420,0 0 24px rgba(255,43,214,0.55),inset 0 -4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-arrows-left-right" style="font-size:26px;color:#fff"></i></div><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#ff9bea">TRADE</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-flag-checkered" style="font-size:23px"></i>RACE</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:700;letter-spacing:0.05em;text-shadow:0 0 14px #22f7ff"><i class="ph-fill ph-sword" style="font-size:23px"></i>DUELS</div></div>
+      </div>
+    </div>
+
+    <!-- H5 trophy room -->
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">08 · TROPHY ROOM</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(255,230,0,0.12);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <i class="ph ph-caret-left" style="font-size:22px;color:#9df4ff"></i>
+            <div style="flex:1">
+              <div style="font-size:24px;font-weight:700;letter-spacing:0.06em;color:#ffe600;text-shadow:0 0 16px rgba(255,230,0,0.5)">TROPHY ROOM</div>
+              <div style="font-size:13px;color:#a3a6d8">{{ playerName }} · <span class="num" style="color:#fff;font-weight:700">11 of 34</span> collected</div>
+            </div>
+            <div style="width:34px;height:34px;border-radius:50%;background:#087f92;box-shadow:0 0 0 1.5px rgba(34,247,255,0.5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#c8fbff">JD</div>
+          </div>
+          <div style="height:9px;border-radius:5px;background:#1a0630;box-shadow:inset 0 0 0 1px rgba(255,230,0,0.35)"><div style="width:32%;height:9px;border-radius:5px;background:linear-gradient(90deg,#ffe600,#c98b00);box-shadow:0 0 12px rgba(255,230,0,0.45)"></div></div>
+          <div style="display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:16px;background:linear-gradient(165deg,#0e3a12,#0e0526);box-shadow:0 0 0 1.5px rgba(57,255,20,0.55)">
+            <i class="ph-fill ph-seal-check" style="font-size:26px;color:#39ff14"></i>
+            <div style="flex:1"><div class="chip" style="color:#39ff14;background:rgba(57,255,20,0.12);box-shadow:inset 0 0 0 1px rgba(57,255,20,0.5);display:inline-block">NEW!</div> <span style="font-size:14px;font-weight:700">First $10K of profit</span></div>
+            <div class="num" style="font-size:15px;font-weight:700;color:#ffe600;text-shadow:0 0 10px rgba(255,230,0,0.5)">+500 XP</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            <div style="border-radius:18px;padding:14px 8px 12px;background:linear-gradient(170deg,rgba(255,230,0,0.1),#0e0526);box-shadow:0 0 0 1.5px rgba(255,230,0,0.55);display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+              <div style="width:54px;height:54px;border-radius:50%;background:rgba(255,230,0,0.12);box-shadow:0 0 0 2.5px #ffe600,0 0 18px rgba(255,230,0,0.45);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-coins" style="font-size:26px;color:#ffe600"></i></div>
+              <div style="font-size:12.5px;font-weight:700;line-height:1.25">First 10K</div>
+              <div class="num" style="font-size:10.5px;color:#9499d1">Jul 27</div>
+            </div>
+            <div style="border-radius:18px;padding:14px 8px 12px;background:linear-gradient(170deg,rgba(255,43,214,0.1),#0e0526);box-shadow:0 0 0 1.5px rgba(255,43,214,0.55);display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+              <div style="width:54px;height:54px;border-radius:50%;background:rgba(255,43,214,0.12);box-shadow:0 0 0 2.5px #ff2bd6,0 0 18px rgba(255,43,214,0.45);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-sword" style="font-size:26px;color:#ff2bd6"></i></div>
+              <div style="font-size:12.5px;font-weight:700;line-height:1.25">5 Duels Won</div>
+              <div class="num" style="font-size:10.5px;color:#9499d1">7–2 record</div>
+            </div>
+            <div style="border-radius:18px;padding:14px 8px 12px;background:linear-gradient(170deg,rgba(57,255,20,0.1),#0e0526);box-shadow:0 0 0 1.5px rgba(57,255,20,0.55);display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+              <div style="width:54px;height:54px;border-radius:50%;background:rgba(57,255,20,0.12);box-shadow:0 0 0 2.5px #39ff14,0 0 18px rgba(57,255,20,0.45);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-chart-line-up" style="font-size:26px;color:#39ff14"></i></div>
+              <div style="font-size:12.5px;font-weight:700;line-height:1.25">+10% Week</div>
+              <div class="num" style="font-size:10.5px;color:#9499d1">Jun 30</div>
+            </div>
+            <div style="border-radius:18px;padding:14px 8px 12px;background:linear-gradient(170deg,rgba(255,230,0,0.1),#0e0526);box-shadow:0 0 0 1.5px rgba(255,230,0,0.55);display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+              <div style="width:54px;height:54px;border-radius:50%;background:rgba(255,230,0,0.12);box-shadow:0 0 0 2.5px #ffe600,0 0 18px rgba(255,230,0,0.45);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-flame" style="font-size:26px;color:#ffe600"></i></div>
+              <div style="font-size:12.5px;font-weight:700;line-height:1.25">10-Day Streak</div>
+              <div class="num" style="font-size:10.5px;color:#9499d1">Active now</div>
+            </div>
+            <div style="border-radius:18px;padding:14px 8px 12px;background:linear-gradient(170deg,rgba(34,247,255,0.1),#0e0526);box-shadow:0 0 0 1.5px rgba(34,247,255,0.55);display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+              <div style="width:54px;height:54px;border-radius:50%;background:rgba(34,247,255,0.12);box-shadow:0 0 0 2.5px #22f7ff,0 0 18px rgba(34,247,255,0.45);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-users-three" style="font-size:26px;color:#22f7ff"></i></div>
+              <div style="font-size:12.5px;font-weight:700;line-height:1.25">Crew Builder</div>
+              <div class="num" style="font-size:10.5px;color:#9499d1">4 recruits</div>
+            </div>
+            <div style="border-radius:18px;padding:14px 8px 12px;background:linear-gradient(170deg,rgba(157,244,255,0.1),#0e0526);box-shadow:0 0 0 1.5px rgba(157,244,255,0.55);display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+              <div style="width:54px;height:54px;border-radius:50%;background:rgba(157,244,255,0.12);box-shadow:0 0 0 2.5px #9df4ff,0 0 18px rgba(157,244,255,0.45);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-medal" style="font-size:26px;color:#9df4ff"></i></div>
+              <div style="font-size:12.5px;font-weight:700;line-height:1.25">Top 5% Finish</div>
+              <div class="num" style="font-size:10.5px;color:#9499d1">June · monthly</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:0 2px">
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#9df4ff">NEXT UP</div>
+            <div style="font-size:11px;color:#9499d1">23 more to find</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            <div style="border-radius:18px;padding:14px 8px 12px;background:#100929;box-shadow:inset 0 0 0 1.5px #241442;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+              <div style="width:54px;height:54px;border-radius:50%;background:#150a33;box-shadow:inset 0 0 0 2px #241442;display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-lock-simple" style="font-size:22px;color:#3a2f6e"></i></div>
+              <div style="font-size:12.5px;font-weight:700;color:#6f68b5;line-height:1.25">First 100K</div>
+              <div style="font-size:10.5px;color:#4d448f">$61K to go</div>
+            </div>
+            <div style="border-radius:18px;padding:14px 8px 12px;background:#100929;box-shadow:inset 0 0 0 1.5px #241442;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+              <div style="width:54px;height:54px;border-radius:50%;background:#150a33;box-shadow:inset 0 0 0 2px #241442;display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-lock-simple" style="font-size:22px;color:#3a2f6e"></i></div>
+              <div style="font-size:12.5px;font-weight:700;color:#6f68b5;line-height:1.25">Diversified</div>
+              <div style="font-size:10.5px;color:#4d448f">Own 5 sectors</div>
+            </div>
+            <div style="border-radius:18px;padding:14px 8px 12px;background:#100929;box-shadow:inset 0 0 0 1.5px #241442;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+              <div style="width:54px;height:54px;border-radius:50%;background:#150a33;box-shadow:inset 0 0 0 2px #241442;display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-lock-simple" style="font-size:22px;color:#3a2f6e"></i></div>
+              <div style="font-size:12.5px;font-weight:700;color:#6f68b5;line-height:1.25">Giant Slayer</div>
+              <div style="font-size:10.5px;color:#4d448f">Beat a top-100</div>
+            </div>
+          </div>
+        </div>
+        <div style="height:88px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#0c1f3f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.25);display:flex;align-items:center;padding:0 6px 14px"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:700;letter-spacing:0.05em;text-shadow:0 0 14px #22f7ff"><i class="ph-fill ph-house" style="font-size:23px"></i>HOME</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-chart-pie-slice" style="font-size:23px"></i>FOLIO</div><div style="flex:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:-30px"><div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(160deg,#ff2bd6,#b0129a);box-shadow:0 0 0 4px #0a0420,0 0 24px rgba(255,43,214,0.55),inset 0 -4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-arrows-left-right" style="font-size:26px;color:#fff"></i></div><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#ff9bea">TRADE</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-flag-checkered" style="font-size:23px"></i>RACE</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-sword" style="font-size:23px"></i>DUELS</div></div>
+      </div>
+    </div>
+
+    <!-- H6 buy/sell -->
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">09 · TRADE · BUY/SELL</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(57,255,20,0.12);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <i class="ph ph-caret-left" style="font-size:22px;color:#9df4ff"></i>
+            <div class="chip">NVDA · NVIDIA</div>
+            <i class="ph ph-star" style="font-size:20px;color:#9499d1"></i>
+          </div>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between">
+            <div>
+              <div class="num" style="font-size:38px;font-weight:700;letter-spacing:-0.02em">$172.40</div>
+              <div class="num" style="font-size:15px;font-weight:700;color:#39ff14;text-shadow:0 0 12px rgba(57,255,20,0.5)">▲ +2.4% today</div>
+              <div class="num" style="font-size:11px;color:#9499d1;margin-top:2px">As of 9:26 AM · prices delayed 15 min</div>
+            </div>
+            <div style="text-align:right;font-size:12px;color:#a3a6d8;line-height:1.6">You own<br><span class="num" style="font-size:15px;font-weight:700;color:#fff">58 shares</span><br><span class="num" style="color:#39ff14;font-weight:700">+$840 (9.2%)</span></div>
+          </div>
+          <div style="border-radius:20px;padding:12px 10px 6px;background:linear-gradient(170deg,#160b38,#0e0526);box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)">
+            <svg viewBox="0 0 340 130" style="width:100%;height:135px">
+              <line x1="0" y1="43" x2="340" y2="43" stroke="#241442" stroke-width="1"/>
+              <line x1="0" y1="86" x2="340" y2="86" stroke="#241442" stroke-width="1"/>
+              <polyline points="0,110 28,104 56,108 84,92 112,96 140,78 168,84 196,64 224,70 252,50 280,42 310,30 340,22" fill="none" stroke="#39ff14" stroke-width="3.5" style="filter:drop-shadow(0 0 3px #39ff14) drop-shadow(0 0 12px #39ff14)"/>
+              <circle cx="340" cy="22" r="5" fill="#39ff14" style="filter:drop-shadow(0 0 8px #39ff14)"/>
+            </svg>
+            <div style="display:flex;gap:6px;padding:4px 2px 6px">
+              <div style="flex:1;text-align:center;padding:6px 0;border-radius:8px;font-size:12px;font-weight:700;background:rgba(34,247,255,0.15);color:#22f7ff;box-shadow:inset 0 0 0 1px rgba(34,247,255,0.5)">1D</div>
+              <div style="flex:1;text-align:center;padding:6px 0;border-radius:8px;font-size:12px;font-weight:600;color:#9499d1">1W</div>
+              <div style="flex:1;text-align:center;padding:6px 0;border-radius:8px;font-size:12px;font-weight:600;color:#9499d1">1M</div>
+              <div style="flex:1;text-align:center;padding:6px 0;border-radius:8px;font-size:12px;font-weight:600;color:#9499d1">1Y</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;padding:4px;border-radius:12px;background:#150a33">
+            <div style="flex:1;text-align:center;padding:10px 0;border-radius:9px;font-size:14px;font-weight:700;letter-spacing:0.08em;background:linear-gradient(160deg,#39ff14,#1f9e18);color:#062800;box-shadow:0 0 16px rgba(57,255,20,0.45)">BUY</div>
+            <div style="flex:1;text-align:center;padding:10px 0;border-radius:9px;font-size:14px;font-weight:700;letter-spacing:0.08em;color:#ff2bd6;box-shadow:inset 0 0 0 1.5px rgba(255,43,214,0.5)">SELL</div>
+          </div>
+          <div style="border-radius:20px;padding:16px;background:linear-gradient(170deg,#160b38,#0e0526);box-shadow:0 0 0 1.5px rgba(34,247,255,0.22);display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#a3a6d8">AMOUNT</div>
+              <div class="num" style="font-size:12px;color:#9df4ff">Balance: <span style="font-weight:700">$975,400</span></div>
+            </div>
+            <div class="num" style="font-size:40px;font-weight:700;letter-spacing:-0.02em;text-align:center;color:#22f7ff;text-shadow:0 0 18px rgba(34,247,255,0.5)">$25,000</div>
+            <div style="text-align:center;font-size:13px;color:#a3a6d8">≈ <span class="num" style="font-weight:700;color:#fff">145 shares</span></div>
+            <div style="display:flex;gap:8px">
+              <div class="num" style="flex:1;text-align:center;padding:9px 0;border-radius:10px;font-size:13px;font-weight:700;color:#9df4ff;box-shadow:inset 0 0 0 1.5px rgba(34,247,255,0.4)">+$1K</div>
+              <div class="num" style="flex:1;text-align:center;padding:9px 0;border-radius:10px;font-size:13px;font-weight:700;color:#9df4ff;box-shadow:inset 0 0 0 1.5px rgba(34,247,255,0.4)">+$10K</div>
+              <div class="num" style="flex:1;text-align:center;padding:9px 0;border-radius:10px;font-size:13px;font-weight:700;color:#9df4ff;box-shadow:inset 0 0 0 1.5px rgba(34,247,255,0.4)">+$100K</div>
+              <div style="flex:1;text-align:center;padding:9px 0;border-radius:10px;font-size:13px;font-weight:700;background:rgba(255,230,0,0.12);color:#ffe600;box-shadow:inset 0 0 0 1.5px rgba(255,230,0,0.5)">MAX</div>
+            </div>
+          </div>
+          <div style="height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:16px;font-weight:700;letter-spacing:0.06em;background:linear-gradient(160deg,#39ff14,#1f9e18);color:#062800;box-shadow:0 0 26px rgba(57,255,20,0.5),inset 0 -4px 0 rgba(0,0,0,0.2)"><span class="pixel" style="font-size:10px">►</span>REVIEW BUY</div>
+          <div style="text-align:center;font-size:13px;color:#8a83c9">Zero fees · settles instantly · it's fake money</div>
+        </div>
+        <div style="height:88px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#0c1f3f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.25);display:flex;align-items:center;padding:0 6px 14px"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-house" style="font-size:23px"></i>HOME</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-chart-pie-slice" style="font-size:23px"></i>FOLIO</div><div style="flex:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:-30px"><div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(160deg,#ff2bd6,#b0129a);box-shadow:0 0 0 4px #0a0420,0 0 24px rgba(255,43,214,0.9),inset 0 -4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-arrows-left-right" style="font-size:26px;color:#fff"></i></div><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#fff">TRADE</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-flag-checkered" style="font-size:23px"></i>RACE</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-sword" style="font-size:23px"></i>DUELS</div></div>
+      </div>
+    </div>
+
+    <!-- H7 pull-up order card -->
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">10 · ORDER TICKET</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(255,230,0,0.12);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f;z-index:5"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px;filter:brightness(0.45) saturate(0.8)">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <i class="ph ph-caret-left" style="font-size:22px;color:#9df4ff"></i>
+            <div class="chip">NVDA · NVIDIA</div>
+            <i class="ph ph-star" style="font-size:20px;color:#9499d1"></i>
+          </div>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between">
+            <div>
+              <div class="num" style="font-size:38px;font-weight:700;letter-spacing:-0.02em">$172.40</div>
+              <div class="num" style="font-size:15px;font-weight:700;color:#39ff14">▲ +2.4% today</div>
+            </div>
+          </div>
+          <div style="border-radius:20px;padding:12px 10px 6px;background:linear-gradient(170deg,#160b38,#0e0526);box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)">
+            <svg viewBox="0 0 340 130" style="width:100%;height:135px">
+              <polyline points="0,110 28,104 56,108 84,92 112,96 140,78 168,84 196,64 224,70 252,50 280,42 310,30 340,22" fill="none" stroke="#39ff14" stroke-width="3.5"/>
+            </svg>
+          </div>
+        </div>
+        <div style="position:absolute;left:0;right:0;bottom:0;z-index:4;border-radius:28px 28px 44px 44px;background:linear-gradient(175deg,#1b1044,#0c0524);box-shadow:0 0 0 1.5px #22f7ff,0 -12px 44px rgba(34,247,255,0.3);padding:12px 24px 40px;display:flex;flex-direction:column;gap:16px">
+          <div style="width:44px;height:5px;border-radius:3px;background:#3a2f6e;margin:0 auto"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="chip" style="color:#39ff14;background:rgba(57,255,20,0.12);box-shadow:inset 0 0 0 1px rgba(57,255,20,0.5)">ORDER TICKET</div>
+            <i class="ph ph-x" style="font-size:20px;color:#9499d1"></i>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:52px;height:52px;border-radius:16px;background:#0c2d4a;box-shadow:0 0 0 2px #22f7ff,0 0 18px rgba(34,247,255,0.4);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#22f7ff">NV</div>
+            <div style="flex:1">
+              <div style="font-size:17px;font-weight:700">Buy NVIDIA</div>
+              <div class="num" style="font-size:13px;color:#a3a6d8">$172.40 as of 9:26 · fills at next price update</div>
+            </div>
+            <div style="text-align:right">
+              <div class="num" style="font-size:20px;font-weight:700;color:#22f7ff">$25,000</div>
+              <div class="num" style="font-size:12px;color:#a3a6d8">≈ 145 shares</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:9px;border-radius:16px;padding:14px 16px;background:rgba(34,247,255,0.06);box-shadow:inset 0 0 0 1px rgba(34,247,255,0.2)">
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#a3a6d8">Coins before</span><span class="num" style="font-weight:700">$1,000,400</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#a3a6d8">This order</span><span class="num" style="font-weight:700;color:#ff2bd6">−$25,000</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#a3a6d8">Coins after</span><span class="num" style="font-weight:700;color:#ffe600">$975,400</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#a3a6d8">Fees</span><span style="font-weight:700;color:#39ff14">$0 · always</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;background:rgba(255,230,0,0.08);box-shadow:inset 0 0 0 1.5px rgba(255,230,0,0.4)">
+            <i class="ph-fill ph-lightning" style="color:#ffe600;font-size:18px"></i>
+            <div style="font-size:13px;color:#ffe600;flex:1">This puts you 1 good day from passing Maya.</div>
+          </div>
+          <div style="height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:16px;font-weight:700;letter-spacing:0.06em;background:linear-gradient(160deg,#39ff14,#1f9e18);color:#062800;box-shadow:0 0 26px rgba(57,255,20,0.5),inset 0 -4px 0 rgba(0,0,0,0.2)"><span class="pixel" style="font-size:10px;animation:blink 1.2s step-end infinite">►</span>LOCK IT IN</div>
+          <div style="text-align:center;font-size:12px;color:#8a83c9">Fake money · delayed prices · not investing advice · swipe down to cancel</div>
+        </div>
+      </div>
+    </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">11 · PICK YOUR RIVALS</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(34,247,255,0.12);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f;z-index:5"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-size:26px;font-weight:700;letter-spacing:0.04em">PICK 3 RIVALS</div>
+            <div style="font-size:14px;color:#a3a6d8">A race isn’t a race alone. Add friends or join a league — you can always add more later.</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:42px;height:42px;border-radius:50%;background:#39ff1422;box-shadow:inset 0 0 0 1.5px #39ff14;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#39ff14">MR</div><div style="flex:1"><div style="font-size:15px;font-weight:700">Maya R.</div><div style="font-size:12px;color:#a3a6d8">From your contacts</div></div><div style="padding:7px 14px;border-radius:10px;font-size:13px;font-weight:700;background:rgba(57,255,20,0.15);color:#39ff14;box-shadow:inset 0 0 0 1.5px rgba(57,255,20,0.5)">✓ IN</div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:42px;height:42px;border-radius:50%;background:#ff2bd622;box-shadow:inset 0 0 0 1.5px #ff2bd6;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#ff2bd6">DN</div><div style="flex:1"><div style="font-size:15px;font-weight:700">Dev N.</div><div style="font-size:12px;color:#a3a6d8">From your contacts</div></div><div style="padding:7px 14px;border-radius:10px;font-size:13px;font-weight:700;background:rgba(57,255,20,0.15);color:#39ff14;box-shadow:inset 0 0 0 1.5px rgba(57,255,20,0.5)">✓ IN</div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:42px;height:42px;border-radius:50%;background:#ffe60022;box-shadow:inset 0 0 0 1.5px #ffe600;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#ffe600">KL</div><div style="flex:1"><div style="font-size:15px;font-weight:700">Kai L.</div><div style="font-size:12px;color:#a3a6d8">Plays Rally already</div></div><div style="padding:7px 14px;border-radius:10px;font-size:13px;font-weight:700;color:#22f7ff;box-shadow:inset 0 0 0 1.5px #22f7ff">+ ADD</div></div>
+          <div style="border-radius:16px;padding:14px 16px;background:linear-gradient(165deg,#3a0a53,#0e0526);box-shadow:0 0 0 1.5px rgba(255,43,214,0.5);display:flex;align-items:center;gap:12px">
+            <i class="ph-fill ph-link" style="font-size:22px;color:#ff2bd6"></i>
+            <div style="flex:1"><div style="font-size:14px;font-weight:700">Share your crew code</div><div class="num" style="font-size:13px;color:#ff9bea">RALLY-JD7 · tap to copy</div></div>
+            <i class="ph ph-share-network" style="font-size:20px;color:#ff9bea"></i>
+          </div>
+          <div style="border-radius:16px;padding:14px 16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(255,230,0,0.4);display:flex;align-items:center;gap:12px">
+            <i class="ph-fill ph-users-three" style="font-size:22px;color:#ffe600"></i>
+            <div style="flex:1"><div style="font-size:14px;font-weight:700">No crew yet? Join the Rookie League</div><div style="font-size:12px;color:#a3a6d8">30 new players start together every Monday</div></div>
+            <div style="font-size:13px;font-weight:700;color:#ffe600">JOIN</div>
+          </div>
+          <div style="margin-top:auto;padding-bottom:28px;display:flex;flex-direction:column;gap:10px">
+            <div style="text-align:center;font-size:13px;color:#9df4ff">2 of 3 picked — add one more or join a league</div>
+            <div style="height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:700;letter-spacing:0.06em;background:linear-gradient(160deg,#39ff14,#1f9e18);color:#062800;box-shadow:0 0 24px rgba(57,255,20,0.5),inset 0 -4px 0 rgba(0,0,0,0.2)"><span class="pixel" style="font-size:10px">►</span>START THE RACE</div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">12 · CREATE A DUEL</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(255,43,214,0.14);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f;z-index:5"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="font-size:26px;font-weight:700;letter-spacing:0.04em">NEW DUEL</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#9df4ff">CHOOSE YOUR OPPONENT</div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:42px;height:42px;border-radius:50%;background:#ff2bd622;box-shadow:inset 0 0 0 1.5px #ff2bd6;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#ff2bd6">DN</div><div style="flex:1"><div style="font-size:15px;font-weight:700">Dev N.</div><div style="font-size:12px;color:#a3a6d8">Won your last duel · rematch?</div></div><i class="ph-fill ph-check-circle" style="font-size:24px;color:#39ff14"></i></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#9df4ff">DURATION</div>
+            <div style="display:flex;gap:6px;padding:4px;border-radius:12px;background:#150a33">
+              <div style="flex:1;text-align:center;padding:9px 0;border-radius:9px;font-size:13px;font-weight:600;color:#a3a6d8">30 DAYS</div>
+              <div class="num" style="flex:1;text-align:center;padding:9px 0;border-radius:9px;font-size:13px;font-weight:700;background:linear-gradient(160deg,#ff2bd6,#b0129a);color:#fff;box-shadow:0 0 14px rgba(255,43,214,0.45)">60 DAYS</div>
+              <div class="num" style="flex:1;text-align:center;padding:9px 0;border-radius:9px;font-size:13px;font-weight:600;color:#a3a6d8">90 DAYS</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#9df4ff">YOUR WAGER · FROM YOUR STACK</div><div class="num" style="font-size:11px;color:#9499d1">Cash $527,830</div></div>
+            <div style="display:flex;gap:8px">
+              <div class="num" style="flex:1;text-align:center;padding:9px 0;border-radius:10px;font-size:13px;font-weight:700;color:#9df4ff;box-shadow:inset 0 0 0 1.5px rgba(34,247,255,0.4)">$5K</div>
+              <div class="num" style="flex:1;text-align:center;padding:9px 0;border-radius:10px;font-size:13px;font-weight:700;background:rgba(255,230,0,0.12);color:#ffe600;box-shadow:inset 0 0 0 1.5px rgba(255,230,0,0.5)">$25K</div>
+              <div class="num" style="flex:1;text-align:center;padding:9px 0;border-radius:10px;font-size:13px;font-weight:700;color:#9df4ff;box-shadow:inset 0 0 0 1.5px rgba(34,247,255,0.4)">$100K</div>
+              <div style="flex:1;text-align:center;padding:9px 0;border-radius:10px;font-size:13px;font-weight:700;color:#9df4ff;box-shadow:inset 0 0 0 1.5px rgba(34,247,255,0.4)">CUSTOM</div>
+            </div>
+            <div style="font-size:12px;color:#a3a6d8">Dev must match your $25,000 to accept. Winner’s stack gets the full $50,000.</div>
+          </div>
+          <div style="border-radius:16px;padding:14px 16px;background:linear-gradient(165deg,#3a2b00,#0e0526);box-shadow:0 0 0 1.5px rgba(255,230,0,0.5);display:flex;align-items:center;gap:12px">
+            <i class="ph-fill ph-trophy" style="font-size:24px;color:#ffe600"></i>
+            <div style="flex:1"><div style="font-size:14px;font-weight:700">Winner takes the whole pot</div><div style="font-size:12px;color:#a3a6d8">Biggest gain on the wager wins both stakes · expires in 48h if ignored each</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#9df4ff">OPENING TAUNT · PRESETS ONLY</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <div style="padding:8px 14px;border-radius:20px;font-size:13px;font-weight:700;background:rgba(34,247,255,0.15);color:#22f7ff;box-shadow:inset 0 0 0 1.5px rgba(34,247,255,0.5)">You’re going down</div>
+              <div style="padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;color:#a3a6d8;box-shadow:inset 0 0 0 1.5px #241442">GL HF</div>
+              <div style="padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;color:#a3a6d8;box-shadow:inset 0 0 0 1.5px #241442">Bring your ETFs</div>
+            </div>
+          </div>
+          <div style="margin-top:auto;padding-bottom:28px"><div style="height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:700;letter-spacing:0.06em;background:linear-gradient(160deg,#ff2bd6,#b0129a);color:#fff;box-shadow:0 0 24px rgba(255,43,214,0.5),inset 0 -4px 0 rgba(0,0,0,0.25)"><span class="pixel" style="font-size:10px">►</span>SEND CHALLENGE</div></div>
+        </div>
+        <div style="height:88px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#0c1f3f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.25);display:flex;align-items:center;padding:0 6px 14px"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-house" style="font-size:23px"></i>HOME</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-chart-pie-slice" style="font-size:23px"></i>FOLIO</div><div style="flex:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:-30px"><div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(160deg,#ff2bd6,#b0129a);box-shadow:0 0 0 4px #0a0420,0 0 24px rgba(255,43,214,0.55),inset 0 -4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-arrows-left-right" style="font-size:26px;color:#fff"></i></div><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#ff9bea">TRADE</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-flag-checkered" style="font-size:23px"></i>RACE</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:700;letter-spacing:0.05em;text-shadow:0 0 14px #22f7ff"><i class="ph-fill ph-sword" style="font-size:23px"></i>DUELS</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">13 · DUEL VICTORY</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(57,255,20,0.18);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f;z-index:5"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center">
+            <div class="chip" style="color:#39ff14;background:rgba(57,255,20,0.12);box-shadow:inset 0 0 0 1px rgba(57,255,20,0.5)">DUEL COMPLETE</div>
+            <i class="ph-fill ph-trophy" style="font-size:96px;color:#ffe600;text-shadow:0 0 40px rgba(255,230,0,0.8)"></i>
+            <div class="pixel" style="font-size:30px;color:#39ff14;text-shadow:0 0 24px rgba(57,255,20,0.8),3px 3px 0 #087f2a">YOU WON!</div>
+            <div style="font-size:15px;color:#c0c3ee">You <span class="num" style="color:#39ff14;font-weight:700">+5.1%</span> · Dev <span class="num" style="color:#ff2bd6;font-weight:700">+4.3%</span> · 30-day duel · $25K each</div>
+            <div style="display:flex;gap:10px">
+              <div class="chip" style="color:#ffe600;background:rgba(255,230,0,0.12);box-shadow:inset 0 0 0 1px rgba(255,230,0,0.5)">+$50,000 POT</div>
+              <div class="chip" style="color:#39ff14;background:rgba(57,255,20,0.12);box-shadow:inset 0 0 0 1px rgba(57,255,20,0.5)">DUELIST TROPHY</div>
+              <div class="chip" style="color:#22f7ff;background:rgba(34,247,255,0.12);box-shadow:inset 0 0 0 1px rgba(34,247,255,0.5)">STREAK +1</div>
+            </div>
+            <div style="font-size:13px;color:#a3a6d8;max-width:280px">Dev already wants a rematch. Make him regret it.</div>
+          </div>
+          <div style="padding-bottom:28px;display:flex;flex-direction:column;gap:10px">
+            <div style="height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:700;letter-spacing:0.06em;background:linear-gradient(160deg,#ff2bd6,#b0129a);color:#fff;box-shadow:0 0 24px rgba(255,43,214,0.5),inset 0 -4px 0 rgba(0,0,0,0.25)"><span class="pixel" style="font-size:10px">►</span>ACCEPT REMATCH</div>
+            <div style="height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#22f7ff;box-shadow:inset 0 0 0 1.5px #22f7ff">BACK TO ARENA</div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">14 · DEFEAT · COMEBACK</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(255,43,214,0.16);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f;z-index:5"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center">
+            <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5)">DUEL COMPLETE</div>
+            <div class="pixel" style="font-size:26px;color:#ff2bd6;text-shadow:0 0 22px rgba(255,43,214,0.7)">SO CLOSE.</div>
+            <div style="font-size:15px;color:#c0c3ee">You <span class="num" style="color:#22f7ff;font-weight:700">+3.4%</span> · Dev <span class="num" style="color:#39ff14;font-weight:700">+4.3%</span> · lost by 0.9% · your $25K goes to Dev</div>
+            <div style="border-radius:20px;padding:18px;background:linear-gradient(165deg,#0e3a12,#0e0526);box-shadow:0 0 0 1.5px rgba(57,255,20,0.5);display:flex;flex-direction:column;gap:8px;max-width:300px">
+              <div style="display:flex;align-items:center;gap:8px;justify-content:center"><div class="chip" style="color:#39ff14;background:rgba(57,255,20,0.12);box-shadow:inset 0 0 0 1px rgba(57,255,20,0.5)">COMEBACK QUEST</div></div>
+              <div style="font-size:15px;font-weight:700">Beat your own return next week</div>
+              <div style="font-size:13px;color:#a3a6d8">+150 XP · losses teach faster than wins</div>
+            </div>
+            <div style="font-size:13px;color:#ffe600">New month starts in 19 days — every leaderboard resets to 0%.</div>
+          </div>
+          <div style="padding-bottom:28px;display:flex;flex-direction:column;gap:10px">
+            <div style="height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:700;letter-spacing:0.06em;background:linear-gradient(160deg,#ff2bd6,#b0129a);color:#fff;box-shadow:0 0 24px rgba(255,43,214,0.5),inset 0 -4px 0 rgba(0,0,0,0.25)"><span class="pixel" style="font-size:10px">►</span>CHALLENGE DEV AGAIN</div>
+            <div style="height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#22f7ff;box-shadow:inset 0 0 0 1.5px #22f7ff">SEE WHAT DEV TRADED</div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">15 · MARKET CLOSED</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(34,247,255,0.1);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f;z-index:5"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="pixel" style="font-size:15px;color:#ffe600;text-shadow:0 0 14px rgba(255,230,0,0.7)">RALLY</div>
+            <div style="width:34px;height:34px;border-radius:50%;background:#087f92;box-shadow:0 0 0 1.5px rgba(34,247,255,0.5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#c8fbff">JD</div>
+          </div>
+          <div style="border-radius:20px;padding:18px;background:linear-gradient(165deg,#160b38,#0e0526);box-shadow:0 0 0 1.5px rgba(34,247,255,0.35);display:flex;align-items:center;gap:14px">
+            <i class="ph-fill ph-moon-stars" style="font-size:34px;color:#9df4ff"></i>
+            <div style="flex:1"><div style="font-size:16px;font-weight:700">Market’s closed</div><div style="font-size:13px;color:#a3a6d8">Opens Monday 9:30 AM ET · <span class="num" style="color:#9df4ff;font-weight:700">38h 12m</span></div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:rgba(255,230,0,0.07);box-shadow:inset 0 0 0 1.5px rgba(255,230,0,0.45)">
+            <i class="ph-fill ph-clock-countdown" style="font-size:20px;color:#ffe600"></i>
+            <div style="flex:1;font-size:14px;font-weight:600;color:#ffe600">Queued: Buy $5,000 Roblox — fires at open</div>
+            <div style="font-size:12px;font-weight:700;color:#ffe600">EDIT</div>
+          </div>
+          <div style="border-radius:20px;padding:16px;background:linear-gradient(170deg,#160b38,#0e0526);box-shadow:0 0 0 1.5px rgba(34,247,255,0.22);display:flex;flex-direction:column;gap:12px">
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#9df4ff">FRIDAY’S RECAP</div>
+            <div style="display:flex;justify-content:space-between"><span style="font-size:14px;color:#a3a6d8">Your day</span><span class="num" style="font-size:16px;font-weight:700;color:#39ff14">+$3,420 (+0.3%)</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="font-size:14px;color:#a3a6d8">Best play</span><span class="num" style="font-size:14px;font-weight:700">NVIDIA +2.4%</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="font-size:14px;color:#a3a6d8">Worst play</span><span class="num" style="font-size:14px;font-weight:700;color:#ff2bd6">Tesla −1.8%</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="font-size:14px;color:#a3a6d8">Race position</span><span class="num" style="font-size:14px;font-weight:700;color:#22f7ff">2nd of 4 · Maya leads</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:linear-gradient(165deg,#3a0a2e,#0e0526);box-shadow:0 0 0 1.5px rgba(255,43,214,0.5)">
+            <i class="ph-fill ph-sword" style="font-size:20px;color:#ff2bd6"></i>
+            <div style="flex:1;font-size:14px;font-weight:600">Duels never sleep — you’re down 0.9% to Dev</div>
+            <i class="ph ph-caret-right" style="color:#ff9bea"></i>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(57,255,20,0.4)">
+            <i class="ph-fill ph-book-open" style="font-size:20px;color:#39ff14"></i>
+            <div style="flex:1;font-size:14px;font-weight:600">Weekend quest: What moves a stock price? <span style="color:#ffe600;font-weight:700">+100 XP</span></div>
+          </div>
+        </div>
+        <div style="height:88px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#0c1f3f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.25);display:flex;align-items:center;padding:0 6px 14px"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:700;letter-spacing:0.05em;text-shadow:0 0 14px #22f7ff"><i class="ph-fill ph-house" style="font-size:23px"></i>HOME</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-chart-pie-slice" style="font-size:23px"></i>FOLIO</div><div style="flex:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:-30px"><div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(160deg,#ff2bd6,#b0129a);box-shadow:0 0 0 4px #0a0420,0 0 24px rgba(255,43,214,0.55),inset 0 -4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-arrows-left-right" style="font-size:26px;color:#fff"></i></div><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#ff9bea">TRADE</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-flag-checkered" style="font-size:23px"></i>RACE</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-sword" style="font-size:23px"></i>DUELS</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">16 · ACTIVITY</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(255,230,0,0.1);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f;z-index:5"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <i class="ph ph-caret-left" style="font-size:22px;color:#9df4ff"></i>
+            <div style="font-size:26px;font-weight:700;letter-spacing:0.04em;flex:1">ACTIVITY</div>
+            <div class="chip" style="color:#ffe600;background:rgba(255,230,0,0.12);box-shadow:inset 0 0 0 1px rgba(255,230,0,0.5)">4 NEW</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:40px;height:40px;border-radius:12px;background:#ff2bd618;box-shadow:inset 0 0 0 1.5px #ff2bd6;display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-flag-checkered" style="font-size:19px;color:#ff2bd6"></i></div><div style="flex:1"><div style="font-size:14px;font-weight:700">Maya passed you in the race</div><div style="font-size:12px;color:#a3a6d8">She’s +21.4% · you’re +14.4%</div></div><div class="num" style="font-size:11px;color:#9499d1">2h</div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:40px;height:40px;border-radius:12px;background:#22f7ff18;box-shadow:inset 0 0 0 1.5px #22f7ff;display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-sword" style="font-size:19px;color:#22f7ff"></i></div><div style="flex:1"><div style="font-size:14px;font-weight:700">Dev accepted your duel</div><div style="font-size:12px;color:#a3a6d8">1 week · best % return wins</div></div><div class="num" style="font-size:11px;color:#9499d1">5h</div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:40px;height:40px;border-radius:12px;background:#ffe60018;box-shadow:inset 0 0 0 1.5px #ffe600;display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-trophy" style="font-size:19px;color:#ffe600"></i></div><div style="flex:1"><div style="font-size:14px;font-weight:700">Achievement: First $10K profit</div><div style="font-size:12px;color:#a3a6d8">+500 XP earned</div></div><div class="num" style="font-size:11px;color:#9499d1">1d</div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:40px;height:40px;border-radius:12px;background:#39ff1418;box-shadow:inset 0 0 0 1.5px #39ff14;display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-user-plus" style="font-size:19px;color:#39ff14"></i></div><div style="flex:1"><div style="font-size:14px;font-weight:700">Kai joined with your code</div><div style="font-size:12px;color:#a3a6d8">Your crew is now 4 racers</div></div><div class="num" style="font-size:11px;color:#9499d1">1d</div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:40px;height:40px;border-radius:12px;background:#39ff1418;box-shadow:inset 0 0 0 1.5px #39ff14;display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-chart-line-up" style="font-size:19px;color:#39ff14"></i></div><div style="flex:1"><div style="font-size:14px;font-weight:700">NVIDIA up 5% since you bought</div><div style="font-size:12px;color:#a3a6d8">Your best call this month</div></div><div class="num" style="font-size:11px;color:#9499d1">2d</div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><div style="width:40px;height:40px;border-radius:12px;background:#9df4ff18;box-shadow:inset 0 0 0 1.5px #9df4ff;display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-medal" style="font-size:19px;color:#9df4ff"></i></div><div style="flex:1"><div style="font-size:14px;font-weight:700">July season: Top 3% finish</div><div style="font-size:12px;color:#a3a6d8">Season resets Monday</div></div><div class="num" style="font-size:11px;color:#9499d1">3d</div></div>
+        </div>
+        <div style="height:88px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#0c1f3f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.25);display:flex;align-items:center;padding:0 6px 14px"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:700;letter-spacing:0.05em;text-shadow:0 0 14px #22f7ff"><i class="ph-fill ph-house" style="font-size:23px"></i>HOME</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-chart-pie-slice" style="font-size:23px"></i>FOLIO</div><div style="flex:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:-30px"><div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(160deg,#ff2bd6,#b0129a);box-shadow:0 0 0 4px #0a0420,0 0 24px rgba(255,43,214,0.55),inset 0 -4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-arrows-left-right" style="font-size:26px;color:#fff"></i></div><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#ff9bea">TRADE</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-flag-checkered" style="font-size:23px"></i>RACE</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-sword" style="font-size:23px"></i>DUELS</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">17 · PROFILE PULL-UP</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(34,247,255,0.12);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f;z-index:5"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px;filter:brightness(0.4) saturate(0.8)">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="pixel" style="font-size:15px;color:#ffe600">RALLY</div>
+            <div style="width:34px;height:34px;border-radius:50%;background:#087f92;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#c8fbff">JD</div>
+          </div>
+          <div style="border-radius:20px;height:150px;background:linear-gradient(165deg,#3a0a53,#0e0526)"></div>
+          <div style="border-radius:20px;height:120px;background:linear-gradient(170deg,#160b38,#0e0526)"></div>
+        </div>
+        <div style="position:absolute;left:0;right:0;bottom:0;z-index:4;border-radius:28px 28px 44px 44px;background:linear-gradient(175deg,#1b1044,#0c0524);box-shadow:0 0 0 1.5px #22f7ff,0 -12px 44px rgba(34,247,255,0.3);padding:12px 24px 36px;display:flex;flex-direction:column;gap:16px">
+          <div style="width:44px;height:5px;border-radius:3px;background:#3a2f6e;margin:0 auto"></div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:68px;height:68px;border-radius:50%;background:#087f92;box-shadow:0 0 0 3px #0a0420,0 0 0 6px #22f7ff,0 0 24px rgba(34,247,255,0.5);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#c8fbff">JD</div>
+            <div style="flex:1">
+              <div style="font-size:19px;font-weight:700">{{ playerName }}</div>
+              <div style="font-size:13px;color:#9df4ff">LVL 7 · CONTENDER</div>
+              <div style="height:7px;border-radius:4px;background:#1a0630;box-shadow:inset 0 0 0 1px #087f92;margin-top:6px"><div style="width:73%;height:7px;border-radius:4px;background:linear-gradient(90deg,#39ff14,#22f7ff)"></div></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <div style="flex:1;border-radius:14px;padding:10px;background:rgba(34,247,255,0.07);box-shadow:inset 0 0 0 1px rgba(34,247,255,0.3);text-align:center"><div class="num" style="font-size:18px;font-weight:700;color:#22f7ff">#412</div><div style="font-size:10px;color:#a3a6d8;font-weight:700">RANK</div></div>
+            <div style="flex:1;border-radius:14px;padding:10px;background:rgba(255,230,0,0.07);box-shadow:inset 0 0 0 1px rgba(255,230,0,0.3);text-align:center"><div class="num" style="font-size:18px;font-weight:700;color:#ffe600">9</div><div style="font-size:10px;color:#a3a6d8;font-weight:700">STREAK</div></div>
+            <div style="flex:1;border-radius:14px;padding:10px;background:rgba(57,255,20,0.07);box-shadow:inset 0 0 0 1px rgba(57,255,20,0.3);text-align:center"><div class="num" style="font-size:18px;font-weight:700;color:#39ff14">7–2</div><div style="font-size:10px;color:#a3a6d8;font-weight:700">DUELS</div></div>
+            <div style="flex:1;border-radius:14px;padding:10px;background:rgba(255,43,214,0.07);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.3);text-align:center"><div class="num" style="font-size:18px;font-weight:700;color:#ff2bd6">11</div><div style="font-size:10px;color:#a3a6d8;font-weight:700">TROPHIES</div></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-radius:14px;background:rgba(255,230,0,0.06);box-shadow:inset 0 0 0 1.5px rgba(255,230,0,0.4)">
+            <div style="display:flex;align-items:center;gap:10px"><i class="ph-fill ph-trophy" style="font-size:20px;color:#ffe600"></i><span style="font-size:14px;font-weight:700">Trophy Room</span></div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#ffe600;font-weight:700">11 / 34 <i class="ph ph-caret-right"></i></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-radius:14px;background:rgba(34,247,255,0.05);box-shadow:inset 0 0 0 1px rgba(34,247,255,0.25)">
+            <div style="display:flex;align-items:center;gap:10px"><i class="ph ph-users-three" style="font-size:20px;color:#9df4ff"></i><span style="font-size:14px;font-weight:600">My Crew · 4 racers</span></div>
+            <i class="ph ph-caret-right" style="color:#9df4ff"></i>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-radius:14px;background:rgba(34,247,255,0.05);box-shadow:inset 0 0 0 1px rgba(34,247,255,0.25)">
+            <div style="display:flex;align-items:center;gap:10px"><i class="ph ph-shield-check" style="font-size:20px;color:#9df4ff"></i><span style="font-size:14px;font-weight:600">Parent view & settings</span></div>
+            <i class="ph ph-caret-right" style="color:#9df4ff"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">18 · EMPTY PORTFOLIO</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(255,230,0,0.1);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f;z-index:5"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:26px;font-weight:700;letter-spacing:0.04em">MY HOLDINGS</div>
+            <div style="width:34px;height:34px;border-radius:50%;background:#087f92;box-shadow:0 0 0 1.5px rgba(34,247,255,0.5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#c8fbff">JD</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center">
+            <div style="width:88px;height:88px;border-radius:50%;background:#ffe600;box-shadow:inset 0 0 0 5px #a87400,0 0 40px rgba(255,230,0,0.4);display:flex;align-items:center;justify-content:center"><div style="width:12px;height:38px;border-radius:4px;background:#a87400"></div></div>
+            <div style="font-size:20px;font-weight:700">All cash. Zero plays.</div>
+            <div class="num" style="font-size:32px;font-weight:700;color:#39ff14;text-shadow:0 0 18px rgba(57,255,20,0.5)">$1,000,000 ready</div>
+            <div style="font-size:14px;color:#a3a6d8;max-width:270px">Your coins don’t race while they’re parked. Make your first play — it can be $5 or $500K.</div>
+            <div class="chip" style="color:#ffe600;background:rgba(255,230,0,0.12);box-shadow:inset 0 0 0 1px rgba(255,230,0,0.5)">FIRST TRADE QUEST · +200 XP</div>
+          </div>
+          <div style="padding-bottom:24px">
+            <div style="height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:700;letter-spacing:0.06em;background:linear-gradient(160deg,#ff2bd6,#b0129a);color:#fff;box-shadow:0 0 24px rgba(255,43,214,0.5),inset 0 -4px 0 rgba(0,0,0,0.25)"><span class="pixel" style="font-size:10px">►</span>FIND YOUR FIRST STOCK</div>
+          </div>
+        </div>
+        <div style="height:88px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#0c1f3f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.25);display:flex;align-items:center;padding:0 6px 14px"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-house" style="font-size:23px"></i>HOME</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:700;letter-spacing:0.05em;text-shadow:0 0 14px #22f7ff"><i class="ph-fill ph-chart-pie-slice" style="font-size:23px"></i>FOLIO</div><div style="flex:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:-30px"><div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(160deg,#ff2bd6,#b0129a);box-shadow:0 0 0 4px #0a0420,0 0 24px rgba(255,43,214,0.55),inset 0 -4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center"><i class="ph-fill ph-arrows-left-right" style="font-size:26px;color:#fff"></i></div><div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#ff9bea">TRADE</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-flag-checkered" style="font-size:23px"></i>RACE</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#9499d1;font-size:11px;font-weight:700"><i class="ph ph-sword" style="font-size:23px"></i>DUELS</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">19 · PUSH NOTIFICATIONS</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:linear-gradient(180deg,#120a30,#0a0420 55%);box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(255,43,214,0.1);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f;z-index:5"></div>
+        <div style="flex:1;overflow:hidden;padding:26px 20px 0;display:flex;flex-direction:column;gap:22px">
+          <div style="text-align:center;display:flex;flex-direction:column;gap:2px">
+            <div class="num" style="font-size:64px;font-weight:200;letter-spacing:-0.02em;line-height:1">9:41</div>
+            <div style="font-size:15px;color:#c0c3ee">Monday, July 27</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#9499d1;padding-left:4px">NOTIFICATION CENTER</div>
+            <div style="border-radius:18px;padding:13px 14px;background:rgba(21,10,51,0.95);box-shadow:0 0 0 1px rgba(34,247,255,0.45),0 0 22px rgba(255,43,214,0.25);display:flex;gap:12px;align-items:flex-start;backdrop-filter:none">
+              <div class="pixel" style="width:38px;height:38px;border-radius:10px;background:linear-gradient(160deg,#ffe600,#c98b00);display:flex;align-items:center;justify-content:center;font-size:13px;color:#3a2b00;flex-shrink:0">R</div>
+              <div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14px;font-weight:700">Maya just passed you</span><span class="num" style="font-size:11px;color:#9499d1">now</span></div><div style="font-size:13px;color:#c0c3ee;margin-top:2px">She’s +21.4% — your move. Tap to see the race.</div></div>
+            </div>
+            <div style="border-radius:18px;padding:13px 14px;background:rgba(21,10,51,0.95);box-shadow:0 0 0 1px rgba(34,247,255,0.45),0 0 22px rgba(255,43,214,0.25);display:flex;gap:12px;align-items:flex-start;backdrop-filter:none">
+              <div class="pixel" style="width:38px;height:38px;border-radius:10px;background:linear-gradient(160deg,#ffe600,#c98b00);display:flex;align-items:center;justify-content:center;font-size:13px;color:#3a2b00;flex-shrink:0">R</div>
+              <div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14px;font-weight:700">Your duel ends tonight</span><span class="num" style="font-size:11px;color:#9499d1">20m</span></div><div style="font-size:13px;color:#c0c3ee;margin-top:2px">You’re up 0.4% on Dev. Hold or make one last play?</div></div>
+            </div>
+            <div style="border-radius:18px;padding:13px 14px;background:rgba(21,10,51,0.82);box-shadow:0 0 0 1px rgba(34,247,255,0.2);display:flex;gap:12px;align-items:flex-start;backdrop-filter:none">
+              <div class="pixel" style="width:38px;height:38px;border-radius:10px;background:linear-gradient(160deg,#ffe600,#c98b00);display:flex;align-items:center;justify-content:center;font-size:13px;color:#3a2b00;flex-shrink:0">R</div>
+              <div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14px;font-weight:700">Market opens in 15 minutes</span><span class="num" style="font-size:11px;color:#9499d1">9:15 AM</span></div><div style="font-size:13px;color:#c0c3ee;margin-top:2px">Your queued Roblox buy fires at the open.</div></div>
+            </div>
+            <div style="border-radius:18px;padding:13px 14px;background:rgba(21,10,51,0.82);box-shadow:0 0 0 1px rgba(34,247,255,0.2);display:flex;gap:12px;align-items:flex-start;backdrop-filter:none">
+              <div class="pixel" style="width:38px;height:38px;border-radius:10px;background:linear-gradient(160deg,#ffe600,#c98b00);display:flex;align-items:center;justify-content:center;font-size:13px;color:#3a2b00;flex-shrink:0">R</div>
+              <div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14px;font-weight:700">Weekly recap is in</span><span class="num" style="font-size:11px;color:#9499d1">8:00 AM</span></div><div style="font-size:13px;color:#c0c3ee;margin-top:2px">+2.1% this week · you beat 71% of your league.</div></div>
+            </div>
+            <div style="border-radius:18px;padding:13px 14px;background:rgba(21,10,51,0.82);box-shadow:0 0 0 1px rgba(34,247,255,0.2);display:flex;gap:12px;align-items:flex-start;backdrop-filter:none">
+              <div class="pixel" style="width:38px;height:38px;border-radius:10px;background:linear-gradient(160deg,#ffe600,#c98b00);display:flex;align-items:center;justify-content:center;font-size:13px;color:#3a2b00;flex-shrink:0">R</div>
+              <div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14px;font-weight:700">Streak check-in</span><span class="num" style="font-size:11px;color:#9499d1">7:30 AM</span></div><div style="font-size:13px;color:#c0c3ee;margin-top:2px">Day 10 — open the app today to keep the flame.</div></div>
+            </div>
+          </div>
+          <div style="text-align:center;font-size:12px;color:#9499d1;margin-top:auto;padding-bottom:26px">Max 3 pushes/day · nothing between 9 PM–7 AM · tuned in Parent View</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+      <div class="chip" style="color:#ff2bd6;background:rgba(255,43,214,0.12);box-shadow:inset 0 0 0 1px rgba(255,43,214,0.5);align-self:flex-start">20 · NOTIFICATION SETTINGS</div>
+      <div class="frame" style="width:390px;height:844px;border-radius:44px;background:#0a0420;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22),0 6px 28px rgba(0,0,0,0.65),0 0 30px rgba(34,247,255,0.1);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#fff">
+        <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:#9499d1"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+        <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f;z-index:5"></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px 0;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <i class="ph ph-caret-left" style="font-size:22px;color:#9df4ff"></i>
+            <div style="font-size:24px;font-weight:700;letter-spacing:0.04em;flex:1">NOTIFICATIONS</div>
+          </div>
+          <div style="font-size:13px;color:#a3a6d8">Rally sends at most <span style="color:#fff;font-weight:700">3 pushes a day</span>. You pick which ones matter.</div>
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#9df4ff;margin-top:4px">THE GAME</div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><i class="ph-fill ph-flag-checkered" style="font-size:20px;color:#ff2bd6"></i><div style="flex:1"><div style="font-size:14px;font-weight:700">Race moves</div><div style="font-size:12px;color:#a3a6d8">When a rival passes you or you take the lead</div></div><div style="width:46px;height:27px;border-radius:15px;background:linear-gradient(160deg,#39ff14,#1f9e18);box-shadow:0 0 12px rgba(57,255,20,0.4);display:flex;align-items:center;justify-content:flex-end;padding:3px"><div style="width:21px;height:21px;border-radius:50%;background:#fff"></div></div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><i class="ph-fill ph-sword" style="font-size:20px;color:#22f7ff"></i><div style="flex:1"><div style="font-size:14px;font-weight:700">Duel updates</div><div style="font-size:12px;color:#a3a6d8">Accepts, final-day warnings, results</div></div><div style="width:46px;height:27px;border-radius:15px;background:linear-gradient(160deg,#39ff14,#1f9e18);box-shadow:0 0 12px rgba(57,255,20,0.4);display:flex;align-items:center;justify-content:flex-end;padding:3px"><div style="width:21px;height:21px;border-radius:50%;background:#fff"></div></div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><i class="ph-fill ph-flame" style="font-size:20px;color:#ffe600"></i><div style="flex:1"><div style="font-size:14px;font-weight:700">Streak reminders</div><div style="font-size:12px;color:#a3a6d8">One nudge if your flame is about to die</div></div><div style="width:46px;height:27px;border-radius:15px;background:linear-gradient(160deg,#39ff14,#1f9e18);box-shadow:0 0 12px rgba(57,255,20,0.4);display:flex;align-items:center;justify-content:flex-end;padding:3px"><div style="width:21px;height:21px;border-radius:50%;background:#fff"></div></div></div>
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#9df4ff;margin-top:4px">THE MARKET</div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><i class="ph-fill ph-bell-ringing" style="font-size:20px;color:#39ff14"></i><div style="flex:1"><div style="font-size:14px;font-weight:700">Market open</div><div style="font-size:12px;color:#a3a6d8">9:30 AM bell + your queued orders</div></div><div style="width:46px;height:27px;border-radius:15px;background:linear-gradient(160deg,#39ff14,#1f9e18);box-shadow:0 0 12px rgba(57,255,20,0.4);display:flex;align-items:center;justify-content:flex-end;padding:3px"><div style="width:21px;height:21px;border-radius:50%;background:#fff"></div></div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><i class="ph-fill ph-chart-line-up" style="font-size:20px;color:#9df4ff"></i><div style="flex:1"><div style="font-size:14px;font-weight:700">Big moves</div><div style="font-size:12px;color:#a3a6d8">A holding moves ±5% in a day</div></div><div style="width:46px;height:27px;border-radius:15px;background:#241442;box-shadow:inset 0 0 0 1.5px #3a2f6e;display:flex;align-items:center;padding:3px"><div style="width:21px;height:21px;border-radius:50%;background:#9499d1"></div></div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#150a33;box-shadow:0 0 0 1.5px rgba(34,247,255,0.22)"><i class="ph-fill ph-book-open" style="font-size:20px;color:#39ff14"></i><div style="flex:1"><div style="font-size:14px;font-weight:700">Quests & learning</div><div style="font-size:12px;color:#a3a6d8">New quests and explainers</div></div><div style="width:46px;height:27px;border-radius:15px;background:#241442;box-shadow:inset 0 0 0 1.5px #3a2f6e;display:flex;align-items:center;padding:3px"><div style="width:21px;height:21px;border-radius:50%;background:#9499d1"></div></div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:rgba(255,230,0,0.06);box-shadow:inset 0 0 0 1.5px rgba(255,230,0,0.4);margin-top:4px">
+            <i class="ph-fill ph-moon" style="font-size:20px;color:#ffe600"></i>
+            <div style="flex:1"><div style="font-size:14px;font-weight:700">Quiet hours</div><div style="font-size:12px;color:#a3a6d8">9 PM – 7 AM · always on for school nights</div></div>
+            <div class="num" style="font-size:12px;font-weight:700;color:#ffe600">LOCKED</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;background:rgba(34,247,255,0.05);box-shadow:inset 0 0 0 1px rgba(34,247,255,0.25)">
+            <i class="ph ph-shield-check" style="font-size:18px;color:#9df4ff"></i>
+            <div style="font-size:12px;color:#a3a6d8;flex:1">Parents can cap or mute everything from Parent View</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;playerName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Jordan&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo data&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return { playerName: this.props.playerName ?? "Jordan" };
+  }
+}
+</script>
+</body>
+</html>

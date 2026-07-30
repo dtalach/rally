@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/nocturne-de0000bc-4bdb-47c5-b41f-9f3691d4bb72/styles.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<style>
+  body { background: #05010d; margin: 0; font-family: "Inter", system-ui, sans-serif; }
+  a { color: var(--color-accent); }
+  a:hover { color: var(--color-accent-300); }
+  .num { font-variant-numeric: tabular-nums; }
+  :root{
+    --color-bg:#0a0420; --color-surface:#150a33; --color-text:#ffffff;
+    --color-accent:#22f7ff;
+    --color-accent-100:#f7f1ff;--color-accent-200:#c8fbff;--color-accent-300:#9df4ff;--color-accent-400:#22f7ff;--color-accent-500:#00d9e8;--color-accent-600:#00aec4;--color-accent-700:#087f92;--color-accent-800:#331a80;--color-accent-900:#26063a;
+    --color-divider:color-mix(in srgb,#22f7ff 32%,transparent);
+    --color-neutral-300:#dcdef8;--color-neutral-400:#c0c3ee;--color-neutral-500:#a3a6d8;
+    --shadow-sm:0 0 0 1px #123a46;
+    --shadow-md:0 0 0 1px #0e5866, 0 8px 28px rgba(0,0,0,.65), 0 0 30px rgba(0,217,232,.12);
+    --shadow-lg:0 0 0 1px #00d9e8, 0 0 44px rgba(0,217,232,.4), 0 16px 44px rgba(0,0,0,.75);
+  }
+  .btn-primary{border-color:#22f7ff;color:#c8fbff;box-shadow:0 0 24px rgba(34,247,255,.3), inset 0 0 18px rgba(34,247,255,.18)}
+  .btn-primary:hover{background:rgba(34,247,255,.14)}
+  h1,h2,h3,h4{font-weight:900;letter-spacing:-0.03em}
+  .num{font-weight:700}
+  .btn{font-weight:900!important;letter-spacing:0.04em;text-transform:uppercase}
+  .drip{position:relative}
+  .drip::after{content:"";position:absolute;left:8%;bottom:-13px;width:84%;height:22px;pointer-events:none;
+    background:var(--drip,#0e0526);
+    clip-path:polygon(0 0,100% 0,100% 40%,92% 40%,92% 0,78% 0,78% 92%,66% 92%,66% 0,52% 0,52% 55%,42% 55%,42% 0,28% 0,28% 100%,16% 100%,16% 0,6% 0,6% 30%,0 30%);}
+
+
+</style>
+</helmet>
+
+<section style="padding:64px 72px 120px;display:flex;flex-direction:column;gap:40px">
+  <div style="display:flex;flex-direction:column;gap:8px;max-width:760px">
+    <div style="font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-accent-400)">Turn 1 · option 1a</div>
+    <h1 style="font-size:44px;margin:0;color:var(--color-text)">RALLY — teen stock competition</h1>
+    <p style="color:var(--color-neutral-400);font-size:16px;margin:0;text-wrap:pretty">Option <a href="#1a">1a</a> — portfolio-first with a five-tab shell, closest to a real trading app. Option 1b (arena-first) is in its own file.</p>
+  </div>
+
+  <div style="display:flex;gap:96px;flex-wrap:wrap;align-items:flex-start">
+
+    <!-- ══════════════════ 1a ══════════════════ -->
+    <div id="1a" style="width:1266px;display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <span style="font-size:13px;font-weight:800;letter-spacing:0.08em;padding:4px 10px;border-radius:6px;border:1.5px solid #22f7ff;box-shadow:0 0 12px rgba(34,247,255,0.4);font-weight:900;color:var(--color-accent-300)">1a</span>
+        <h2 style="margin:0;font-size:28px;color:var(--color-text)">Portfolio-first · 5-tab shell</h2>
+        <span style="color:var(--color-neutral-500);font-size:14px">Home · Discover · Portfolio · Compete · You</span>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:48px 48px">
+
+        <!-- F1 onboarding -->
+        <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-400)">01 · The $1M drop</div>
+          <div style="width:390px;height:844px;border-radius:44px;background:var(--color-bg);box-shadow:var(--shadow-md);position:relative;overflow:hidden;display:flex;flex-direction:column;color:var(--color-text)">
+            <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:var(--color-neutral-400)"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+            <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+            <div style="position:absolute;top:-140px;left:50%;transform:translateX(-50%);width:520px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(145,132,217,0.28),transparent 70%)"></div>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:28px;padding:0 32px;position:relative">
+              <div style="font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:var(--color-accent-400)">Season starts now</div>
+              <div>
+                <div class="num" style="font-size:64px;line-height:1;font-weight:700;letter-spacing:-0.03em">$1,000,000</div>
+                <div style="height:2px;width:120px;margin-top:16px;background:var(--color-accent)"></div>
+              </div>
+              <p style="font-size:19px;line-height:1.4;color:var(--color-neutral-300);margin:0;text-wrap:pretty">Fake money. Real prices.<br>Very real bragging rights.</p>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--color-neutral-400)"><i class="ph ph-currency-dollar" style="color:var(--color-accent-400)"></i>Buy any US stock or ETF at live prices</div>
+                <div style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--color-neutral-400)"><i class="ph ph-users-three" style="color:var(--color-accent-400)"></i>Race your friends day by day</div>
+                <div style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--color-neutral-400)"><i class="ph ph-trophy" style="color:var(--color-accent-400)"></i>Monthly, quarterly and yearly seasons</div>
+              </div>
+            </div>
+            <div style="padding:0 32px 44px;display:flex;flex-direction:column;gap:14px">
+              <button class="btn btn-primary btn-block" style="height:54px;font-size:17px">Claim my million <i class="ph ph-arrow-right"></i></button>
+              <div style="text-align:center;font-size:13px;color:var(--color-neutral-500)">Next: pick 3 people to beat</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- F2 home -->
+        <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-400)">02 · Home</div>
+          <div style="width:390px;height:844px;border-radius:44px;background:var(--color-bg);box-shadow:var(--shadow-md);position:relative;overflow:hidden;display:flex;flex-direction:column;color:var(--color-text)">
+            <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:var(--color-neutral-400)"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+            <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+            <div style="flex:1;overflow:hidden;padding:14px 20px 0;display:flex;flex-direction:column;gap:18px">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div>
+                  <div style="font-size:13px;color:var(--color-neutral-500)">Tuesday · Day 12 of July</div>
+                  <div style="font-size:24px;font-weight:700">Morning, {{ playerName }}</div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <div style="display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:20px;border:1.5px solid #ffe600;font-size:13px;font-weight:900;color:#ffe600;box-shadow:0 0 12px rgba(255,230,0,0.45)"><i class="ph-fill ph-flame"></i><span class="num">9</span></div>
+                  <div style="width:34px;height:34px;border-radius:50%;background:var(--color-accent-800);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--color-accent-200)">JD</div>
+                </div>
+              </div>
+
+              <div class="drip" style="--drip:#0e0526;border-radius:var(--radius-lg);padding:16px;background:linear-gradient(160deg,#3a0a53,#0e0526);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-accent-300)">Today's standings</div>
+                  <div style="font-size:12px;color:var(--color-neutral-400)">Friends</div>
+                </div>
+                <div style="display:flex;gap:12px;align-items:flex-end">
+                  <div style="flex:1"><div style="font-size:13px;color:var(--color-neutral-300)">Maya is up</div><div class="num" style="font-size:30px;font-weight:700;color:#39ff14;text-shadow:0 0 20px rgba(57,255,20,0.6)">+4.2%</div></div>
+                  <div style="width:1px;height:40px;background:var(--color-divider)"></div>
+                  <div style="flex:1"><div style="font-size:13px;color:var(--color-neutral-300)">You're 3rd of 7</div><div class="num" style="font-size:30px;font-weight:700;color:#39ff14;text-shadow:0 0 20px rgba(57,255,20,0.6)">+1.8%</div></div>
+                </div>
+                <div style="font-size:13px;color:var(--color-accent-200)">1.4% behind 2nd. That's one good trade.</div>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm);color:var(--color-neutral-500);font-size:15px"><i class="ph ph-magnifying-glass"></i>Search a ticker</div>
+
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:16px;font-weight:700">Moving today</div><div style="font-size:13px;color:var(--color-accent-300)">See all</div></div>
+                <div style="display:flex;flex-direction:column">
+                  <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--color-divider)">
+                    <div style="width:38px;height:38px;border-radius:10px;background:var(--color-neutral-900);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--color-neutral-300)">NV</div>
+                    <div style="flex:1"><div style="font-size:15px;font-weight:700">NVDA</div><div style="font-size:12px;color:var(--color-neutral-500)">Nvidia</div></div>
+                    <svg viewBox="0 0 60 22" style="width:60px;height:22px"><polyline points="0,18 10,15 20,16 30,10 40,11 50,5 60,3" fill="none" stroke="#39ff14" stroke-width="1.6"/></svg>
+                    <div style="text-align:right;min-width:74px"><div class="num" style="font-size:15px">$174.20</div><div class="num" style="font-size:12px;color:#39ff14">+3.1%</div></div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--color-divider)">
+                    <div style="width:38px;height:38px;border-radius:10px;background:var(--color-neutral-900);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--color-neutral-300)">TS</div>
+                    <div style="flex:1"><div style="font-size:15px;font-weight:700">TSLA</div><div style="font-size:12px;color:var(--color-neutral-500)">Tesla</div></div>
+                    <svg viewBox="0 0 60 22" style="width:60px;height:22px"><polyline points="0,6 10,9 20,7 30,13 40,12 50,17 60,19" fill="none" stroke="#ff2bd6" stroke-width="1.6"/></svg>
+                    <div style="text-align:right;min-width:74px"><div class="num" style="font-size:15px">$302.55</div><div class="num" style="font-size:12px;color:#ff2bd6">−2.4%</div></div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--color-divider)">
+                    <div style="width:38px;height:38px;border-radius:10px;background:var(--color-neutral-900);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--color-neutral-300)">SP</div>
+                    <div style="flex:1"><div style="font-size:15px;font-weight:700">SPY</div><div style="font-size:12px;color:var(--color-neutral-500)">S&amp;P 500 ETF</div></div>
+                    <svg viewBox="0 0 60 22" style="width:60px;height:22px"><polyline points="0,14 10,13 20,14 30,11 40,12 50,9 60,8" fill="none" stroke="#39ff14" stroke-width="1.6"/></svg>
+                    <div style="text-align:right;min-width:74px"><div class="num" style="font-size:15px">$631.08</div><div class="num" style="font-size:12px;color:#39ff14">+0.6%</div></div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px;padding:11px 0">
+                    <div style="width:38px;height:38px;border-radius:10px;background:var(--color-neutral-900);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--color-neutral-300)">AA</div>
+                    <div style="flex:1"><div style="font-size:15px;font-weight:700">AAPL</div><div style="font-size:12px;color:var(--color-neutral-500)">Apple</div></div>
+                    <svg viewBox="0 0 60 22" style="width:60px;height:22px"><polyline points="0,12 10,10 20,13 30,9 40,10 50,7 60,9" fill="none" stroke="#39ff14" stroke-width="1.6"/></svg>
+                    <div style="text-align:right;min-width:74px"><div class="num" style="font-size:15px">$229.44</div><div class="num" style="font-size:12px;color:#39ff14">+1.1%</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:12px">
+                <div style="flex:1;padding:14px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm)">
+                  <i class="ph ph-flag-checkered" style="color:var(--color-accent-400);font-size:20px"></i>
+                  <div style="font-size:14px;font-weight:700;margin-top:6px">2 live challenges</div>
+                  <div style="font-size:12px;color:var(--color-neutral-500)">Dev is up 0.9% on you</div>
+                </div>
+                <div style="flex:1;padding:14px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm)">
+                  <i class="ph ph-seal-check" style="color:var(--color-accent-400);font-size:20px"></i>
+                  <div style="font-size:14px;font-weight:700;margin-top:6px">Badge close</div>
+                  <div style="font-size:12px;color:var(--color-neutral-500)">$4.2k from First 10K</div>
+                </div>
+              </div>
+            </div>
+            <div style="height:78px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#22093f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.3);display:flex;align-items:center;padding:0 8px 14px">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:900;letter-spacing:0.05em;text-shadow:0 0 16px #22f7ff,0 0 5px #22f7ff"><i class="ph-fill ph-house" style="font-size:24px"></i>Home</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-chart-line-up" style="font-size:24px"></i>Discover</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-briefcase" style="font-size:24px"></i>Portfolio</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-flag-checkered" style="font-size:24px"></i>Compete</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-user" style="font-size:24px"></i>You</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- F3 stock detail -->
+        <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-400)">03 · Stock detail</div>
+          <div style="width:390px;height:844px;border-radius:44px;background:var(--color-bg);box-shadow:var(--shadow-md);position:relative;overflow:hidden;display:flex;flex-direction:column;color:var(--color-text)">
+            <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:var(--color-neutral-400)"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+            <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+            <div style="flex:1;overflow:hidden;padding:10px 20px 0;display:flex;flex-direction:column;gap:20px">
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:20px;color:var(--color-neutral-400)"><i class="ph ph-arrow-left"></i><span style="font-size:15px;color:var(--color-text);font-weight:700">NVDA</span><i class="ph ph-star"></i></div>
+              <div>
+                <div style="font-size:13px;color:var(--color-neutral-500)">Nvidia Corp · NASDAQ</div>
+                <div class="num" style="font-size:44px;font-weight:700;letter-spacing:-0.02em;line-height:1.1">$174.20</div>
+                <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+                  <span class="num" style="font-size:15px;color:#39ff14">+$5.24 · +3.1%</span>
+                  <span style="font-size:12px;color:var(--color-neutral-500)">today</span>
+                </div>
+              </div>
+              <svg viewBox="0 0 350 150" style="width:100%;height:170px">
+                <defs><linearGradient id="nvfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#39ff14" stop-opacity="0.22"/><stop offset="1" stop-color="#39ff14" stop-opacity="0"/></linearGradient></defs>
+                <path d="M0,120 L30,112 L60,118 L90,96 L120,102 L150,80 L180,86 L210,60 L240,66 L270,44 L300,38 L330,22 L350,16 L350,150 L0,150 Z" fill="url(#nvfill)"/>
+                <polyline points="0,120 30,112 60,118 90,96 120,102 150,80 180,86 210,60 240,66 270,44 300,38 330,22 350,16" fill="none" stroke="#39ff14" stroke-width="3" style="filter:drop-shadow(0 0 3px #39ff14) drop-shadow(0 0 10px #39ff14) drop-shadow(0 0 22px #39ff14)"/>
+                <circle cx="350" cy="16" r="4" fill="#39ff14" style="filter:drop-shadow(0 0 8px #39ff14)"/>
+              </svg>
+              <div style="display:flex;gap:6px">
+                <div style="flex:1;text-align:center;padding:7px 0;border-radius:var(--radius-sm);font-size:13px;background:linear-gradient(160deg,#00d9e8,#00aec4);color:#fff;font-weight:900;box-shadow:0 0 16px rgba(0,217,232,0.55)">1D</div>
+                <div style="flex:1;text-align:center;padding:7px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--color-neutral-500)">1W</div>
+                <div style="flex:1;text-align:center;padding:7px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--color-neutral-500)">1M</div>
+                <div style="flex:1;text-align:center;padding:7px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--color-neutral-500)">1Y</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:0">
+                <div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--color-divider);font-size:14px"><span style="color:var(--color-neutral-500)">Day range</span><span class="num">$168.90 — $175.60</span></div>
+                <div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--color-divider);font-size:14px"><span style="color:var(--color-neutral-500)">Your position</span><span class="num">18 shares · $3,135</span></div>
+                <div style="display:flex;justify-content:space-between;padding:11px 0;font-size:14px"><span style="color:var(--color-neutral-500)">Your return</span><span class="num" style="color:#39ff14">+$412 · +15.1%</span></div>
+              </div>
+              <div style="padding:14px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm);display:flex;gap:12px;align-items:center">
+                <div style="display:flex">
+                  <div style="width:26px;height:26px;border-radius:50%;background:var(--color-accent-800);border:2px solid var(--color-surface);font-size:10px;display:flex;align-items:center;justify-content:center;color:var(--color-accent-200)">M</div>
+                  <div style="width:26px;height:26px;border-radius:50%;background:var(--color-neutral-800);border:2px solid var(--color-surface);margin-left:-9px;font-size:10px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-300)">D</div>
+                  <div style="width:26px;height:26px;border-radius:50%;background:var(--color-neutral-800);border:2px solid var(--color-surface);margin-left:-9px;font-size:10px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-300)">S</div>
+                </div>
+                <div style="font-size:13px;color:var(--color-neutral-300);flex:1">4 of your friends hold this. Maya bought more yesterday.</div>
+              </div>
+            </div>
+            <div style="padding:0 20px 34px;display:flex;gap:10px">
+              <button class="btn btn-secondary" style="flex:1;height:50px;font-size:16px">Sell</button>
+              <button class="btn btn-primary" style="flex:1;height:50px;font-size:16px">Buy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- F4 buy sheet -->
+        <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-400)">04 · Buy sheet</div>
+          <div style="width:390px;height:844px;border-radius:44px;background:var(--color-bg);box-shadow:var(--shadow-md);position:relative;overflow:hidden;display:flex;flex-direction:column;color:var(--color-text)">
+            <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:var(--color-neutral-400)"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+            <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+            <div style="flex:1;padding:10px 20px 0;display:flex;flex-direction:column;gap:18px;opacity:0.35">
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:20px;color:var(--color-neutral-400)"><i class="ph ph-arrow-left"></i><span style="font-size:15px;color:var(--color-text)">NVDA</span><i class="ph ph-star"></i></div>
+              <div><div class="num" style="font-size:44px;font-weight:700">$174.20</div><div class="num" style="font-size:15px;color:#39ff14">+3.1% today</div></div>
+              <svg viewBox="0 0 350 120" style="width:100%;height:130px"><polyline points="0,100 40,92 80,96 120,72 160,78 200,50 240,54 280,30 320,20 350,12" fill="none" stroke="#39ff14" stroke-width="3" style="filter:drop-shadow(0 0 3px #39ff14) drop-shadow(0 0 10px #39ff14) drop-shadow(0 0 22px #39ff14)"/></svg>
+            </div>
+            <div style="position:absolute;inset:0;background:rgba(9,10,18,0.55)"></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;border-radius:26px 26px 44px 44px;background:var(--color-surface);box-shadow:var(--shadow-lg);padding:14px 22px 34px;display:flex;flex-direction:column;gap:18px">
+              <div style="width:38px;height:4px;border-radius:2px;background:var(--color-neutral-700);align-self:center"></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:22px;font-weight:700">Buy NVDA</div><div class="num" style="font-size:14px;color:var(--color-neutral-400)">$174.20 / share</div></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:var(--radius-md);background:var(--color-bg);box-shadow:var(--shadow-sm)">
+                <div style="width:40px;height:40px;border-radius:var(--radius-sm);border:1px solid var(--color-accent-700);display:flex;align-items:center;justify-content:center;color:var(--color-accent-300);font-size:18px"><i class="ph ph-minus"></i></div>
+                <div style="text-align:center"><div class="num" style="font-size:34px;font-weight:700;line-height:1">12</div><div style="font-size:12px;color:var(--color-neutral-500)">shares</div></div>
+                <div style="width:40px;height:40px;border-radius:var(--radius-sm);border:1px solid var(--color-accent-700);display:flex;align-items:center;justify-content:center;color:var(--color-accent-300);font-size:18px"><i class="ph ph-plus"></i></div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:20px;font-size:13px;background:var(--color-accent-900);color:var(--color-accent-200)">$500</div>
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:20px;font-size:13px;background:var(--color-accent-900);color:var(--color-accent-200)">$1k</div>
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:20px;font-size:13px;background:var(--color-accent-900);color:var(--color-accent-200)">$5k</div>
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:20px;font-size:13px;background:var(--color-accent-900);color:var(--color-accent-200)">Max</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:0">
+                <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:14px"><span style="color:var(--color-neutral-500)">Order total</span><span class="num">$2,090.40</span></div>
+                <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px"><span style="color:var(--color-neutral-500)">Cash after</span><span class="num">$116,150.12</span></div>
+              </div>
+              <button class="btn btn-primary btn-block" style="height:54px;font-size:17px">Swipe to buy 12 shares</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- F5 portfolio -->
+        <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-400)">05 · Portfolio</div>
+          <div style="width:390px;height:844px;border-radius:44px;background:var(--color-bg);box-shadow:var(--shadow-md);position:relative;overflow:hidden;display:flex;flex-direction:column;color:var(--color-text)">
+            <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:var(--color-neutral-400)"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+            <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+            <div style="flex:1;overflow:hidden;padding:14px 20px 0;display:flex;flex-direction:column;gap:18px">
+              <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:24px;font-weight:700">Portfolio</div><div style="font-size:13px;color:var(--color-neutral-400);display:flex;gap:6px;align-items:center"><i class="ph ph-arrows-clockwise"></i>Live</div></div>
+              <div>
+                <div style="font-size:13px;color:var(--color-neutral-500)">Total value</div>
+                <div class="num" style="font-size:42px;font-weight:700;letter-spacing:-0.02em;line-height:1.1">$1,143,820</div>
+                <div style="display:flex;gap:14px;margin-top:6px;font-size:14px"><span class="num" style="color:#39ff14">+$143,820 all-time</span><span class="num" style="color:#39ff14">+1.8% today</span></div>
+              </div>
+              <svg viewBox="0 0 350 110" style="width:100%;height:120px">
+                <defs><linearGradient id="pffill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22f7ff" stop-opacity="0.3"/><stop offset="1" stop-color="#22f7ff" stop-opacity="0"/></linearGradient></defs>
+                <path d="M0,88 L35,80 L70,86 L105,64 L140,70 L175,52 L210,58 L245,36 L280,30 L315,22 L350,10 L350,110 L0,110 Z" fill="url(#pffill)"/>
+                <polyline points="0,88 35,80 70,86 105,64 140,70 175,52 210,58 245,36 280,30 315,22 350,10" fill="none" stroke="#22f7ff" stroke-width="3" style="filter:drop-shadow(0 0 3px #22f7ff) drop-shadow(0 0 10px #22f7ff) drop-shadow(0 0 22px #22f7ff)"/>
+              </svg>
+              <div style="display:flex;gap:10px">
+                <div style="flex:1;padding:12px 14px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm)"><div style="font-size:12px;color:var(--color-neutral-500)">Cash left</div><div class="num" style="font-size:19px">$118,240</div></div>
+                <div style="flex:1;padding:12px 14px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm)"><div style="font-size:12px;color:var(--color-neutral-500)">Best pick</div><div class="num" style="font-size:19px;color:#39ff14">PLTR +34%</div></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:16px;font-weight:700">7 holdings</div><div style="font-size:13px;color:var(--color-neutral-500)">By value</div></div>
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <div style="display:flex;align-items:baseline;gap:8px"><div style="font-size:15px;font-weight:700;flex:1">NVDA <span style="color:var(--color-neutral-500);font-weight:400;font-size:13px">18 sh</span></div><div class="num" style="font-size:15px">$3,135</div><div class="num" style="font-size:13px;color:#39ff14;min-width:56px;text-align:right">+15.1%</div></div>
+                  <div style="height:5px;border-radius:3px;background:var(--color-neutral-900)"><div style="width:74%;height:5px;border-radius:3px;background:var(--color-accent)"></div></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <div style="display:flex;align-items:baseline;gap:8px"><div style="font-size:15px;font-weight:700;flex:1">PLTR <span style="color:var(--color-neutral-500);font-weight:400;font-size:13px">640 sh</span></div><div class="num" style="font-size:15px">$2,890</div><div class="num" style="font-size:13px;color:#39ff14;min-width:56px;text-align:right">+34.0%</div></div>
+                  <div style="height:5px;border-radius:3px;background:var(--color-neutral-900)"><div style="width:62%;height:5px;border-radius:3px;background:var(--color-accent)"></div></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <div style="display:flex;align-items:baseline;gap:8px"><div style="font-size:15px;font-weight:700;flex:1">QQQ <span style="color:var(--color-neutral-500);font-weight:400;font-size:13px">40 sh</span></div><div class="num" style="font-size:15px">$2,204</div><div class="num" style="font-size:13px;color:#39ff14;min-width:56px;text-align:right">+6.4%</div></div>
+                  <div style="height:5px;border-radius:3px;background:var(--color-neutral-900)"><div style="width:48%;height:5px;border-radius:3px;background:var(--color-accent)"></div></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <div style="display:flex;align-items:baseline;gap:8px"><div style="font-size:15px;font-weight:700;flex:1">TSLA <span style="color:var(--color-neutral-500);font-weight:400;font-size:13px">6 sh</span></div><div class="num" style="font-size:15px">$1,815</div><div class="num" style="font-size:13px;color:#ff2bd6;min-width:56px;text-align:right">−8.2%</div></div>
+                  <div style="height:5px;border-radius:3px;background:var(--color-neutral-900)"><div style="width:38%;height:5px;border-radius:3px;background:var(--color-neutral-600)"></div></div>
+                </div>
+              </div>
+            </div>
+            <div style="height:78px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#22093f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.3);display:flex;align-items:center;padding:0 8px 14px">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-house" style="font-size:24px"></i>Home</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-chart-line-up" style="font-size:24px"></i>Discover</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:900;letter-spacing:0.05em;text-shadow:0 0 16px #22f7ff,0 0 5px #22f7ff"><i class="ph-fill ph-briefcase" style="font-size:24px"></i>Portfolio</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-flag-checkered" style="font-size:24px"></i>Compete</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-user" style="font-size:24px"></i>You</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- F6 race -->
+        <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-400)">06 · The Race</div>
+          <div style="width:390px;height:844px;border-radius:44px;background:var(--color-bg);box-shadow:var(--shadow-md);position:relative;overflow:hidden;display:flex;flex-direction:column;color:var(--color-text)">
+            <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:var(--color-neutral-400)"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+            <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+            <div style="flex:1;overflow:hidden;padding:14px 20px 0;display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:24px;font-weight:700">The Race</div><div style="font-size:13px;color:var(--color-accent-300);display:flex;gap:6px;align-items:center"><i class="ph ph-user-plus"></i>Invite</div></div>
+              <div style="display:flex;gap:6px;padding:4px;border-radius:var(--radius-md);background:var(--color-surface)">
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:var(--radius-sm);font-size:13px;background:linear-gradient(160deg,#00d9e8,#00aec4);color:#fff;font-weight:900;box-shadow:0 0 16px rgba(0,217,232,0.55)">My people</div>
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--color-neutral-500)">Everyone</div>
+              </div>
+              <div style="display:flex;gap:6px">
+                <div style="padding:5px 12px;border-radius:20px;border:1.5px solid #22f7ff;box-shadow:0 0 12px rgba(34,247,255,0.4);font-weight:900;font-size:12px;color:var(--color-accent-300)">{{ season }}</div>
+                <div style="padding:5px 12px;border-radius:20px;border:1px solid var(--color-neutral-800);font-size:12px;color:var(--color-neutral-500)">Quarter</div>
+                <div style="padding:5px 12px;border-radius:20px;border:1px solid var(--color-neutral-800);font-size:12px;color:var(--color-neutral-500)">Year</div>
+              </div>
+              <svg viewBox="0 0 350 260" style="width:100%;height:280px">
+                <line x1="0" y1="10" x2="350" y2="10" stroke="#241442" stroke-width="1"/>
+                <line x1="0" y1="80" x2="350" y2="80" stroke="#241442" stroke-width="1"/>
+                <line x1="0" y1="150" x2="350" y2="150" stroke="#241442" stroke-width="1"/>
+                <line x1="0" y1="220" x2="350" y2="220" stroke="#241442" stroke-width="1"/>
+                <polyline points="0,220 30,208 60,196 90,178 120,182 150,150 180,138 210,120 240,96 270,80 300,56 330,36 350,24" fill="none" stroke="#39ff14" stroke-width="3.5" style="filter:drop-shadow(0 0 3px #39ff14) drop-shadow(0 0 10px #39ff14) drop-shadow(0 0 22px #39ff14)"/>
+                <polyline points="0,220 30,214 60,200 90,206 120,188 150,176 180,168 210,150 240,142 270,120 300,110 330,88 350,74" fill="none" stroke="#22f7ff" stroke-width="4.5" style="filter:drop-shadow(0 0 3px #22f7ff) drop-shadow(0 0 10px #22f7ff) drop-shadow(0 0 22px #22f7ff)"/>
+                <polyline points="0,220 30,216 60,210 90,198 120,204 150,190 180,196 210,180 240,172 270,168 300,150 330,142 350,132" fill="none" stroke="#ff2bd6" stroke-width="3" style="filter:drop-shadow(0 0 3px #ff2bd6) drop-shadow(0 0 10px #ff2bd6) drop-shadow(0 0 22px #ff2bd6)"/>
+                <polyline points="0,220 30,224 60,218 90,226 120,220 150,228 180,222 210,214 240,220 270,208 300,214 330,200 350,196" fill="none" stroke="#ffe600" stroke-width="3" style="filter:drop-shadow(0 0 3px #ffe600) drop-shadow(0 0 10px #ffe600) drop-shadow(0 0 22px #ffe600)"/>
+                <circle cx="350" cy="24" r="4.5" fill="#39ff14" style="filter:drop-shadow(0 0 8px #39ff14)"/><circle cx="350" cy="74" r="5" fill="#22f7ff" style="filter:drop-shadow(0 0 8px #22f7ff)"/><circle cx="350" cy="132" r="4" fill="#ff2bd6" style="filter:drop-shadow(0 0 8px #ff2bd6)"/><circle cx="350" cy="196" r="4" fill="#ffe600" style="filter:drop-shadow(0 0 8px #ffe600)"/>
+              </svg>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-neutral-600);margin-top:-8px"><span>Jul 1</span><span>Jul 6</span><span>Jul 12</span></div>
+              <div style="display:flex;flex-direction:column">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider)">
+                  <div style="width:22px;font-size:13px;color:var(--color-neutral-500)" class="num">1</div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#39ff14"></div>
+                  <div style="flex:1;font-size:15px">Maya R.</div>
+                  <div class="num" style="font-size:12px;color:var(--color-neutral-500);min-width:52px;text-align:right">$1.21M</div>
+                  <div class="num" style="font-size:15px;color:#39ff14;min-width:62px;text-align:right">+21.4%</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:var(--radius-sm);background:var(--color-accent-900);margin:2px -10px">
+                  <div style="width:22px;font-size:13px;color:var(--color-accent-300)" class="num">2</div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#22f7ff"></div>
+                  <div style="flex:1;font-size:15px;font-weight:700">{{ playerName }}</div>
+                  <div class="num" style="font-size:12px;color:var(--color-neutral-400);min-width:52px;text-align:right">$1.14M</div>
+                  <div class="num" style="font-size:15px;color:#39ff14;min-width:62px;text-align:right">+14.4%</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider)">
+                  <div style="width:22px;font-size:13px;color:var(--color-neutral-500)" class="num">3</div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#ff2bd6"></div>
+                  <div style="flex:1;font-size:15px">{{ rivalName }}</div>
+                  <div class="num" style="font-size:12px;color:var(--color-neutral-500);min-width:52px;text-align:right">$1.09M</div>
+                  <div class="num" style="font-size:15px;color:#39ff14;min-width:62px;text-align:right">+8.8%</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 0">
+                  <div style="width:22px;font-size:13px;color:var(--color-neutral-500)" class="num">4</div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#ffe600"></div>
+                  <div style="flex:1;font-size:15px">Sam O.</div>
+                  <div class="num" style="font-size:12px;color:var(--color-neutral-500);min-width:52px;text-align:right">$1.01M</div>
+                  <div class="num" style="font-size:15px;color:#39ff14;min-width:62px;text-align:right">+1.2%</div>
+                </div>
+              </div>
+            </div>
+            <div style="height:78px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#22093f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.3);display:flex;align-items:center;padding:0 8px 14px">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-house" style="font-size:24px"></i>Home</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-chart-line-up" style="font-size:24px"></i>Discover</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-briefcase" style="font-size:24px"></i>Portfolio</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:900;letter-spacing:0.05em;text-shadow:0 0 16px #22f7ff,0 0 5px #22f7ff"><i class="ph-fill ph-flag-checkered" style="font-size:24px"></i>Compete</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-user" style="font-size:24px"></i>You</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- F7 leaderboard -->
+        <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-400)">07 · Leaderboard</div>
+          <div style="width:390px;height:844px;border-radius:44px;background:var(--color-bg);box-shadow:var(--shadow-md);position:relative;overflow:hidden;display:flex;flex-direction:column;color:var(--color-text)">
+            <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:var(--color-neutral-400)"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+            <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+            <div style="flex:1;overflow:hidden;padding:14px 20px 0;display:flex;flex-direction:column;gap:16px">
+              <div style="font-size:24px;font-weight:700">Leaderboard</div>
+              <div style="display:flex;gap:6px;padding:4px;border-radius:var(--radius-md);background:var(--color-surface)">
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:var(--radius-sm);font-size:13px;background:linear-gradient(160deg,#00d9e8,#00aec4);color:#fff;font-weight:900;box-shadow:0 0 16px rgba(0,217,232,0.55)">Everyone</div>
+                <div style="flex:1;text-align:center;padding:8px 0;border-radius:var(--radius-sm);font-size:13px;color:var(--color-neutral-500)">My people</div>
+              </div>
+              <div style="display:flex;gap:6px">
+                <div style="padding:5px 12px;border-radius:20px;border:1px solid var(--color-neutral-800);font-size:12px;color:var(--color-neutral-500)">Today</div>
+                <div style="padding:5px 12px;border-radius:20px;border:1.5px solid #22f7ff;box-shadow:0 0 12px rgba(34,247,255,0.4);font-weight:900;font-size:12px;color:var(--color-accent-300)">Month</div>
+                <div style="padding:5px 12px;border-radius:20px;border:1px solid var(--color-neutral-800);font-size:12px;color:var(--color-neutral-500)">Quarter</div>
+                <div style="padding:5px 12px;border-radius:20px;border:1px solid var(--color-neutral-800);font-size:12px;color:var(--color-neutral-500)">Year</div>
+              </div>
+              <div class="drip" style="--drip:#0e0526;display:flex;align-items:flex-end;gap:10px;padding:16px 12px 0;border-radius:var(--radius-lg);background:linear-gradient(170deg,#3a0a53,#0e0526);box-shadow:var(--shadow-sm)">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+                  <div style="width:44px;height:44px;border-radius:50%;background:var(--color-neutral-800);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--color-neutral-200)">KL</div>
+                  <div style="font-size:12px;color:var(--color-neutral-300)">Kai L.</div>
+                  <div class="num" style="font-size:14px;color:#39ff14">+38%</div>
+                  <div style="width:100%;height:46px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#00d9e8,#087f92);box-shadow:0 0 18px rgba(0,217,232,0.4);display:flex;align-items:flex-start;justify-content:center;padding-top:5px;font-size:12px;color:var(--color-accent-200)" class="num">2</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+                  <i class="ph-fill ph-crown" style="color:#ffe600;font-size:28px;filter:drop-shadow(0 0 12px rgba(255,230,0,0.8))"></i>
+                  <div style="width:54px;height:54px;border-radius:50%;background:var(--color-accent-700);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--color-accent-100)">AZ</div>
+                  <div style="font-size:12px;color:var(--color-neutral-200)">Ava Z.</div>
+                  <div class="num" style="font-size:16px;color:#39ff14">+52%</div>
+                  <div style="width:100%;height:70px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#22f7ff,#00aec4);box-shadow:0 0 26px rgba(34,247,255,0.55);display:flex;align-items:flex-start;justify-content:center;padding-top:5px;font-size:13px;color:var(--color-accent-100)" class="num">1</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+                  <div style="width:44px;height:44px;border-radius:50%;background:var(--color-neutral-800);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--color-neutral-200)">MR</div>
+                  <div style="font-size:12px;color:var(--color-neutral-300)">Maya R.</div>
+                  <div class="num" style="font-size:14px;color:#39ff14">+31%</div>
+                  <div style="width:100%;height:34px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#00aec4,#3a0a53);display:flex;align-items:flex-start;justify-content:center;padding-top:5px;font-size:12px;color:var(--color-accent-300)" class="num">3</div>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--color-neutral-500)"><span>18,402 players this season</span><span>Resets in 19 days</span></div>
+              <div style="display:flex;flex-direction:column">
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--color-divider)">
+                  <div class="num" style="width:34px;font-size:14px;color:var(--color-neutral-500)">4</div>
+                  <div style="width:30px;height:30px;border-radius:50%;background:var(--color-neutral-900);font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-300)">JP</div>
+                  <div style="flex:1;font-size:15px">Jules P.</div>
+                  <div style="font-size:11px;color:#39ff14;display:flex;gap:2px;align-items:center"><i class="ph-fill ph-caret-up"></i>3</div>
+                  <div class="num" style="font-size:15px;color:#39ff14;min-width:56px;text-align:right">+29%</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--color-divider)">
+                  <div class="num" style="width:34px;font-size:14px;color:var(--color-neutral-500)">5</div>
+                  <div style="width:30px;height:30px;border-radius:50%;background:var(--color-neutral-900);font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-300)">DN</div>
+                  <div style="flex:1;font-size:15px">Dev N.</div>
+                  <div style="font-size:11px;color:#ff2bd6;display:flex;gap:2px;align-items:center"><i class="ph-fill ph-caret-down"></i>1</div>
+                  <div class="num" style="font-size:15px;color:#39ff14;min-width:56px;text-align:right">+27%</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--color-divider)">
+                  <div class="num" style="width:34px;font-size:14px;color:var(--color-neutral-500)">6</div>
+                  <div style="width:30px;height:30px;border-radius:50%;background:var(--color-neutral-900);font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-300)">TB</div>
+                  <div style="flex:1;font-size:15px">Theo B.</div>
+                  <div style="font-size:11px;color:#39ff14;display:flex;gap:2px;align-items:center"><i class="ph-fill ph-caret-up"></i>6</div>
+                  <div class="num" style="font-size:15px;color:#39ff14;min-width:56px;text-align:right">+24%</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 0">
+                  <div class="num" style="width:34px;font-size:14px;color:var(--color-neutral-500)">7</div>
+                  <div style="width:30px;height:30px;border-radius:50%;background:var(--color-neutral-900);font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-300)">RS</div>
+                  <div style="flex:1;font-size:15px">Rin S.</div>
+                  <div class="num" style="font-size:15px;color:#39ff14;min-width:56px;text-align:right">+22%</div>
+                </div>
+              </div>
+            </div>
+            <div style="padding:0 20px 10px">
+              <div class="drip" style="--drip:#0e0526;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-md);background:linear-gradient(160deg,#57107a,#26063a);box-shadow:0 0 0 1.5px #22f7ff,0 0 22px rgba(34,247,255,0.35)">
+                <div class="num" style="font-size:14px;color:var(--color-accent-300)">412</div>
+                <div style="width:30px;height:30px;border-radius:50%;background:var(--color-accent-700);font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--color-accent-100)">JD</div>
+                <div style="flex:1;font-size:15px;font-weight:700">You</div>
+                <div style="font-size:12px;color:var(--color-accent-300)">Top 3%</div>
+                <div class="num" style="font-size:15px;color:#39ff14">+14.4%</div>
+              </div>
+            </div>
+            <div style="height:78px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#22093f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.3);display:flex;align-items:center;padding:0 8px 14px">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-house" style="font-size:24px"></i>Home</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-chart-line-up" style="font-size:24px"></i>Discover</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-briefcase" style="font-size:24px"></i>Portfolio</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:900;letter-spacing:0.05em;text-shadow:0 0 16px #22f7ff,0 0 5px #22f7ff"><i class="ph-fill ph-flag-checkered" style="font-size:24px"></i>Compete</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-user" style="font-size:24px"></i>You</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- F8 challenges -->
+        <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-400)">08 · Challenges (1v1)</div>
+          <div style="width:390px;height:844px;border-radius:44px;background:var(--color-bg);box-shadow:var(--shadow-md);position:relative;overflow:hidden;display:flex;flex-direction:column;color:var(--color-text)">
+            <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:var(--color-neutral-400)"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+            <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+            <div style="flex:1;overflow:hidden;padding:14px 20px 0;display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:24px;font-weight:700">Head-to-head</div><div style="width:34px;height:34px;border-radius:var(--radius-sm);border:1.5px solid #22f7ff;box-shadow:0 0 12px rgba(34,247,255,0.4);font-weight:900;display:flex;align-items:center;justify-content:center;color:var(--color-accent-300)"><i class="ph ph-plus"></i></div></div>
+
+              <div class="drip" style="--drip:#0e0526;border-radius:var(--radius-lg);padding:16px;background:linear-gradient(165deg,#3a0a53,#0e0526);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--color-accent-300)"><span style="letter-spacing:0.1em;text-transform:uppercase">Live · 1 week</span><span class="num">2d 4h left</span></div>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="flex:1;text-align:center"><div style="width:46px;height:46px;border-radius:50%;background:var(--color-accent-700);margin:0 auto;display:flex;align-items:center;justify-content:center;color:var(--color-accent-100);font-size:14px">JD</div><div style="font-size:13px;margin-top:6px">You</div><div class="num" style="font-size:22px;color:#39ff14;text-shadow:0 0 20px rgba(57,255,20,0.6)">+3.4%</div></div>
+                  <div style="font-size:13px;color:var(--color-neutral-500)">VS</div>
+                  <div style="flex:1;text-align:center"><div style="width:46px;height:46px;border-radius:50%;background:var(--color-neutral-800);margin:0 auto;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-200);font-size:14px">DN</div><div style="font-size:13px;margin-top:6px">{{ rivalName }}</div><div class="num" style="font-size:22px;color:#39ff14;text-shadow:0 0 20px rgba(57,255,20,0.6)">+4.3%</div></div>
+                </div>
+                <div style="height:8px;border-radius:4px;background:var(--color-neutral-900);display:flex;overflow:hidden"><div style="width:44%;background:var(--color-accent)"></div><div style="width:56%;background:var(--color-neutral-500)"></div></div>
+                <div style="font-size:13px;color:var(--color-accent-200)">Down 0.9%. Two days to fix it.</div>
+              </div>
+
+              <div style="font-size:16px;font-weight:700">Waiting on them</div>
+              <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm)">
+                <div style="width:34px;height:34px;border-radius:50%;background:var(--color-neutral-900);font-size:12px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-300)">SO</div>
+                <div style="flex:1"><div style="font-size:15px">Sam O.</div><div style="font-size:12px;color:var(--color-neutral-500)">1 month · sent 3h ago</div></div>
+                <div style="font-size:12px;color:var(--color-neutral-500);padding:4px 10px;border-radius:20px;border:1px solid var(--color-neutral-800)">Pending</div>
+              </div>
+
+              <div style="font-size:16px;font-weight:700;margin-top:4px">Challenge someone</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;gap:8px">
+                  <div style="flex:1;text-align:center;padding:9px 0;border-radius:20px;border:1px solid var(--color-neutral-800);font-size:13px;color:var(--color-neutral-400)">1 day</div>
+                  <div style="flex:1;text-align:center;padding:9px 0;border-radius:20px;border:1.5px solid #22f7ff;box-shadow:0 0 12px rgba(34,247,255,0.4);font-weight:900;font-size:13px;color:var(--color-accent-300)">1 week</div>
+                  <div style="flex:1;text-align:center;padding:9px 0;border-radius:20px;border:1px solid var(--color-neutral-800);font-size:13px;color:var(--color-neutral-400)">1 month</div>
+                </div>
+                <div style="display:flex;gap:10px">
+                  <div style="flex:1;padding:12px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm);text-align:center"><div style="width:36px;height:36px;border-radius:50%;background:var(--color-neutral-900);margin:0 auto 6px;font-size:12px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-300)">MR</div><div style="font-size:13px">Maya R.</div><div class="num" style="font-size:11px;color:var(--color-neutral-500)">2–1 vs you</div></div>
+                  <div style="flex:1;padding:12px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm);text-align:center"><div style="width:36px;height:36px;border-radius:50%;background:var(--color-neutral-900);margin:0 auto 6px;font-size:12px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-300)">TB</div><div style="font-size:13px">Theo B.</div><div class="num" style="font-size:11px;color:var(--color-neutral-500)">0–0</div></div>
+                  <div style="flex:1;padding:12px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm);text-align:center"><div style="width:36px;height:36px;border-radius:50%;background:var(--color-neutral-900);margin:0 auto 6px;font-size:12px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-300)">RS</div><div style="font-size:13px">Rin S.</div><div class="num" style="font-size:11px;color:var(--color-neutral-500)">1–3 vs you</div></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--radius-md);border:1px dashed var(--color-neutral-800);color:var(--color-neutral-400);font-size:14px"><i class="ph ph-link-simple"></i>Share a link to challenge anyone</div>
+              </div>
+            </div>
+            <div style="height:78px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#22093f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.3);display:flex;align-items:center;padding:0 8px 14px">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-house" style="font-size:24px"></i>Home</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-chart-line-up" style="font-size:24px"></i>Discover</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-briefcase" style="font-size:24px"></i>Portfolio</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:900;letter-spacing:0.05em;text-shadow:0 0 16px #22f7ff,0 0 5px #22f7ff"><i class="ph-fill ph-flag-checkered" style="font-size:24px"></i>Compete</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-user" style="font-size:24px"></i>You</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- F9 profile -->
+        <div style="display:flex;flex-direction:column;gap:10px;width:390px">
+          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-400)">09 · You · levels &amp; badges</div>
+          <div style="width:390px;height:844px;border-radius:44px;background:var(--color-bg);box-shadow:var(--shadow-md);position:relative;overflow:hidden;display:flex;flex-direction:column;color:var(--color-text)">
+            <div style="height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:12px;color:var(--color-neutral-400)"><span class="num">9:41</span><span style="display:flex;gap:6px;align-items:center;font-size:13px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+            <div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:16px;background:#05050f"></div>
+            <div style="flex:1;overflow:hidden;padding:14px 20px 0;display:flex;flex-direction:column;gap:18px">
+              <div style="display:flex;align-items:center;gap:14px">
+                <div style="width:64px;height:64px;border-radius:50%;background:var(--color-accent-700);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--color-accent-100)">JD</div>
+                <div style="flex:1">
+                  <div style="font-size:22px;font-weight:700">{{ playerName }}</div>
+                  <div style="font-size:13px;color:var(--color-neutral-500)">@jdrops · joined Feb</div>
+                </div>
+                <i class="ph ph-gear" style="color:var(--color-neutral-500);font-size:20px"></i>
+              </div>
+              <div class="drip" style="--drip:#26063a;padding:16px;border-radius:var(--radius-lg);background:linear-gradient(150deg,#57107a,#26063a);box-shadow:0 0 0 1.5px #00d9e8,0 0 32px rgba(0,217,232,0.35);display:flex;align-items:center;gap:14px">
+                <div style="width:74px;height:74px;border-radius:20px;background:linear-gradient(160deg,#22f7ff,#00aec4);box-shadow:0 0 26px rgba(34,247,255,0.6);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#0a0420">
+                  <div style="font-size:9px;font-weight:900;letter-spacing:0.16em">LVL</div>
+                  <div class="num" style="font-size:32px;font-weight:900;line-height:1">7</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:9px">
+                  <div style="font-size:21px;font-weight:900;letter-spacing:-0.02em">CONTENDER</div>
+                  <div style="height:11px;border-radius:6px;background:#1a0630;box-shadow:inset 0 0 0 1px #087f92"><div style="width:73%;height:11px;border-radius:6px;background:linear-gradient(90deg,#39ff14,#22f7ff);box-shadow:0 0 16px rgba(57,255,20,0.6)"></div></div>
+                  <div class="num" style="font-size:12px;font-weight:700;color:#9df4ff">1,840 / 2,500 XP · 660 TO LVL 8</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px">
+                <div style="flex:1;padding:12px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm);text-align:center"><div class="num" style="font-size:22px">9</div><div style="font-size:12px;color:var(--color-neutral-500)">day streak</div></div>
+                <div style="flex:1;padding:12px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm);text-align:center"><div class="num" style="font-size:22px">12–5</div><div style="font-size:12px;color:var(--color-neutral-500)">1v1 record</div></div>
+                <div style="flex:1;padding:12px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm);text-align:center"><div class="num" style="font-size:22px">#412</div><div style="font-size:12px;color:var(--color-neutral-500)">global</div></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:19px;font-weight:900;letter-spacing:0.02em">TROPHY CASE</div><div class="num" style="font-size:13px;font-weight:800;color:#9df4ff">11 / 34</div></div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+                <div class="drip" style="--drip:#0e0526;aspect-ratio:1;border-radius:18px;background:linear-gradient(160deg,#57107a,#26063a);box-shadow:0 0 0 1.5px #22f7ff,0 0 24px rgba(34,247,255,0.35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px">
+                  <i class="ph-fill ph-currency-circle-dollar" style="font-size:36px;color:#39ff14;filter:drop-shadow(0 0 10px rgba(57,255,20,0.7))"></i>
+                  <div style="font-size:12px;font-weight:900;letter-spacing:0.02em;text-align:center;line-height:1.15">FIRST 10K</div>
+                  <div class="num" style="font-size:9px;font-weight:900;letter-spacing:0.1em;color:#0a0420;background:#39ff14;padding:2px 7px;border-radius:20px">EARNED</div>
+                </div>
+                <div class="drip" style="--drip:#0e0526;aspect-ratio:1;border-radius:18px;background:linear-gradient(160deg,#57107a,#26063a);box-shadow:0 0 0 1.5px #22f7ff,0 0 24px rgba(34,247,255,0.35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px">
+                  <i class="ph-fill ph-rocket-launch" style="font-size:36px;color:#39ff14;filter:drop-shadow(0 0 10px rgba(57,255,20,0.7))"></i>
+                  <div style="font-size:12px;font-weight:900;letter-spacing:0.02em;text-align:center;line-height:1.15">+10% WEEK</div>
+                  <div class="num" style="font-size:9px;font-weight:900;letter-spacing:0.1em;color:#0a0420;background:#39ff14;padding:2px 7px;border-radius:20px">EARNED</div>
+                </div>
+                <div class="drip" style="--drip:#0e0526;aspect-ratio:1;border-radius:18px;background:linear-gradient(160deg,#57107a,#26063a);box-shadow:0 0 0 1.5px #22f7ff,0 0 24px rgba(34,247,255,0.35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px">
+                  <i class="ph-fill ph-sword" style="font-size:36px;color:#39ff14;filter:drop-shadow(0 0 10px rgba(57,255,20,0.7))"></i>
+                  <div style="font-size:12px;font-weight:900;letter-spacing:0.02em;text-align:center;line-height:1.15">5 DUELS WON</div>
+                  <div class="num" style="font-size:9px;font-weight:900;letter-spacing:0.1em;color:#0a0420;background:#39ff14;padding:2px 7px;border-radius:20px">EARNED</div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+                <div style="aspect-ratio:1;border-radius:14px;background:#120b2e;box-shadow:inset 0 0 0 1.5px #123a46;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px">
+                  <i class="ph ph-lock-simple" style="font-size:20px;color:#087f92"></i>
+                  <div style="font-size:9px;font-weight:800;color:#6f5fb0;text-align:center;line-height:1.1">FIRST 100K</div>
+                </div>
+                <div style="aspect-ratio:1;border-radius:14px;background:#120b2e;box-shadow:inset 0 0 0 1.5px #123a46;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px">
+                  <i class="ph ph-lock-simple" style="font-size:20px;color:#087f92"></i>
+                  <div style="font-size:9px;font-weight:800;color:#6f5fb0;text-align:center;line-height:1.1">SEASON TOP 10</div>
+                </div>
+                <div style="aspect-ratio:1;border-radius:14px;background:#120b2e;box-shadow:inset 0 0 0 1.5px #123a46;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px">
+                  <i class="ph ph-lock-simple" style="font-size:20px;color:#087f92"></i>
+                  <div style="font-size:9px;font-weight:800;color:#6f5fb0;text-align:center;line-height:1.1">+25% MONTH</div>
+                </div>
+                <div style="aspect-ratio:1;border-radius:14px;background:#120b2e;box-shadow:inset 0 0 0 1.5px #123a46;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px">
+                  <i class="ph ph-lock-simple" style="font-size:20px;color:#087f92"></i>
+                  <div style="font-size:9px;font-weight:800;color:#6f5fb0;text-align:center;line-height:1.1">30-DAY RUN</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:0">
+                <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--color-divider);font-size:14px"><span>June season</span><span class="num" style="color:var(--color-neutral-400)">#3 of 7 friends · +9.2%</span></div>
+                <div style="display:flex;justify-content:space-between;padding:12px 0;font-size:14px"><span>Q2 season</span><span class="num" style="color:var(--color-neutral-400)">#1 of 7 friends · +18.6%</span></div>
+              </div>
+            </div>
+            <div style="height:78px;border-top:2px solid #00d9e8;background:linear-gradient(180deg,#22093f,#08021a);box-shadow:0 -10px 30px rgba(0,217,232,0.3);display:flex;align-items:center;padding:0 8px 14px">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-house" style="font-size:24px"></i>Home</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-chart-line-up" style="font-size:24px"></i>Discover</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-briefcase" style="font-size:24px"></i>Portfolio</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#8285c2;font-size:11px;font-weight:800"><i class="ph ph-flag-checkered" style="font-size:24px"></i>Compete</div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:#eafeff;font-size:11px;font-weight:900;letter-spacing:0.05em;text-shadow:0 0 16px #22f7ff,0 0 5px #22f7ff"><i class="ph-fill ph-user" style="font-size:24px"></i>You</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    
+  </div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;playerName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Jordan&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo data&quot;},&quot;rivalName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Dev N.&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo data&quot;},&quot;season&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Month&quot;,&quot;Quarter&quot;,&quot;Year&quot;],&quot;default&quot;:&quot;Month&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo data&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      playerName: this.props.playerName ?? "Jordan",
+      rivalName: this.props.rivalName ?? "Dev N.",
+      season: this.props.season ?? "Month"
+    };
+  }
+}
+</script>
+</body>
+</html>
