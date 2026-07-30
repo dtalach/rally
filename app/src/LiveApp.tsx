@@ -14,6 +14,7 @@ import { ProfilePullUp } from "./screens/ProfilePullUp";
 import { TrophyRoom } from "./screens/TrophyRoom";
 import { PhoneFrame, Screen } from "./components/PhoneFrame";
 import { RefreshProvider } from "./refresh";
+import { playFill } from "./sound";
 
 /* ---------------------------------------------------------------------------
    The running app: real session, real portfolio, real trades.
@@ -346,6 +347,8 @@ function Ticket({
     setError(undefined);
     try {
       await api.trade({ symbol: order.symbol, side: order.side, amount: order.amount });
+      // Only on a confirmed fill — the sound means "that happened", not "sent".
+      playFill();
       onFilled();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Order didn't go through.");

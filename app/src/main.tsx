@@ -14,6 +14,7 @@ import "@phosphor-icons/web/fill/style.css";
 import "./styles/tokens.css";
 import App from "./App.tsx";
 import { DeviceProvider } from "./device";
+import { listenForFirstGesture } from "./sound";
 
 // Path routing for a normal deploy; hash routing when the app is bundled into a
 // single self-contained HTML file, where there is no server to rewrite paths.
@@ -28,6 +29,9 @@ if (import.meta.env.PROD && "serviceWorker" in navigator) {
     });
   });
 }
+
+// iOS only allows audio inside a gesture; prime it on the first tap.
+listenForFirstGesture();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
