@@ -1,0 +1,244 @@
+/* ---------------------------------------------------------------------------
+   Rally — design tokens
+   Extracted verbatim from `Rally 3a Hybrid.dc.html` (the "Neon Glass x Arcade"
+   blend). The Nocturne design system supplied the original dark-UI starting
+   point, but every surface in this design overrides it with the arcade palette
+   below, so these values — not Nocturne's — are the source of truth.
+
+   Palette logic, as settled in the design chat:
+     cyan   = you            magenta = rival
+     green  = gains          yellow  = rewards / coins
+--------------------------------------------------------------------------- */
+
+:root {
+  /* Ground */
+  --bg-page: #05010d;
+  --bg-frame: #0a0420;
+  --bg-notch: #05050f;
+  --bg-card: #150a33;
+  --bg-card-deep: #100929;
+  --bg-track: #1a0630;
+  --bg-hairline: #241442;
+
+  /* Roles */
+  --cyan: #22f7ff;
+  --cyan-soft: #9df4ff;
+  --cyan-pale: #c8fbff;
+  --cyan-deep: #087f92;
+  --cyan-rule: #00d9e8;
+  --cyan-white: #eafeff;
+
+  --magenta: #ff2bd6;
+  --magenta-soft: #ff9bea;
+  --magenta-pale: #ff8ae0;
+  --magenta-deep: #b0129a;
+  --magenta-deeper: #9c0f84;
+
+  --green: #39ff14;
+  --green-deep: #1f9e18;
+  --green-ink: #062800;
+  --green-shade: #087f2a;
+
+  --gold: #ffe600;
+  --gold-deep: #c98b00;
+  --gold-mid: #e6cf00;
+  --gold-dull: #cfa900;
+  --gold-ink: #3a2b00;
+  --gold-text: #ffe6a8;
+  --gold-shadow-1: #a87400;
+  --gold-shadow-2: #8a5f00;
+  --gold-shadow-3: #7a5200;
+  --gold-shadow-4: #6b4700;
+  --gold-shadow-5: #5c3d00;
+  --gold-light: #fff8b0;
+  --gold-light-2: #fff0a0;
+  --gold-light-3: #ffe27a;
+
+  /* Text */
+  --text: #ffffff;
+  --text-1: #c0c3ee;
+  --text-2: #a3a6d8;
+  --text-3: #9499d1;
+  --text-4: #8a83c9;
+  --text-locked: #6f68b5;
+  --text-locked-dim: #4d448f;
+  --text-locked-icon: #3a2f6e;
+
+  /* Gradients used on more than one screen */
+  --grad-violet-card: linear-gradient(165deg, #3a0a53, #0e0526);
+  --grad-indigo-card: linear-gradient(165deg, #160b38, #0e0526);
+  --grad-indigo-card-170: linear-gradient(170deg, #160b38, #0e0526);
+  --grad-violet-card-170: linear-gradient(170deg, #3a0a53, #0e0526);
+  --grad-cyan-card: linear-gradient(165deg, #0c2d4a, #0e0526);
+  --grad-green-card: linear-gradient(165deg, #0e3a12, #0e0526);
+  --grad-magenta-card: linear-gradient(165deg, #3a0a2e, #0e0526);
+  --grad-gold-card: linear-gradient(165deg, #3a2b00, #0e0526);
+  --grad-sheet: linear-gradient(175deg, #1b1044, #0c0524);
+  --grad-nav: linear-gradient(180deg, #0c1f3f, #08021a);
+
+  --grad-btn-green: linear-gradient(160deg, #39ff14, #1f9e18);
+  --grad-btn-magenta: linear-gradient(160deg, #ff2bd6, #b0129a);
+  --grad-btn-gold: linear-gradient(160deg, #ffe600, #c98b00);
+  --grad-btn-cyan: linear-gradient(160deg, #22f7ff, #00aec4);
+
+  /* Shape language — unified radii from the "blend into one system" pass */
+  --r-frame: 44px;
+  --r-card: 20px;
+  --r-tile: 16px;
+  --r-chip: 7px;
+
+  /* The single cyan hairline ring that sits on every card and frame */
+  --ring: 0 0 0 1.5px rgba(34, 247, 255, 0.22);
+
+  /* Frame metrics */
+  --frame-w: 390px;
+  --frame-h: 844px;
+  --nav-h: 88px;
+
+  --font-body: "Chakra Petch", system-ui, sans-serif;
+  --font-pixel: "Press Start 2P", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg-page);
+  font-family: var(--font-body);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--cyan);
+}
+a:hover {
+  color: var(--cyan-soft);
+}
+
+/* Tabular figures on every number, as in the prototype's `.num` */
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.pixel {
+  font-family: var(--font-pixel);
+  letter-spacing: 0.02em;
+}
+
+/* The one arcade tag: same padding, radius, tinted fill and hairline ring on
+   every screen — only the colour role changes. */
+.chip {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  line-height: 1;
+  padding: 5px 8px;
+  border-radius: var(--r-chip);
+  background: rgba(34, 247, 255, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(34, 247, 255, 0.45);
+  color: var(--cyan-soft);
+}
+
+/* One texture on every screen: faint scanlines + a cyan top bloom, so the
+   cabinet feel is ambient rather than per-screen. */
+.frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.1) 0 2px,
+    transparent 2px 4px
+  );
+}
+
+.frame::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 220px;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(120% 100% at 50% 0, rgba(34, 247, 255, 0.12), transparent 70%);
+}
+
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes coinfall {
+  0% {
+    transform: translateY(-70px);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(430px);
+    opacity: 0;
+  }
+}
+
+@keyframes spinY {
+  0% {
+    transform: rotateY(0);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes tick {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* The prototype referenced `logoglow` on the RALLY wordmark but never defined
+   the keyframes, so the logo sat static. Restored here as the pulsing glow the
+   design notes describe. */
+@keyframes logoglow {
+  0%,
+  100% {
+    text-shadow: 0 0 14px rgba(255, 230, 0, 0.55), 0 0 34px rgba(255, 230, 0, 0.25);
+  }
+  50% {
+    text-shadow: 0 0 22px rgba(255, 230, 0, 0.95), 0 0 54px rgba(255, 230, 0, 0.5);
+  }
+}
+
+/* Reduced-motion variant of the coin drop — kept from the accessibility pass. */
+@media (prefers-reduced-motion: reduce) {
+  .frame *,
+  .frame *::before,
+  .frame *::after {
+    animation: none !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
