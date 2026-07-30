@@ -142,7 +142,7 @@ export type Period = "month" | "quarter" | "year";
 /* ------------------------------ endpoints ------------------------------- */
 
 export const api = {
-  me: () => get<{ player: Player | null; delayedPrices: boolean }>("me"),
+  me: () => get<{ player: Player | null; realPrices: boolean }>("me"),
   players: () => get<{ players: Player[] }>("players"),
   login: (handle: string, pin: string) => post<{ player: Player }>("login", { handle, pin }),
   logout: () => post<{ ok: true }>("logout", {}),

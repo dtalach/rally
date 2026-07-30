@@ -69,6 +69,7 @@ trophies, activity and notifications are still the static design screens.
 | `GET /api/race`    | Everyone's % return and daily series for the period           |
 | `GET /api/leaderboard` | Ranked standings for month, quarter or year               |
 | `POST /api/setup`  | One-shot migrate + seed, guarded by `SETUP_TOKEN`             |
+| `GET /api/health`  | Is this deployment wired up? Config, counts, price source      |
 
 Things worth knowing:
 
@@ -121,7 +122,14 @@ function; `vercel.json` rewrites everything else to `index.html`.
    injects `DATABASE_URL` automatically.
 3. In **Settings → Environment Variables**, add `SESSION_SECRET` (any long random
    string) and `SETUP_TOKEN` (another one). Add `FINNHUB_API_KEY` when you have it.
-4. Redeploy so the new variables are picked up.
+4. Redeploy so the new variables are picked up, then check it's wired up:
+
+   ```bash
+   curl https://<your-app>.vercel.app/api/health
+   ```
+
+   Expect `"priceSource": "finnhub"` once the key is set, and a hint telling you
+   what's still missing otherwise.
 5. Create the tables and the test crew — once:
 
    ```bash
@@ -133,7 +141,7 @@ function; `vercel.json` rewrites everything else to `index.html`.
    It's idempotent, and it runs inside the deployment, so the database credential
    never has to leave Vercel.
 6. **Delete `SETUP_TOKEN`** once you're set up. With it unset the endpoint refuses
-   to run at all.
+   to run at all. `/api/health` should now report `"ok": true`.
 
 ### On your iPhone
 

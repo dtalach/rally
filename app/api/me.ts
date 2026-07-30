@@ -7,7 +7,7 @@ import { usingRealPrices } from "./_lib/prices";
 /** Who am I? Returns `player: null` rather than 401 so the app can boot to login. */
 export default route("GET", async (req) => {
   const id = playerIdFrom(req);
-  if (!id) return { player: null, delayedPrices: usingRealPrices() };
+  if (!id) return { player: null, realPrices: usingRealPrices() };
 
   const [player] = await db()
     .select({
@@ -19,5 +19,5 @@ export default route("GET", async (req) => {
     .from(schema.players)
     .where(eq(schema.players.id, id));
 
-  return { player: player ?? null, delayedPrices: usingRealPrices() };
+  return { player: player ?? null, realPrices: usingRealPrices() };
 });
