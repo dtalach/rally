@@ -11,6 +11,7 @@ import { Race } from "./screens/Race";
 import { Leaderboards } from "./screens/Leaderboards";
 import { VsDuel } from "./screens/VsDuel";
 import { PhoneFrame, Screen } from "./components/PhoneFrame";
+import { RefreshProvider } from "./refresh";
 
 /* ---------------------------------------------------------------------------
    The running app: real session, real portfolio, real trades.
@@ -61,8 +62,13 @@ export default function LiveApp() {
 
   const go = (tab: Tab) => setView({ name: "tab", tab });
 
+  // Pull-to-refresh on any screen refetches everything the shell owns.
+  const shell = (node: React.ReactNode) => (
+    <RefreshProvider onRefresh={refresh}>{node}</RefreshProvider>
+  );
+
   if (view.name === "stock") {
-    return (
+    return shell(
       <StockDetail
         symbol={view.symbol}
         version={dataVersion}
@@ -76,7 +82,7 @@ export default function LiveApp() {
   }
 
   if (view.name === "ticket") {
-    return (
+    return shell(
       <Ticket
         order={view}
         version={dataVersion}
@@ -91,9 +97,9 @@ export default function LiveApp() {
 
   switch (view.tab) {
     case "home":
-      return <LiveHome version={dataVersion} onNavigate={go} />;
+      return shell(<LiveHome version={dataVersion} onNavigate={go} />);
     case "folio":
-      return (
+      return shell(
         <LiveFolio
           version={dataVersion}
           onNavigate={go}
@@ -101,19 +107,21 @@ export default function LiveApp() {
         />
       );
     case "trade":
-      return <LiveDiscover onNavigate={go} onOpen={(symbol) => setView({ name: "stock", symbol })} />;
+      return shell(
+        <LiveDiscover onNavigate={go} onOpen={(symbol) => setView({ name: "stock", symbol })} />
+      );
     case "race":
-      return <LiveRace version={dataVersion} onNavigate={go} />;
+      return shell(<LiveRace version={dataVersion} onNavigate={go} />);
     case "duels":
-      return <VsDuel onNavigate={go} onTrade={() => go("trade")} />;
+      return shell(<VsDuel onNavigate={go} onTrade={() => go("trade")} />);
   }
 }
 
 /* ------------------------------- screens -------------------------------- */
 
 function LiveHome({ version, onNavigate }: { version: number; onNavigate: (t: Tab) => void }) {
-  const portfolio = useApi(() => api.portfolio(), [version]);
-  const feed = useApi(() => api.feed(), [version]);
+  const portfolio = useApi("portfolio", () => api.portfolio(), [version]);
+  const feed = useApi("feed", () => api.feed(), [version]);
 
   if (portfolio.error) return <Failed message={portfolio.error} onRetry={portfolio.reload} />;
   if (!portfolio.data) return <Booting />;
@@ -143,7 +151,7 @@ function LiveFolio({
   onNavigate: (t: Tab) => void;
   onOpen: (symbol: string) => void;
 }) {
-  const { data, error, reload } = useApi(() => api.portfolio(), [version]);
+  const { data, error, reload } = useApi("portfolio", () => api.portfolio(), [version]);
 
   if (error) return <Failed message={error} onRetry={reload} />;
   if (!data) return <Booting />;
@@ -178,6 +186,7 @@ function LiveDiscover({
   }, [query]);
 
   const { data, error, loading, reload } = useApi(
+    `market:${board}:${debounced}`,
     () => api.market(board, debounced),
     [board, debounced]
   );
@@ -213,7 +222,7 @@ function StockDetail({
   onNavigate: (t: Tab) => void;
   onReview: (order: { side: "buy" | "sell"; amount: number }) => void;
 }) {
-  const { data, error, reload } = useApi(() => api.quote(symbol), [symbol, version]);
+  const { data, error, reload } = useApi(`quote:${symbol}`, () => api.quote(symbol), [symbol, version]);
 
   if (error) return <Failed message={error} onRetry={reload} />;
   if (!data) return <Booting />;
@@ -232,8 +241,8 @@ function Ticket({
   onDismiss: () => void;
   onFilled: () => void;
 }) {
-  const { data } = useApi(() => api.quote(order.symbol), [order.symbol, version]);
-  const race = useApi(() => api.race("month"), [version]);
+  const { data } = useApi(`quote:${order.symbol}`, () => api.quote(order.symbol), [order.symbol, version]);
+  const race = useApi("race:month", () => api.race("month"), [version]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -296,8 +305,8 @@ function LiveRace({ version, onNavigate }: { version: number; onNavigate: (t: Ta
   const [period, setPeriod] = useState<Period>("month");
   const [board, setBoard] = useState<"race" | "ranks">("race");
 
-  const race = useApi(() => api.race(period), [period, version]);
-  const ranks = useApi(() => api.leaderboard(period), [period, version]);
+  const race = useApi(`race:${period}`, () => api.race(period), [period, version]);
+  const ranks = useApi(`leaderboard:${period}`, () => api.leaderboard(period), [period, version]);
 
   if (race.error) return <Failed message={race.error} onRetry={race.reload} />;
   if (!race.data) return <Booting />;

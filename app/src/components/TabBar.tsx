@@ -124,6 +124,7 @@ function NavSlot({
     <button
       type="button"
       onClick={onClick}
+      className="press"
       style={{
         flex,
         display: "flex",

@@ -247,6 +247,7 @@ export function Card({
 }) {
   const el = (
     <div
+      className={onClick ? "press" : undefined}
       style={{
         borderRadius: radius,
         background,

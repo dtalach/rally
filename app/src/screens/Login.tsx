@@ -12,7 +12,7 @@ import { api, useApi, type Player } from "../api";
 const ROLES = ["cyan", "magenta", "green", "gold"] as const;
 
 export function Login({ onSignedIn }: { onSignedIn: (p: Player) => void }) {
-  const { data, error: loadError, loading } = useApi(() => api.players(), []);
+  const { data, error: loadError, loading } = useApi("players", () => api.players(), []);
   const [selected, setSelected] = useState<Player | null>(null);
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string>();

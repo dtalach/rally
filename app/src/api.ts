@@ -188,32 +188,58 @@ export type Async<T> = {
   reload: () => void;
 };
 
-/** Fetch on mount and whenever `deps` change. */
-export function useApi<T>(fn: () => Promise<T>, deps: unknown[]): Async<T> {
-  const [data, setData] = useState<T>();
+/**
+ * Responses already seen, keyed by request. Module-level so it survives screen
+ * unmounts — switching tabs must not throw the data away.
+ */
+const cache = new Map<string, unknown>();
+
+/**
+ * Fetch with stale-while-revalidate.
+ *
+ * A native app doesn't blank the screen when you switch tabs; it shows what it
+ * had and quietly updates. So do we: if this key has been fetched before, its
+ * last value renders immediately and the refetch happens behind it. Only a
+ * genuinely first-time request shows a loading state.
+ */
+export function useApi<T>(key: string, fn: () => Promise<T>, deps: unknown[]): Async<T> {
+  const [data, setData] = useState<T | undefined>(() => cache.get(key) as T | undefined);
   const [error, setError] = useState<string>();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !cache.has(key));
   const [nonce, setNonce] = useState(0);
 
   useEffect(() => {
     let live = true;
-    setLoading(true);
+
+    const hit = cache.get(key) as T | undefined;
+    if (hit !== undefined) {
+      setData(hit);
+      setLoading(false);
+    } else {
+      setData(undefined);
+      setLoading(true);
+    }
+
     fn()
       .then((d) => {
+        cache.set(key, d);
         if (!live) return;
         setData(d);
         setError(undefined);
       })
       .catch((e: unknown) => {
         if (!live) return;
+        // Keep showing stale data on a failed refresh — an error screen over
+        // a portfolio you were just looking at is worse than a slightly old one.
         setError(e instanceof Error ? e.message : "Something went wrong.");
       })
       .finally(() => live && setLoading(false));
+
     return () => {
       live = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [...deps, nonce]);
+  }, [key, ...deps, nonce]);
 
   return { data, error, loading, reload: useCallback(() => setNonce((n) => n + 1), []) };
 }

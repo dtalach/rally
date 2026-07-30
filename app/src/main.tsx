@@ -19,6 +19,16 @@ import { DeviceProvider } from "./device";
 // single self-contained HTML file, where there is no server to rewrite paths.
 const Router = import.meta.env.VITE_HASH_ROUTER === "1" ? HashRouter : BrowserRouter;
 
+// Cache the shell so a home-screen launch is instant. Dev is excluded so
+// there's no stale bundle to fight while iterating.
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      // A failed registration costs us speed, never correctness.
+    });
+  });
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Router>

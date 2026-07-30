@@ -1,5 +1,6 @@
-import type { CSSProperties, ReactNode } from "react";
+import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useDeviceMode } from "../useDeviceMode";
+import { useRefresh } from "../useRefresh";
 
 /**
  * On desktop: the iOS frame every screen is reviewed in — 390x844, 44px radius,
@@ -137,12 +138,65 @@ export function Screen({
   scroll?: boolean;
 }) {
   const device = useDeviceMode();
+  const onRefresh = useRefresh();
+  const scrollable = scroll || device;
+
+  const ref = useRef<HTMLDivElement>(null);
+  const startY = useRef<number | null>(null);
+  const [pull, setPull] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const THRESHOLD = 64;
+  const canPull = Boolean(device && onRefresh && scrollable);
+
+  /* Pull-to-refresh. Only arms when the surface is already scrolled to the
+     top, so it never fights a normal scroll, and the pull is damped so it
+     feels like resistance rather than a free drag. */
+  const touchStart = (e: React.TouchEvent) => {
+    if (!canPull || refreshing) return;
+    startY.current = (ref.current?.scrollTop ?? 0) <= 0 ? e.touches[0].clientY : null;
+  };
+
+  const touchMove = (e: React.TouchEvent) => {
+    if (startY.current === null) return;
+    const delta = e.touches[0].clientY - startY.current;
+    if (delta <= 0) {
+      setPull(0);
+      return;
+    }
+    setPull(Math.min(THRESHOLD * 1.5, delta * 0.5));
+  };
+
+  const touchEnd = async () => {
+    if (startY.current === null) return;
+    startY.current = null;
+    if (pull >= THRESHOLD && onRefresh) {
+      setRefreshing(true);
+      setPull(THRESHOLD * 0.6);
+      onRefresh();
+      // Long enough to read as a real refresh rather than a flicker.
+      setTimeout(() => {
+        setRefreshing(false);
+        setPull(0);
+      }, 650);
+    } else {
+      setPull(0);
+    }
+  };
+
+  const armed = pull >= THRESHOLD;
+
   return (
     <div
+      ref={ref}
+      onTouchStart={canPull ? touchStart : undefined}
+      onTouchMove={canPull ? touchMove : undefined}
+      onTouchEnd={canPull ? touchEnd : undefined}
+      onTouchCancel={canPull ? touchEnd : undefined}
       style={{
         flex: 1,
         minHeight: 0,
-        overflowY: scroll || device ? "auto" : "hidden",
+        overflowY: scrollable ? "auto" : "hidden",
         overflowX: "hidden",
         WebkitOverflowScrolling: "touch",
         overscrollBehaviorY: "contain",
@@ -151,9 +205,44 @@ export function Screen({
         flexDirection: "column",
         gap,
         scrollbarWidth: "none",
+        position: "relative",
+        transform: pull > 0 ? `translateY(${pull}px)` : undefined,
+        transition: startY.current === null ? "transform 260ms cubic-bezier(0.22,1,0.36,1)" : undefined,
         ...style,
       }}
     >
+      {canPull && pull > 0 && (
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            top: -44,
+            left: 0,
+            right: 0,
+            height: 40,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: "0.14em",
+            color: armed || refreshing ? "var(--gold)" : "var(--text-3)",
+            textShadow: armed || refreshing ? "0 0 12px rgba(255,230,0,0.6)" : undefined,
+            pointerEvents: "none",
+          }}
+        >
+          <i
+            className={refreshing ? "ph-fill ph-coins" : "ph ph-arrow-down"}
+            style={{
+              fontSize: 15,
+              transform: armed && !refreshing ? "rotate(180deg)" : undefined,
+              transition: "transform 160ms ease",
+            }}
+          />
+          {refreshing ? "REFRESHING" : armed ? "RELEASE" : "PULL"}
+        </div>
+      )}
       {children}
     </div>
   );
