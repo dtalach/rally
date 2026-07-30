@@ -3,6 +3,7 @@ import { PhoneFrame, Screen } from "../components/PhoneFrame";
 import { ROLE, Sheet, type Role } from "../components/ui";
 import { PLAYER } from "../data";
 import { isMuted, playFill, setMuted } from "../sound";
+import { needsPermission, type ShakeState } from "../useShake";
 
 /* 17 · PROFILE PULL-UP — what the avatar opens.
    Level ring, XP bar, the four vitals, then Trophy Room, crew and parent view.
@@ -35,10 +36,13 @@ export function ProfilePullUp({
   onTrophyRoom,
   onDismiss,
   live,
+  shake,
 }: {
   onTrophyRoom?: () => void;
   onDismiss?: () => void;
   live?: ProfileLive;
+  /** Owned by the app shell, so the listener outlives this sheet. */
+  shake?: { state: ShakeState; enable: () => void; disable: () => void };
 }) {
   const [muted, setMutedState] = useState(isMuted);
 
@@ -190,66 +194,117 @@ export function ProfilePullUp({
           icon="ph ph-users-three"
           label={`My Crew · ${live ? live.crewSize : PLAYER.crewSize} racers`}
         />
-        {/* The app's one sound. Toggling it on previews it, so the control
-            demonstrates what it controls. */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "13px 14px",
-            borderRadius: 14,
-            background: "rgba(34,247,255,0.05)",
-            boxShadow: "inset 0 0 0 1px rgba(34,247,255,0.25)",
+        {/* Toggling the sound on previews it, so the control demonstrates
+            what it controls. */}
+        {live && (
+        <ToggleRow
+          icon={muted ? "ph ph-speaker-slash" : "ph-fill ph-speaker-high"}
+          iconColor={muted ? "var(--text-3)" : "var(--gold)"}
+          label="Coin sound on trades"
+          on={!muted}
+          onToggle={() => {
+            const next = !muted;
+            setMuted(next);
+            setMutedState(next);
+            if (!next) playFill();
           }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <i
-              className={muted ? "ph ph-speaker-slash" : "ph-fill ph-speaker-high"}
-              style={{ fontSize: 20, color: muted ? "var(--text-3)" : "var(--gold)" }}
-            />
-            <span style={{ fontSize: 14, fontWeight: 600 }}>Coin sound on trades</span>
-          </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={!muted}
-            aria-label="Coin sound on trades"
-            onClick={() => {
-              const next = !muted;
-              setMuted(next);
-              setMutedState(next);
-              if (!next) playFill();
-            }}
-            style={{
-              width: 46,
-              height: 27,
-              borderRadius: 15,
-              border: "none",
-              padding: 3,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: muted ? "flex-start" : "flex-end",
-              cursor: "pointer",
-              ...(muted
-                ? { background: "var(--bg-hairline)", boxShadow: "inset 0 0 0 1.5px #3a2f6e" }
-                : { background: "var(--grad-btn-green)", boxShadow: "0 0 12px rgba(57,255,20,0.4)" }),
-            }}
-          >
-            <div
-              style={{
-                width: 21,
-                height: 21,
-                borderRadius: "50%",
-                background: muted ? "var(--text-3)" : "#fff",
-              }}
-            />
-          </button>
-        </div>
+        />
+        )}
+
+        {live && shake && (
+        <ToggleRow
+          icon={shake.state === "on" ? "ph-fill ph-device-mobile-speaker" : "ph ph-device-mobile"}
+          iconColor={shake.state === "on" ? "var(--magenta)" : "var(--text-3)"}
+          label="Shake for coins"
+          hint={
+            shake.state === "unsupported"
+              ? "Not available on this device"
+              : shake.state === "denied"
+                ? "Blocked — allow Motion in Safari settings"
+                : shake.state === "on"
+                  ? "Shake the phone to hear your stack"
+                  : needsPermission()
+                    ? "Tap to allow motion access"
+                    : undefined
+          }
+          on={shake.state === "on"}
+          disabled={shake.state === "unsupported"}
+          onToggle={() => (shake.state === "on" ? shake.disable() : shake.enable())}
+        />
+        )}
 
         <ProfileRow icon="ph ph-shield-check" label="Parent view & settings" />
       </Sheet>
     </PhoneFrame>
+  );
+}
+
+function ToggleRow({
+  icon,
+  iconColor,
+  label,
+  hint,
+  on,
+  disabled,
+  onToggle,
+}: {
+  icon: string;
+  iconColor: string;
+  label: string;
+  hint?: string;
+  on: boolean;
+  disabled?: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 10,
+        padding: "13px 14px",
+        borderRadius: 14,
+        background: "rgba(34,247,255,0.05)",
+        boxShadow: "inset 0 0 0 1px rgba(34,247,255,0.25)",
+        opacity: disabled ? 0.5 : 1,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+        <i className={icon} style={{ fontSize: 20, color: iconColor, flexShrink: 0 }} />
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>{label}</div>
+          {hint && <div style={{ fontSize: 11, color: "var(--text-3)" }}>{hint}</div>}
+        </div>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={on}
+        aria-label={label}
+        disabled={disabled}
+        onClick={onToggle}
+        style={{
+          width: 46,
+          height: 27,
+          borderRadius: 15,
+          border: "none",
+          padding: 3,
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: on ? "flex-end" : "flex-start",
+          cursor: disabled ? "not-allowed" : "pointer",
+          ...(on
+            ? { background: "var(--grad-btn-green)", boxShadow: "0 0 12px rgba(57,255,20,0.4)" }
+            : { background: "var(--bg-hairline)", boxShadow: "inset 0 0 0 1.5px #3a2f6e" }),
+        }}
+      >
+        <div
+          style={{ width: 21, height: 21, borderRadius: "50%", background: on ? "#fff" : "var(--text-3)" }}
+        />
+      </button>
+    </div>
   );
 }
 

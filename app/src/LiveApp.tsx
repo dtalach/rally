@@ -14,7 +14,8 @@ import { ProfilePullUp } from "./screens/ProfilePullUp";
 import { TrophyRoom } from "./screens/TrophyRoom";
 import { PhoneFrame, Screen } from "./components/PhoneFrame";
 import { RefreshProvider } from "./refresh";
-import { playFill } from "./sound";
+import { playFill, playShake } from "./sound";
+import { useShake } from "./useShake";
 
 /* ---------------------------------------------------------------------------
    The running app: real session, real portfolio, real trades.
@@ -51,6 +52,10 @@ export default function LiveApp() {
   const [player, setPlayer] = useState<Player | null>(null);
   const [booted, setBooted] = useState(false);
   const [view, setView] = useState<View>({ name: "tab", tab: "home" });
+
+  // Shake-to-rattle lives at the shell so it works on any screen, not just
+  // wherever the toggle happens to be.
+  const shake = useShake(playShake);
 
   // Bumping this refetches every screen's data after a trade lands.
   const [dataVersion, setDataVersion] = useState(0);
@@ -95,6 +100,7 @@ export default function LiveApp() {
     return shell(
       <LiveProfile
         version={dataVersion}
+        shake={shake}
         onDismiss={() => go(view.from)}
         onTrophyRoom={() => setView({ name: "trophies", from: view.from })}
       />
@@ -406,10 +412,12 @@ function LiveRace({ version, onNavigate }: { version: number; onNavigate: (t: Ta
 
 function LiveProfile({
   version,
+  shake,
   onDismiss,
   onTrophyRoom,
 }: {
   version: number;
+  shake: ReturnType<typeof useShake>;
   onDismiss: () => void;
   onTrophyRoom: () => void;
 }) {
@@ -421,6 +429,7 @@ function LiveProfile({
     <ProfilePullUp
       onDismiss={onDismiss}
       onTrophyRoom={onTrophyRoom}
+      shake={shake}
       live={{
         name: data.player.name,
         initials: data.player.initials,
