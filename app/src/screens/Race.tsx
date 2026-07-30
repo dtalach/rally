@@ -36,26 +36,53 @@ const PERIOD_TAB: Record<"mo" | "qtr" | "yr", "month" | "quarter" | "year"> = {
   yr: "year",
 };
 
-/**
- * Maps each player's value series into the chart's 340x240 viewBox. All lines
- * share one scale — the race is about who gained more, so the curves must be
- * directly comparable, and each is normalised to its own starting value.
- */
-function linePoints(series: number[], allSeries: number[][]) {
-  if (series.length < 2) return "";
+/* Chart geometry. The plot is inset on the left for the % axis and on the
+   right for the P1/P2/P3 end tags. */
+const PLOT_LEFT = 38;
+const PLOT_RIGHT = 302;
+const PLOT_TOP = 26;
+const PLOT_BOTTOM = 226;
 
-  const normalise = (s: number[]) => s.map((v) => (s[0] > 0 ? v / s[0] - 1 : 0));
-  const allNorm = allSeries.filter((s) => s.length > 1).map(normalise);
-  const flat = allNorm.flat();
+/** Each series as a return relative to its own first day. */
+const normalise = (s: number[]) => s.map((v) => (s[0] > 0 ? v / s[0] - 1 : 0));
+
+/**
+ * One shared vertical scale across every player — the race is about who gained
+ * more, so the curves have to be directly comparable. Zero is always included,
+ * because "flat since the period started" is the line that matters.
+ */
+function domain(allSeries: number[][]) {
+  const flat = allSeries.filter((x) => x.length > 1).map(normalise).flat();
   const lo = Math.min(0, ...flat);
   const hi = Math.max(0.0001, ...flat);
+  const pad = (hi - lo) * 0.12;
+  return { lo: lo - pad, hi: hi + pad };
+}
 
+const yFor = (v: number, lo: number, hi: number) =>
+  PLOT_BOTTOM - ((v - lo) / (hi - lo)) * (PLOT_BOTTOM - PLOT_TOP);
+
+function linePoints(series: number[], lo: number, hi: number) {
+  if (series.length < 2) return "";
   const mine = normalise(series);
-  const stepX = 310 / (mine.length - 1);
+  const stepX = (PLOT_RIGHT - PLOT_LEFT) / (mine.length - 1);
   return mine
-    .map((v, i) => `${(i * stepX).toFixed(1)},${(226 - ((v - lo) / (hi - lo)) * 200).toFixed(1)}`)
+    .map((v, i) => `${(PLOT_LEFT + i * stepX).toFixed(1)},${yFor(v, lo, hi).toFixed(1)}`)
     .join(" ");
 }
+
+/** Round tick values (1/2/5 x 10^n) so the axis reads in whole percents. */
+function niceTicks(lo: number, hi: number, count = 4) {
+  const rough = (hi - lo) / count || 0.01;
+  const mag = 10 ** Math.floor(Math.log10(rough));
+  const norm = rough / mag;
+  const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10) * mag;
+  const ticks: number[] = [];
+  for (let t = Math.ceil(lo / step) * step; t <= hi + 1e-9; t += step) ticks.push(t);
+  return ticks;
+}
+
+const tickLabel = (v: number) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v * 100).toFixed(0)}%`;
 
 const lastPoint = (points: string) => {
   const parts = points.split(" ");
@@ -66,9 +93,13 @@ const lastPoint = (points: string) => {
 export function Race({ onNavigate, live }: { onNavigate?: (t: Tab) => void; live?: RaceLive }) {
   const [scope, setScope] = useState<"crew" | "league">("crew");
   const [period, setPeriod] = useState<"mo" | "qtr" | "yr">("mo");
+  /** Tapping a row isolates that racer's line; tapping it again clears. */
+  const [focused, setFocused] = useState<string | null>(null);
 
   const standings = live?.standings;
   const allSeries = standings?.map((s) => s.series) ?? [];
+  const { lo, hi } = domain(allSeries);
+  const ticks = niceTicks(lo, hi);
 
   return (
     <PhoneFrame>
@@ -170,74 +201,139 @@ export function Race({ onNavigate, live }: { onNavigate?: (t: Tab) => void; live
           style={{ flexShrink: 0 }}
         >
           <svg viewBox="0 0 340 240" style={{ width: "100%", height: 250 }}>
-            {[60, 120, 180].map((y) => (
-              <line key={y} x1="0" y1={y} x2="340" y2={y} stroke="#241442" strokeWidth="1" />
-            ))}
-
-            {standings
-              ? standings.map((s) => {
-                  const points = linePoints(s.series, allSeries);
-                  if (!points) return null;
-                  const color = ROLE[s.role as Role]?.base ?? "#22f7ff";
-                  const end = lastPoint(points);
+            {standings ? (
+              <>
+                {/* % return axis — without it the lines are decorative. */}
+                {ticks.map((t) => {
+                  const y = yFor(t, lo, hi);
+                  const isZero = Math.abs(t) < 1e-9;
                   return (
-                    <g key={s.id}>
-                      {/* Your line is thicker — you're the one being tracked. */}
-                      <GlowLine points={points} color={color} width={s.you ? 4.5 : 3} bloom={s.you ? 14 : 11} />
-                      <GlowDot cx={end.x} cy={end.y} r={s.you ? 6 : 5} color={color} />
+                    <g key={t}>
+                      <line
+                        x1={PLOT_LEFT}
+                        y1={y}
+                        x2={PLOT_RIGHT}
+                        y2={y}
+                        stroke={isZero ? "#3a2f6e" : "#241442"}
+                        strokeWidth="1"
+                        strokeDasharray={isZero ? undefined : "3 4"}
+                      />
                       <text
-                        x={end.x + 10}
-                        y={end.y + 4}
-                        fill={color}
-                        fontSize="11"
+                        x={PLOT_LEFT - 6}
+                        y={y + 3.5}
+                        textAnchor="end"
+                        fill={isZero ? "var(--text-2)" : "var(--text-3)"}
+                        fontSize="9"
                         fontWeight="700"
                         fontFamily="Chakra Petch"
                       >
-                        {s.tag}
+                        {tickLabel(t)}
                       </text>
                     </g>
                   );
-                })
-              : (
-                <>
-                  <GlowLine points={RACE_LINES.p1} color="#39ff14" width={3.5} bloom={12} />
-                  <GlowLine points={RACE_LINES.p2} color="#22f7ff" width={4.5} bloom={14} />
-                  <GlowLine points={RACE_LINES.p3} color="#ff2bd6" width={3} bloom={10} />
-                  <GlowDot cx={310} cy={34} r={5} color="#39ff14" />
-                  <text x="320" y="38" fill="#39ff14" fontSize="11" fontWeight="700" fontFamily="Chakra Petch">
-                    P1
-                  </text>
-                  <GlowDot cx={310} cy={86} r={6} color="#22f7ff" />
-                  <text x="320" y="90" fill="#22f7ff" fontSize="11" fontWeight="700" fontFamily="Chakra Petch">
-                    P2
-                  </text>
-                  <GlowDot cx={310} cy={146} r={5} color="#ff2bd6" />
-                  <text x="320" y="150" fill="#ff2bd6" fontSize="11" fontWeight="700" fontFamily="Chakra Petch">
-                    P3
-                  </text>
-                </>
-              )}
+                })}
+
+                {/* Draw unfocused lines first so the focused one sits on top. */}
+                {[...standings]
+                  .sort((a, b) => Number(String(a.id) === focused) - Number(String(b.id) === focused))
+                  .map((r) => {
+                    const points = linePoints(r.series, lo, hi);
+                    if (!points) return null;
+                    const color = ROLE[r.role as Role]?.base ?? "#22f7ff";
+                    const end = lastPoint(points);
+                    const dimmed = focused !== null && String(r.id) !== focused;
+                    return (
+                      <g key={r.id} opacity={dimmed ? 0.16 : 1}>
+                        <GlowLine
+                          points={points}
+                          color={color}
+                          width={r.you ? 4.5 : 3}
+                          bloom={dimmed ? 0 : r.you ? 14 : 11}
+                        />
+                        <GlowDot cx={end.x} cy={end.y} r={r.you ? 6 : 5} color={color} />
+                        <text
+                          x={end.x + 9}
+                          y={end.y + 4}
+                          fill={color}
+                          fontSize="11"
+                          fontWeight="700"
+                          fontFamily="Chakra Petch"
+                        >
+                          {r.tag}
+                        </text>
+                      </g>
+                    );
+                  })}
+              </>
+            ) : (
+              <>
+                {[60, 120, 180].map((y) => (
+                  <line key={y} x1="0" y1={y} x2="340" y2={y} stroke="#241442" strokeWidth="1" />
+                ))}
+                <GlowLine points={RACE_LINES.p1} color="#39ff14" width={3.5} bloom={12} />
+                <GlowLine points={RACE_LINES.p2} color="#22f7ff" width={4.5} bloom={14} />
+                <GlowLine points={RACE_LINES.p3} color="#ff2bd6" width={3} bloom={10} />
+                <GlowDot cx={310} cy={34} r={5} color="#39ff14" />
+                <text x="320" y="38" fill="#39ff14" fontSize="11" fontWeight="700" fontFamily="Chakra Petch">
+                  P1
+                </text>
+                <GlowDot cx={310} cy={86} r={6} color="#22f7ff" />
+                <text x="320" y="90" fill="#22f7ff" fontSize="11" fontWeight="700" fontFamily="Chakra Petch">
+                  P2
+                </text>
+                <GlowDot cx={310} cy={146} r={5} color="#ff2bd6" />
+                <text x="320" y="150" fill="#ff2bd6" fontSize="11" fontWeight="700" fontFamily="Chakra Petch">
+                  P3
+                </text>
+              </>
+            )}
           </svg>
         </Card>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
-          {(standings ?? RACE_STANDINGS.map((r) => ({ ...r, id: r.tag, stackLabel: r.stack, returnLabel: r.pct }))).map((r) => {
+          {(
+            standings ??
+            RACE_STANDINGS.map((r) => ({ ...r, id: r.tag, stackLabel: r.stack, returnLabel: r.pct }))
+          ).map((r) => {
             const tint = ROLE[r.role as Role] ?? ROLE.cyan;
+            const id = String(r.id);
+            const isFocused = focused === id;
+            const dimmed = focused !== null && !isFocused;
+
             return (
-              <div
+              <button
                 key={r.id}
+                type="button"
+                className="press"
+                aria-pressed={isFocused}
+                onClick={() => setFocused(isFocused ? null : id)}
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: 12,
                   padding: "11px 14px",
                   borderRadius: "var(--r-tile)",
-                  ...(r.you
+                  border: "none",
+                  font: "inherit",
+                  color: "inherit",
+                  textAlign: "left",
+                  width: "100%",
+                  cursor: "pointer",
+                  // Focus is shown in the racer's own colour, so the row and the
+                  // line it isolates read as the same object.
+                  opacity: dimmed ? 0.45 : 1,
+                  transition: "opacity 160ms ease",
+                  ...(isFocused
                     ? {
-                        background: "var(--grad-cyan-card)",
-                        boxShadow: "0 0 0 1.5px var(--cyan), 0 0 20px rgba(34,247,255,0.3)",
+                        background: `rgba(${tint.rgb},0.1)`,
+                        boxShadow: `0 0 0 1.5px ${tint.base}, 0 0 20px rgba(${tint.rgb},0.35)`,
                       }
-                    : { background: "var(--bg-card)", boxShadow: "var(--ring)" }),
+                    : r.you
+                      ? {
+                          background: "var(--grad-cyan-card)",
+                          boxShadow: "0 0 0 1.5px var(--cyan), 0 0 20px rgba(34,247,255,0.3)",
+                        }
+                      : { background: "var(--bg-card)", boxShadow: "var(--ring)" }),
                 }}
               >
                 {r.you ? <Chip>{r.tag}</Chip> : <Chip role={r.role as Role}>{r.tag}</Chip>}
@@ -261,10 +357,32 @@ export function Race({ onNavigate, live }: { onNavigate?: (t: Tab) => void; live
                 >
                   {r.returnLabel}
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
+
+        {focused !== null && (
+          <button
+            type="button"
+            onClick={() => setFocused(null)}
+            style={{
+              alignSelf: "center",
+              background: "none",
+              border: "none",
+              fontFamily: "inherit",
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: "var(--cyan-soft)",
+              cursor: "pointer",
+              padding: "2px 0",
+              flexShrink: 0,
+            }}
+          >
+            SHOW ALL RACERS
+          </button>
+        )}
 
         <Nudge>Maya passed you at 10:04. Avenge yourself.</Nudge>
       </Screen>
