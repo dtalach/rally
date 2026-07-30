@@ -3,7 +3,7 @@ import { PhoneFrame, Screen } from "../components/PhoneFrame";
 import { ROLE, Sheet, type Role } from "../components/ui";
 import { PLAYER } from "../data";
 import { isMuted, playFill, setMuted } from "../sound";
-import { needsPermission, type ShakeState } from "../useShake";
+import { isStandalone, needsPermission, type ShakeState } from "../useShake";
 
 /* 17 · PROFILE PULL-UP — what the avatar opens.
    Level ring, XP bar, the four vitals, then Trophy Room, crew and parent view.
@@ -221,11 +221,15 @@ export function ProfilePullUp({
               ? "Not available on this device"
               : shake.state === "denied"
                 ? "Blocked — allow Motion in Safari settings"
-                : shake.state === "on"
-                  ? "Shake the phone to hear your stack"
-                  : needsPermission()
-                    ? "Tap to allow motion access"
-                    : undefined
+                : shake.state === "no-response"
+                  ? isStandalone()
+                    ? "iOS didn't ask. Try turning this on in Safari first."
+                    : "iOS didn't respond. Try again."
+                  : shake.state === "on"
+                    ? "Shake the phone to hear your stack"
+                    : needsPermission()
+                      ? "Tap to allow motion access"
+                      : undefined
           }
           on={shake.state === "on"}
           disabled={shake.state === "unsupported"}

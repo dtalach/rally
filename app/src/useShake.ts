@@ -54,7 +54,13 @@ const HITS_NEEDED = 3;
 const WINDOW_MS = 1000;
 const COOLDOWN_MS = 2500;
 
-export type ShakeState = "unsupported" | "off" | "on" | "denied";
+export type ShakeState = "unsupported" | "off" | "on" | "denied" | "no-response";
+
+/** Running from the home screen rather than a Safari tab. */
+export const isStandalone = () =>
+  typeof window !== "undefined" &&
+  (window.matchMedia("(display-mode: standalone)").matches ||
+    (window.navigator as unknown as { standalone?: boolean }).standalone === true);
 
 /**
  * Calls `onShake` when the device is shaken hard. Returns the current state
@@ -71,7 +77,18 @@ export function useShake(onShake: () => void) {
     const ctor = motionCtor();
     if (typeof ctor?.requestPermission === "function") {
       try {
-        const result = await ctor.requestPermission();
+        // WebKit has a long history of this prompt never appearing — and the
+        // promise never settling — when the app runs standalone from the home
+        // screen. A hung promise would leave the toggle doing nothing at all,
+        // so treat silence as its own answer and say so in the UI.
+        const result = await Promise.race([
+          ctor.requestPermission(),
+          new Promise<"timeout">((resolve) => setTimeout(() => resolve("timeout"), 3000)),
+        ]);
+        if (result === "timeout") {
+          setState("no-response");
+          return;
+        }
         if (result !== "granted") {
           setState("denied");
           return;
