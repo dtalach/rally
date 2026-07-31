@@ -13,6 +13,12 @@ export class ApiError extends Error {
 
 type Handler = (req: VercelRequest, res: VercelResponse) => Promise<unknown>;
 
+/** Drizzle wraps driver errors, so the SQLSTATE code lives on `cause`. */
+function sqlState(err: unknown): string {
+  const e = err as { code?: string; cause?: { code?: string } };
+  return e?.code ?? e?.cause?.code ?? "";
+}
+
 /**
  * Wraps a handler: enforces the method, serialises the return value as JSON,
  * and turns thrown errors into a status plus a message the UI can show. Only
@@ -36,13 +42,27 @@ export function route(method: "GET" | "POST", handler: Handler) {
         return;
       }
       console.error(`${method} ${req.url} failed:`, err);
+
       const missingConfig =
         err instanceof Error && /DATABASE_URL|SESSION_SECRET/.test(err.message);
-      res.status(missingConfig ? 503 : 500).json({
-        error: missingConfig
-          ? "The server isn't configured yet. Check the environment variables."
-          : "Something went wrong. Try again.",
-      });
+      if (missingConfig) {
+        res.status(503).json({
+          error: "The server isn't configured yet. Check the environment variables.",
+        });
+        return;
+      }
+
+      // 42703 undefined_column / 42P01 undefined_table: the code is newer than
+      // the database. Worth naming, because "something went wrong" sends you
+      // hunting through application logic for a deployment step you skipped.
+      if (["42703", "42P01"].includes(sqlState(err))) {
+        res.status(503).json({
+          error: "This deployment's database is out of date. Run POST /api/setup to update it.",
+        });
+        return;
+      }
+
+      res.status(500).json({ error: "Something went wrong. Try again." });
     }
   };
 }
