@@ -27,6 +27,16 @@ function sqlState(err: unknown): string {
   return e?.code ?? e?.cause?.code ?? "";
 }
 
+/** First line, capped — drizzle appends the whole query and every parameter. */
+function message(err: unknown) {
+  const raw = err instanceof Error ? err.message : String(err);
+  const first = raw.split("\n")[0].trim();
+  return first.length > 300 ? `${first.slice(0, 300)}…` : first;
+}
+
+/** Enough of the statement to recognise it, on one line. */
+const summarise = (statement: string) => statement.replace(/\s+/g, " ").slice(0, 120);
+
 export default route("POST", async (req) => {
   const expected = process.env.SETUP_TOKEN;
   if (!expected) {
@@ -41,18 +51,44 @@ export default route("POST", async (req) => {
   let created = 0;
   let skipped = 0;
 
-  for (const statement of MIGRATIONS) {
+  for (const [i, statement] of MIGRATIONS.entries()) {
     try {
       await d.execute(sql.raw(statement));
       created++;
     } catch (err) {
-      if (!ALREADY_EXISTS.has(sqlState(err))) throw err;
-      skipped++;
+      if (ALREADY_EXISTS.has(sqlState(err))) {
+        skipped++;
+        continue;
+      }
+      // The caller proved they hold SETUP_TOKEN, so they get the real reason
+      // rather than a generic 500. Without this, a migration that fails on one
+      // deployment's data is undebuggable from the outside.
+      throw new ApiError(
+        500,
+        `Migration statement ${i + 1} of ${MIGRATIONS.length} failed` +
+          `${sqlState(err) ? ` (${sqlState(err)})` : ""}: ${message(err)} — ${summarise(statement)}`
+      );
     }
   }
   log.push(`schema: ${created} applied, ${skipped} already present`);
 
-  const loaded = await seed((m) => log.push(m));
+  // Loading instruments needs the price feed, which is a network call to
+  // someone else's service. If that's what broke, the schema is still done —
+  // say so, so the fix is "try again" rather than "start over".
+  let loaded;
+  try {
+    loaded = await seed((m) => log.push(m));
+  } catch (err) {
+    const code = sqlState(err);
+    throw new ApiError(
+      502,
+      code
+        ? `Schema reported ${created} applied / ${skipped} present, but writing the instruments ` +
+            `failed (${code}): ${message(err)}. The tables aren't the shape this build expects.`
+        : `Schema is up to date, but loading the instruments failed: ${message(err)}. ` +
+            `Check FINNHUB_API_KEY, or unset it to run on the simulated feed, then run setup again.`
+    );
+  }
 
   return {
     ok: true,
