@@ -37,7 +37,8 @@ export type BuySellLive = {
 type Unit = "usd" | "shares";
 
 const USD_DECIMALS = 2;
-const SHARE_DECIMALS = 4;
+/** Matches the six decimals the server stores holdings in. */
+const SHARE_DECIMALS = 6;
 
 const decimalsFor = (unit: Unit) => (unit === "usd" ? USD_DECIMALS : SHARE_DECIMALS);
 
@@ -59,14 +60,14 @@ const parse = (raw: string) => {
 /** Trims to the unit's precision without leaving trailing zeroes in the field. */
 const toField = (n: number, unit: Unit) => String(Number(n.toFixed(decimalsFor(unit))));
 
-/** For the field itself: $25,000 rather than $25,000.00. */
-const money = (n: number) =>
-  `$${n.toLocaleString("en-US", { maximumFractionDigits: USD_DECIMALS })}`;
-/** For figures the app computed: cents always, so $360,876.7 can't happen. */
-const moneyExact = (n: number) =>
-  `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+/** Cents always, so a computed figure can't come out as $360,876.7. */
+const moneyPlain = (n: number) =>
+  n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const moneyExact = (n: number) => `$${moneyPlain(n)}`;
 const sharesText = (n: number) =>
   n.toLocaleString("en-US", { maximumFractionDigits: SHARE_DECIMALS });
+/** Two decimals is enough to read an estimate by. */
+const sharesShort = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 2 });
 
 /** Maps a price series into the 340x130 chart box. */
 function priceLine(history: number[]) {
@@ -105,7 +106,7 @@ export function BuySell({
   const typed = parse(field);
 
   const amount = unit === "usd" ? typed : typed * price;
-  const shares = unit === "shares" ? typed : price > 0 ? amount / price : 145;
+  const shares = unit === "shares" ? typed : price > 0 ? amount / price : 0;
 
   /* The most you can ask for, in whatever unit is showing. A buy in shares is
      floored to whole cents' worth so the estimate can't round past your cash. */
@@ -122,12 +123,29 @@ export function BuySell({
         : held;
 
   const overMax = unit === "usd" ? typed > max + 0.01 : typed > max + 0.000001;
+  const maxField = unit === "usd" ? String(Math.floor(max)) : toField(max, unit);
+
+  /* Said in the unit they're typing in, and always with the number that fits,
+     so "too much" is never a dead end. */
+  const overMessage = !live
+    ? ""
+    : side === "buy"
+      ? unit === "usd"
+        ? `Too much — you only have ${moneyExact(live.balance)}.`
+        : `Too many — ${sharesText(max)} shares is all your ${moneyExact(live.balance)} buys.`
+      : unit === "usd"
+        ? `You only hold ${moneyExact(heldValue)} of ${live.name}.`
+        : `You only hold ${sharesText(held)} shares of ${live.name}.`;
 
   const setUnitKeeping = (next: Unit) => {
     if (next === unit) return;
     setUnit(next);
     if (price > 0 && typed > 0) {
-      setField(toField(next === "shares" ? typed / price : typed * price, next));
+      // Floored to the two decimals the estimate was showing, so the number
+      // you tap into is the number you were just looking at — and so a switch
+      // can never nudge the order past the cash it was inside a moment ago.
+      const converted = next === "shares" ? typed / price : typed * price;
+      setField(toField(Math.floor(converted * 100) / 100, next));
     }
   };
 
@@ -248,27 +266,13 @@ export function BuySell({
           style={{ display: "flex", flexDirection: "column", gap: 12 }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            {live ? (
-              <div style={{ display: "flex", gap: 5 }}>
-                <UnitTab label="$" on={unit === "usd"} onClick={() => setUnitKeeping("usd")} />
-                <UnitTab
-                  label="SHARES"
-                  on={unit === "shares"}
-                  onClick={() => setUnitKeeping("shares")}
-                />
-              </div>
-            ) : (
-              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", color: "var(--text-2)" }}>
-                AMOUNT
-              </div>
-            )}
+            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", color: "var(--text-2)" }}>
+              {live ? (side === "buy" ? "HOW MUCH TO BUY" : "HOW MUCH TO SELL") : "AMOUNT"}
+            </div>
             <div className="num" style={{ fontSize: 12, color: "var(--cyan-soft)" }}>
               {live && side === "sell" ? (
                 <>
-                  You hold:{" "}
-                  <span style={{ fontWeight: 700 }}>
-                    {unit === "shares" ? sharesText(held) : moneyExact(heldValue)}
-                  </span>
+                  You hold: <span style={{ fontWeight: 700 }}>{sharesText(held)} shares</span>
                 </>
               ) : (
                 <>
@@ -279,76 +283,109 @@ export function BuySell({
             </div>
           </div>
           {live ? (
-            <input
-              className="num"
-              value={editing ? field : unit === "usd" ? money(typed) : sharesText(typed)}
-              onChange={(e) => setField(sanitize(e.target.value, decimalsFor(unit)))}
-              onFocus={(e) => {
-                setEditing(true);
-                // Tapping the figure replaces it — the common intent — rather
-                // than dropping a caret into the middle of the old number.
-                e.currentTarget.select();
-              }}
-              onBlur={() => setEditing(false)}
-              inputMode="decimal"
-              type="text"
-              enterKeyHint="done"
-              aria-label={unit === "usd" ? "Order amount in dollars" : "Number of shares"}
-              style={{
-                width: "100%",
-                border: "none",
-                background: "transparent",
-                fontFamily: "inherit",
-                fontSize: 40,
-                fontWeight: 700,
-                letterSpacing: "-0.02em",
-                textAlign: "center",
-                color: "var(--cyan)",
-                textShadow: "0 0 18px rgba(34,247,255,0.5)",
-                padding: 0,
-                outline: "none",
-                caretColor: "var(--cyan)",
-              }}
-            />
-          ) : (
-            <div
-              className="num"
-              style={{
-                fontSize: 40,
-                fontWeight: 700,
-                letterSpacing: "-0.02em",
-                textAlign: "center",
-                color: "var(--cyan)",
-                textShadow: "0 0 18px rgba(34,247,255,0.5)",
-              }}
-            >
-              {NVDA.orderAmount}
+            /* Two bars, both typeable. The one you last touched is the one the
+               order is sized in — a share count typed here is sent as shares —
+               and the other shows what that works out to at the last price. */
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <SizeBar
+                label="DOLLARS"
+                active={unit === "usd"}
+                over={overMax && unit === "usd"}
+                value={
+                  unit === "usd"
+                    ? editing
+                      ? field
+                      : field === ""
+                        ? ""
+                        : typed.toLocaleString("en-US", { maximumFractionDigits: USD_DECIMALS })
+                    : `≈ ${moneyPlain(amount)}`
+                }
+                ariaLabel="Order amount in dollars"
+                onFocus={() => setUnitKeeping("usd")}
+                onChange={(v) => setField(sanitize(v, USD_DECIMALS))}
+                onEditing={setEditing}
+              />
+              <SizeBar
+                label="SHARES"
+                active={unit === "shares"}
+                over={overMax && unit === "shares"}
+                value={
+                  unit === "shares"
+                    ? editing
+                      ? field
+                      : field === ""
+                        ? ""
+                        : sharesText(typed)
+                    : `≈ ${sharesShort(shares)}`
+                }
+                ariaLabel="Number of shares"
+                onFocus={() => setUnitKeeping("shares")}
+                onChange={(v) => setField(sanitize(v, SHARE_DECIMALS))}
+                onEditing={setEditing}
+              />
             </div>
-          )}
-          <div style={{ textAlign: "center", fontSize: 13, color: overMax ? "var(--magenta)" : "var(--text-2)" }}>
-            {overMax ? (
-              side === "buy" ? (
-                unit === "shares" ? (
-                  `${moneyExact(amount)} — more than your cash`
-                ) : (
-                  "More than your cash"
-                )
-              ) : (
-                "More than you hold"
-              )
-            ) : (
-              <>
+          ) : (
+            <>
+              <div
+                className="num"
+                style={{
+                  fontSize: 40,
+                  fontWeight: 700,
+                  letterSpacing: "-0.02em",
+                  textAlign: "center",
+                  color: "var(--cyan)",
+                  textShadow: "0 0 18px rgba(34,247,255,0.5)",
+                }}
+              >
+                {NVDA.orderAmount}
+              </div>
+              <div style={{ textAlign: "center", fontSize: 13, color: "var(--text-2)" }}>
                 ≈{" "}
                 <span className="num" style={{ fontWeight: 700, color: "#fff" }}>
-                  {!live
-                    ? NVDA.orderShares
-                    : unit === "usd"
-                      ? `${shares.toLocaleString("en-US", { maximumFractionDigits: 2 })} shares`
-                      : moneyExact(amount)}
+                  {NVDA.orderShares}
                 </span>
-              </>
-            )}
-          </div>
+              </div>
+            </>
+          )}
+
+          {/* Over the limit gets said out loud, with the number that fits and a
+              one-tap way to take it. */}
+          {live && overMax && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "11px 13px",
+                borderRadius: 14,
+                background: "rgba(255,43,214,0.09)",
+                boxShadow: "inset 0 0 0 1.5px rgba(255,43,214,0.45)",
+              }}
+            >
+              <i className="ph-fill ph-warning" style={{ fontSize: 18, color: "var(--magenta)" }} />
+              <div style={{ flex: 1, fontSize: 12.5, color: "var(--magenta)", lineHeight: 1.4 }}>
+                {overMessage}
+              </div>
+              <button
+                type="button"
+                onClick={() => setField(maxField)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: "4px 2px",
+                  fontFamily: "inherit",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "var(--gold)",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                }}
+              >
+                USE MAX
+              </button>
+            </div>
+          )}
+
           <div style={{ display: "flex", gap: 8 }}>
             {unit === "usd" ? (
               <>
@@ -363,30 +400,12 @@ export function BuySell({
                 <AmountChip onClick={() => bump(100)}>+100</AmountChip>
               </>
             )}
-            <AmountChip
-              gold
-              onClick={() => setField(unit === "usd" ? String(Math.floor(max)) : toField(max, unit))}
-            >
+            <AmountChip gold onClick={() => setField(maxField)}>
               MAX
             </AmountChip>
           </div>
-          {live && (
-            <button
-              type="button"
-              onClick={() => setField("")}
-              style={{
-                background: "none",
-                border: "none",
-                fontFamily: "inherit",
-                fontSize: 12,
-                color: "var(--text-3)",
-                cursor: "pointer",
-                padding: 0,
-              }}
-            >
-              Clear
-            </button>
-          )}
+          {/* No Clear button: tapping a bar selects what's in it, so typing
+              replaces it outright. */}
         </Card>
 
         <Button
@@ -459,37 +478,95 @@ function SideTab({
   );
 }
 
-/** Dollars-or-shares switch, sized to sit where the AMOUNT label used to. */
-function UnitTab({ label, on, onClick }: { label: string; on: boolean; onClick: () => void }) {
+/**
+ * One typeable bar. The active one holds what you typed; the other shows the
+ * conversion, and tapping it makes it the one you're typing in.
+ */
+function SizeBar({
+  label,
+  active,
+  over,
+  value,
+  ariaLabel,
+  onFocus,
+  onChange,
+  onEditing,
+}: {
+  label: string;
+  active: boolean;
+  over: boolean;
+  value: string;
+  ariaLabel: string;
+  onFocus: () => void;
+  onChange: (value: string) => void;
+  onEditing: (editing: boolean) => void;
+}) {
+  const ring = over
+    ? "inset 0 0 0 1.5px rgba(255,43,214,0.7)"
+    : active
+      ? "inset 0 0 0 1.5px rgba(34,247,255,0.65), 0 0 16px rgba(34,247,255,0.16)"
+      : "inset 0 0 0 1px rgba(34,247,255,0.22)";
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={on}
+    <label
       style={{
-        padding: "5px 10px",
-        borderRadius: 8,
-        border: "none",
-        fontFamily: "inherit",
-        fontSize: 11,
-        fontWeight: 700,
-        letterSpacing: "0.08em",
-        cursor: "pointer",
-        ...(on
-          ? {
-              background: "rgba(34,247,255,0.15)",
-              color: "var(--cyan)",
-              boxShadow: "inset 0 0 0 1px rgba(34,247,255,0.5)",
-            }
-          : {
-              background: "transparent",
-              color: "var(--text-3)",
-              boxShadow: "inset 0 0 0 1px rgba(34,247,255,0.18)",
-            }),
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "8px 14px",
+        borderRadius: "var(--r-tile)",
+        background: active ? "rgba(34,247,255,0.07)" : "rgba(10,6,30,0.35)",
+        boxShadow: ring,
+        cursor: "text",
       }}
     >
-      {label}
-    </button>
+      <span
+        style={{
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: "0.1em",
+          color: active ? "var(--cyan-soft)" : "var(--text-3)",
+          flexShrink: 0,
+          width: 52,
+        }}
+      >
+        {label}
+      </span>
+      <input
+        className="num"
+        value={value}
+        placeholder="0"
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={(e) => {
+          onFocus();
+          onEditing(true);
+          // Tapping a bar replaces what's in it — the common intent — rather
+          // than dropping a caret into the middle of the old number.
+          e.currentTarget.select();
+        }}
+        onBlur={() => onEditing(false)}
+        inputMode="decimal"
+        type="text"
+        enterKeyHint="done"
+        aria-label={ariaLabel}
+        style={{
+          flex: 1,
+          minWidth: 0,
+          border: "none",
+          background: "transparent",
+          fontFamily: "inherit",
+          fontSize: 28,
+          fontWeight: 700,
+          letterSpacing: "-0.02em",
+          textAlign: "right",
+          color: over ? "var(--magenta)" : active ? "var(--cyan)" : "var(--text-2)",
+          textShadow: active && !over ? "0 0 16px rgba(34,247,255,0.45)" : "none",
+          padding: 0,
+          outline: "none",
+          caretColor: "var(--cyan)",
+        }}
+      />
+    </label>
   );
 }
 
