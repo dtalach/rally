@@ -9,10 +9,10 @@ const MIN_ORDER = 1;
 /**
  * Buy or sell.
  *
- * The client sends a symbol, a side and a dollar amount — never a price and
- * never a share count. The server prices the fill from its own quote cache, so
- * a tampered request can't mint shares. Cash, holdings and the order record
- * move together in one transaction, so a failure can't leave a player paid but
+ * The client sends a symbol, a side and a size — dollars, shares, or "all" —
+ * but never a price. The server prices the fill from its own quote cache, so a
+ * tampered request can't mint shares. Cash, holdings and the order record move
+ * together in one transaction, so a failure can't leave a player paid but
  * unfilled.
  */
 export default route("POST", async (req) => {
@@ -20,9 +20,19 @@ export default route("POST", async (req) => {
   const symbol = str(req.body?.symbol, "symbol").toUpperCase();
   const side = oneOf(req.body?.side, ["buy", "sell"] as const, "buy");
   const sellAll = req.body?.all === true;
-  const amount = sellAll ? 0 : round2(num(req.body?.amount, "amount"));
 
-  if (!sellAll && amount < MIN_ORDER) {
+  // An order is expressed one of three ways: every share you hold, a dollar
+  // amount, or a share count. Shares are filled as shares — converting them to
+  // dollars client-side would leave you with *about* the number you asked for.
+  const bySharesRaw = req.body?.shares;
+  const byShares = !sellAll && bySharesRaw !== undefined && bySharesRaw !== null;
+  const wantShares = byShares ? round6(num(bySharesRaw, "shares")) : 0;
+  const amount = sellAll || byShares ? 0 : round2(num(req.body?.amount, "amount"));
+
+  if (byShares && wantShares <= 0) {
+    throw new ApiError(400, "Enter how many shares you want.");
+  }
+  if (!sellAll && !byShares && amount < MIN_ORDER) {
     throw new ApiError(400, `Orders start at ${usd(MIN_ORDER)}.`);
   }
 
@@ -60,11 +70,24 @@ export default route("POST", async (req) => {
     let filledShares: number;
 
     if (side === "buy") {
-      filledAmount = amount;
-      if (filledAmount > cash) {
-        throw new ApiError(400, `Not enough coins. You have ${usd(cash)}.`);
+      if (byShares) {
+        filledShares = wantShares;
+        filledAmount = round2(wantShares * price);
+      } else {
+        filledAmount = amount;
+        filledShares = round6(filledAmount / price);
       }
-      filledShares = round6(filledAmount / price);
+      if (filledAmount > cash) {
+        throw new ApiError(
+          400,
+          byShares
+            ? `${wantShares} shares costs ${usd(filledAmount)} — you have ${usd(cash)}.`
+            : `Not enough coins. You have ${usd(cash)}.`
+        );
+      }
+      if (filledAmount < MIN_ORDER) {
+        throw new ApiError(400, `Orders start at ${usd(MIN_ORDER)}.`);
+      }
 
       const newShares = round6(toNum(held?.shares) + filledShares);
       const newCost = round2(toNum(held?.costBasis) + filledAmount);
@@ -91,7 +114,14 @@ export default route("POST", async (req) => {
       if (!held || heldShares <= 0) throw new ApiError(400, `You don't own any ${instrument.name}.`);
 
       const heldValue = round2(heldShares * price);
-      filledAmount = sellAll ? heldValue : amount;
+
+      if (byShares && wantShares > heldShares + 0.000001) {
+        throw new ApiError(
+          400,
+          `You only hold ${heldShares.toLocaleString("en-US", { maximumFractionDigits: 2 })} shares of ${instrument.name}.`
+        );
+      }
+      filledAmount = sellAll ? heldValue : byShares ? round2(wantShares * price) : amount;
 
       if (filledAmount > heldValue + 0.01) {
         throw new ApiError(400, `You only hold ${usd(heldValue)} of ${instrument.name}.`);
@@ -99,7 +129,9 @@ export default route("POST", async (req) => {
 
       // Clear the position outright when the remainder would be dust, so a
       // "sell all" never strands a fraction of a cent on the books.
-      const proportion = Math.min(1, filledAmount / heldValue);
+      const proportion = byShares
+        ? Math.min(1, wantShares / heldShares)
+        : Math.min(1, filledAmount / heldValue);
       filledShares = round6(heldShares * proportion);
       const remainingShares = round6(heldShares - filledShares);
       const cost = toNum(held.costBasis);

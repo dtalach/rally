@@ -28,7 +28,9 @@ import { useShake } from "./useShake";
 type View =
   | { name: "tab"; tab: Tab }
   | { name: "stock"; symbol: string }
-  | { name: "ticket"; symbol: string; side: "buy" | "sell"; amount: number }
+  // An order carries either dollars or shares — whichever the player typed —
+  // all the way to the server, so a share order fills as shares.
+  | { name: "ticket"; symbol: string; side: "buy" | "sell"; amount?: number; shares?: number }
   // Profile and trophies are modal over whichever tab you opened them from,
   // so dismissing returns you there rather than dumping you on HOME.
   | { name: "profile"; from: Tab }
@@ -89,9 +91,7 @@ export default function LiveApp() {
         version={dataVersion}
         onBack={() => go("trade")}
         onNavigate={go}
-        onReview={(order) =>
-          setView({ name: "ticket", symbol: view.symbol, side: order.side, amount: order.amount })
-        }
+        onReview={(order) => setView({ name: "ticket", symbol: view.symbol, ...order })}
       />
     );
   }
@@ -283,7 +283,7 @@ function StockDetail({
   version: number;
   onBack: () => void;
   onNavigate: (t: Tab) => void;
-  onReview: (order: { side: "buy" | "sell"; amount: number }) => void;
+  onReview: (order: { side: "buy" | "sell"; amount?: number; shares?: number }) => void;
 }) {
   const { data, error, reload } = useApi(`quote:${symbol}`, () => api.quote(symbol), [symbol, version]);
 
@@ -299,7 +299,7 @@ function Ticket({
   onDismiss,
   onFilled,
 }: {
-  order: { symbol: string; side: "buy" | "sell"; amount: number };
+  order: { symbol: string; side: "buy" | "sell"; amount?: number; shares?: number };
   version: number;
   onDismiss: () => void;
   onFilled: () => void;
@@ -322,21 +322,23 @@ function Ticket({
 
   const live = useMemo(() => {
     if (!data) return undefined;
-    const shares = data.price > 0 ? order.amount / data.price : 0;
-    const after =
-      order.side === "buy" ? data.balance - order.amount : data.balance + order.amount;
+    // Whichever unit was typed is the exact one; the other is an estimate at
+    // the last known price, which is why both sides of the ticket say "≈".
+    const shares = order.shares ?? (data.price > 0 ? (order.amount ?? 0) / data.price : 0);
+    const amount = order.shares !== undefined ? order.shares * data.price : (order.amount ?? 0);
+    const after = order.side === "buy" ? data.balance - amount : data.balance + amount;
     return {
       side: order.side,
       symbol: data.symbol,
       name: data.name,
       badge: data.symbol.slice(0, 2),
-      amountLabel: usd(order.amount),
-      sharesLabel: `${shares.toLocaleString("en-US", { maximumFractionDigits: 2 })} shares`,
+      amountLabel: `${order.shares !== undefined ? "≈ " : ""}${usd(amount)}`,
+      sharesLabel: `${order.shares !== undefined ? "" : "≈ "}${shares.toLocaleString("en-US", { maximumFractionDigits: 2 })} shares`,
       priceLabel: data.priceLabel,
       asOfLabel: "fills at next price update",
       coinsBeforeLabel: usd(data.balance),
       coinsAfterLabel: usd(after),
-      deltaLabel: `${order.side === "buy" ? "−" : "+"}${usd(order.amount)}`,
+      deltaLabel: `${order.side === "buy" ? "−" : "+"}${usd(amount)}`,
       backdropPriceLabel: data.priceLabel,
       backdropChangeLabel: data.changeLabel,
       backdropUp: data.up,
@@ -352,7 +354,11 @@ function Ticket({
     setSubmitting(true);
     setError(undefined);
     try {
-      await api.trade({ symbol: order.symbol, side: order.side, amount: order.amount });
+      await api.trade({
+        symbol: order.symbol,
+        side: order.side,
+        ...(order.shares !== undefined ? { shares: order.shares } : { amount: order.amount }),
+      });
       // Only on a confirmed fill — the sound means "that happened", not "sent".
       playFill();
       onFilled();

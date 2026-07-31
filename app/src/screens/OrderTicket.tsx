@@ -126,8 +126,10 @@ export function OrderTicket({
             <div className="num" style={{ fontSize: 20, fontWeight: 700, color: "var(--cyan)" }}>
               {live ? live.amountLabel : NVDA.orderAmount}
             </div>
+            {/* Whichever unit the player typed is exact; the other carries the
+                "≈", so the labels arrive with it already attached. */}
             <div className="num" style={{ fontSize: 12, color: "var(--text-2)" }}>
-              ≈ {live ? live.sharesLabel : NVDA.orderShares}
+              {live ? live.sharesLabel : `≈ ${NVDA.orderShares}`}
             </div>
           </div>
         </div>

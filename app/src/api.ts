@@ -112,6 +112,7 @@ export type QuoteDetail = {
   balance: number;
   balanceLabel: string;
   position: {
+    shares: number;
     sharesLabel: string;
     valueLabel: string;
     gainLabel: string;
@@ -188,7 +189,14 @@ export const api = {
       `market?board=${board}${q ? `&q=${encodeURIComponent(q)}` : ""}`
     ),
   quote: (symbol: string) => get<QuoteDetail>(`quote?symbol=${encodeURIComponent(symbol)}`),
-  trade: (order: { symbol: string; side: "buy" | "sell"; amount?: number; all?: boolean }) =>
+  /** Size the order in dollars, in shares, or with `all` — never all three. */
+  trade: (order: {
+    symbol: string;
+    side: "buy" | "sell";
+    amount?: number;
+    shares?: number;
+    all?: boolean;
+  }) =>
     post<{
       ok: true;
       side: string;

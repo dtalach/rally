@@ -20,13 +20,53 @@ export type BuySellLive = {
   balanceLabel: string;
   balance: number;
   price: number;
-  position: { sharesLabel: string; valueLabel: string; gainLabel: string; up: boolean } | null;
+  position: {
+    shares: number;
+    sharesLabel: string;
+    valueLabel: string;
+    gainLabel: string;
+    up: boolean;
+  } | null;
   history: number[];
 };
 
-/** Dollar value of the held position, which caps a sell. */
-const positionValue = (live: BuySellLive) =>
-  live.position ? Number(live.position.valueLabel.replace(/[^0-9.]/g, "")) : 0;
+/* The order can be sized in dollars or in shares. Kids think in both — "put
+   $50 in" and "buy 3 shares" — and a share count typed here is sent as a share
+   count, so the fill is exactly that many shares rather than an approximation
+   of a dollar figure. */
+type Unit = "usd" | "shares";
+
+const USD_DECIMALS = 2;
+const SHARE_DECIMALS = 4;
+
+const decimalsFor = (unit: Unit) => (unit === "usd" ? USD_DECIMALS : SHARE_DECIMALS);
+
+/** Keeps the field to digits and a single decimal point of the right depth. */
+function sanitize(input: string, decimals: number) {
+  const cleaned = input.replace(/[^0-9.]/g, "");
+  const dot = cleaned.indexOf(".");
+  if (dot === -1) return cleaned;
+  const whole = cleaned.slice(0, dot);
+  const rest = cleaned.slice(dot + 1).replace(/\./g, "");
+  return `${whole}.${rest.slice(0, decimals)}`;
+}
+
+const parse = (raw: string) => {
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : 0;
+};
+
+/** Trims to the unit's precision without leaving trailing zeroes in the field. */
+const toField = (n: number, unit: Unit) => String(Number(n.toFixed(decimalsFor(unit))));
+
+/** For the field itself: $25,000 rather than $25,000.00. */
+const money = (n: number) =>
+  `$${n.toLocaleString("en-US", { maximumFractionDigits: USD_DECIMALS })}`;
+/** For figures the app computed: cents always, so $360,876.7 can't happen. */
+const moneyExact = (n: number) =>
+  `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const sharesText = (n: number) =>
+  n.toLocaleString("en-US", { maximumFractionDigits: SHARE_DECIMALS });
 
 /** Maps a price series into the 340x130 chart box. */
 function priceLine(history: number[]) {
@@ -48,16 +88,50 @@ export function BuySell({
 }: {
   onNavigate?: (t: Tab) => void;
   onBack?: () => void;
-  onReview?: (order: { side: "buy" | "sell"; amount: number }) => void;
+  onReview?: (order: { side: "buy" | "sell"; amount?: number; shares?: number }) => void;
   live?: BuySellLive;
 }) {
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [range, setRange] = useState<(typeof RANGES)[number]>("1D");
-  const [amount, setAmount] = useState(25000);
+  const [unit, setUnit] = useState<Unit>("usd");
+  const [field, setField] = useState("25000");
+  // While the field has focus it shows exactly what was typed; the rest of the
+  // time it's grouped and prefixed, because $25,000 reads better than 25000.
+  const [editing, setEditing] = useState(false);
 
-  const max = live ? (side === "buy" ? live.balance : positionValue(live)) : 975400;
-  const shares = live && live.price > 0 ? amount / live.price : 145;
-  const overMax = amount > max + 0.01;
+  const price = live?.price ?? 0;
+  const held = live?.position?.shares ?? 0;
+  const heldValue = held * price;
+  const typed = parse(field);
+
+  const amount = unit === "usd" ? typed : typed * price;
+  const shares = unit === "shares" ? typed : price > 0 ? amount / price : 145;
+
+  /* The most you can ask for, in whatever unit is showing. A buy in shares is
+     floored to whole cents' worth so the estimate can't round past your cash. */
+  const max = !live
+    ? 975400
+    : unit === "usd"
+      ? side === "buy"
+        ? live.balance
+        : heldValue
+      : side === "buy"
+        ? price > 0
+          ? Math.floor((live.balance / price) * 100) / 100
+          : 0
+        : held;
+
+  const overMax = unit === "usd" ? typed > max + 0.01 : typed > max + 0.000001;
+
+  const setUnitKeeping = (next: Unit) => {
+    if (next === unit) return;
+    setUnit(next);
+    if (price > 0 && typed > 0) {
+      setField(toField(next === "shares" ? typed / price : typed * price, next));
+    }
+  };
+
+  const bump = (step: number) => setField((f) => toField(parse(f) + step, unit));
 
   return (
     <PhoneFrame glow="rgba(57,255,20,0.12)">
@@ -173,31 +247,92 @@ export function BuySell({
           padding={16}
           style={{ display: "flex", flexDirection: "column", gap: 12 }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", color: "var(--text-2)" }}>
-              AMOUNT
-            </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            {live ? (
+              <div style={{ display: "flex", gap: 5 }}>
+                <UnitTab label="$" on={unit === "usd"} onClick={() => setUnitKeeping("usd")} />
+                <UnitTab
+                  label="SHARES"
+                  on={unit === "shares"}
+                  onClick={() => setUnitKeeping("shares")}
+                />
+              </div>
+            ) : (
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", color: "var(--text-2)" }}>
+                AMOUNT
+              </div>
+            )}
             <div className="num" style={{ fontSize: 12, color: "var(--cyan-soft)" }}>
-              Balance: <span style={{ fontWeight: 700 }}>{live ? live.balanceLabel : NVDA.balance}</span>
+              {live && side === "sell" ? (
+                <>
+                  You hold:{" "}
+                  <span style={{ fontWeight: 700 }}>
+                    {unit === "shares" ? sharesText(held) : moneyExact(heldValue)}
+                  </span>
+                </>
+              ) : (
+                <>
+                  Balance:{" "}
+                  <span style={{ fontWeight: 700 }}>{live ? live.balanceLabel : NVDA.balance}</span>
+                </>
+              )}
             </div>
           </div>
-          <div
-            className="num"
-            style={{
-              fontSize: 40,
-              fontWeight: 700,
-              letterSpacing: "-0.02em",
-              textAlign: "center",
-              color: "var(--cyan)",
-              textShadow: "0 0 18px rgba(34,247,255,0.5)",
-            }}
-          >
-            {live ? `$${Math.round(amount).toLocaleString("en-US")}` : NVDA.orderAmount}
-          </div>
+          {live ? (
+            <input
+              className="num"
+              value={editing ? field : unit === "usd" ? money(typed) : sharesText(typed)}
+              onChange={(e) => setField(sanitize(e.target.value, decimalsFor(unit)))}
+              onFocus={(e) => {
+                setEditing(true);
+                // Tapping the figure replaces it — the common intent — rather
+                // than dropping a caret into the middle of the old number.
+                e.currentTarget.select();
+              }}
+              onBlur={() => setEditing(false)}
+              inputMode="decimal"
+              type="text"
+              enterKeyHint="done"
+              aria-label={unit === "usd" ? "Order amount in dollars" : "Number of shares"}
+              style={{
+                width: "100%",
+                border: "none",
+                background: "transparent",
+                fontFamily: "inherit",
+                fontSize: 40,
+                fontWeight: 700,
+                letterSpacing: "-0.02em",
+                textAlign: "center",
+                color: "var(--cyan)",
+                textShadow: "0 0 18px rgba(34,247,255,0.5)",
+                padding: 0,
+                outline: "none",
+                caretColor: "var(--cyan)",
+              }}
+            />
+          ) : (
+            <div
+              className="num"
+              style={{
+                fontSize: 40,
+                fontWeight: 700,
+                letterSpacing: "-0.02em",
+                textAlign: "center",
+                color: "var(--cyan)",
+                textShadow: "0 0 18px rgba(34,247,255,0.5)",
+              }}
+            >
+              {NVDA.orderAmount}
+            </div>
+          )}
           <div style={{ textAlign: "center", fontSize: 13, color: overMax ? "var(--magenta)" : "var(--text-2)" }}>
             {overMax ? (
               side === "buy" ? (
-                "More than your cash"
+                unit === "shares" ? (
+                  `${moneyExact(amount)} — more than your cash`
+                ) : (
+                  "More than your cash"
+                )
               ) : (
                 "More than you hold"
               )
@@ -205,25 +340,40 @@ export function BuySell({
               <>
                 ≈{" "}
                 <span className="num" style={{ fontWeight: 700, color: "#fff" }}>
-                  {live
-                    ? `${shares.toLocaleString("en-US", { maximumFractionDigits: 2 })} shares`
-                    : NVDA.orderShares}
+                  {!live
+                    ? NVDA.orderShares
+                    : unit === "usd"
+                      ? `${shares.toLocaleString("en-US", { maximumFractionDigits: 2 })} shares`
+                      : moneyExact(amount)}
                 </span>
               </>
             )}
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <AmountChip onClick={() => setAmount((a) => a + 1000)}>+$1K</AmountChip>
-            <AmountChip onClick={() => setAmount((a) => a + 10000)}>+$10K</AmountChip>
-            <AmountChip onClick={() => setAmount((a) => a + 100000)}>+$100K</AmountChip>
-            <AmountChip gold onClick={() => setAmount(Math.floor(max))}>
+            {unit === "usd" ? (
+              <>
+                <AmountChip onClick={() => bump(1000)}>+$1K</AmountChip>
+                <AmountChip onClick={() => bump(10000)}>+$10K</AmountChip>
+                <AmountChip onClick={() => bump(100000)}>+$100K</AmountChip>
+              </>
+            ) : (
+              <>
+                <AmountChip onClick={() => bump(1)}>+1</AmountChip>
+                <AmountChip onClick={() => bump(10)}>+10</AmountChip>
+                <AmountChip onClick={() => bump(100)}>+100</AmountChip>
+              </>
+            )}
+            <AmountChip
+              gold
+              onClick={() => setField(unit === "usd" ? String(Math.floor(max)) : toField(max, unit))}
+            >
               MAX
             </AmountChip>
           </div>
           {live && (
             <button
               type="button"
-              onClick={() => setAmount(0)}
+              onClick={() => setField("")}
               style={{
                 background: "none",
                 border: "none",
@@ -244,14 +394,16 @@ export function BuySell({
           height={56}
           fontSize={16}
           caret
-          onClick={() => onReview?.({ side, amount })}
+          onClick={() =>
+            onReview?.(unit === "usd" ? { side, amount: typed } : { side, shares: typed })
+          }
           style={{
             boxShadow:
               side === "buy"
                 ? "0 0 26px rgba(57,255,20,0.5), inset 0 -4px 0 rgba(0,0,0,0.2)"
                 : "0 0 26px rgba(255,43,214,0.5), inset 0 -4px 0 rgba(0,0,0,0.25)",
           }}
-          disabled={Boolean(live) && (overMax || amount < 1)}
+          disabled={Boolean(live) && (overMax || typed <= 0 || amount < 1)}
         >
           REVIEW {side.toUpperCase()}
         </Button>
@@ -300,6 +452,40 @@ function SideTab({
         letterSpacing: "0.08em",
         cursor: "pointer",
         ...(on ? activeSkin : idleSkin),
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+/** Dollars-or-shares switch, sized to sit where the AMOUNT label used to. */
+function UnitTab({ label, on, onClick }: { label: string; on: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={on}
+      style={{
+        padding: "5px 10px",
+        borderRadius: 8,
+        border: "none",
+        fontFamily: "inherit",
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: "0.08em",
+        cursor: "pointer",
+        ...(on
+          ? {
+              background: "rgba(34,247,255,0.15)",
+              color: "var(--cyan)",
+              boxShadow: "inset 0 0 0 1px rgba(34,247,255,0.5)",
+            }
+          : {
+              background: "transparent",
+              color: "var(--text-3)",
+              boxShadow: "inset 0 0 0 1px rgba(34,247,255,0.18)",
+            }),
       }}
     >
       {label}
