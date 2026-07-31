@@ -177,7 +177,9 @@ export default function LiveApp() {
         />
       );
     case "race":
-      return shell(<LiveRace version={dataVersion} onNavigate={go} />);
+      return shell(
+        <LiveRace version={dataVersion} onNavigate={go} onProfile={openProfile} />
+      );
     case "duels":
       return shell(<DuelsSoon onNavigate={go} />);
   }
@@ -395,12 +397,23 @@ function Ticket({
   return <OrderTicket onConfirm={confirm} onDismiss={onDismiss} live={live} />;
 }
 
-function LiveRace({ version, onNavigate }: { version: number; onNavigate: (t: Tab) => void }) {
+function LiveRace({
+  version,
+  onNavigate,
+  onProfile,
+}: {
+  version: number;
+  onNavigate: (t: Tab) => void;
+  onProfile: () => void;
+}) {
   const [period, setPeriod] = useState<Period>("month");
   const [board, setBoard] = useState<"race" | "ranks">("race");
 
   const race = useApi(`race:${period}`, () => api.race(period), [period, version]);
   const ranks = useApi(`leaderboard:${period}`, () => api.leaderboard(period), [period, version]);
+  // Same cache key the home and folio tabs use, so this is almost always a hit;
+  // it's here only for the trophy pip, which must not be a made-up number.
+  const portfolio = useApi("portfolio", () => api.portfolio(), [version]);
 
   if (race.error) return <Failed message={race.error} onRetry={race.reload} />;
   if (!race.data) return <Booting />;
@@ -412,14 +425,16 @@ function LiveRace({ version, onNavigate }: { version: number; onNavigate: (t: Ta
       <Leaderboards
         onNavigate={onNavigate}
         onTrade={() => onNavigate("trade")}
-        onProfile={() => setBoard("race")}
+        onProfile={onProfile}
         live={{
           subtitle: ranks.data.subtitle,
+          trophies: portfolio.data?.vitals.trophies ?? 0,
           podium: ranks.data.podium,
           rest: ranks.data.rest,
           you: ranks.data.you,
           period,
           onPeriod: setPeriod,
+          onScope: (scope) => setBoard(scope === "league" ? "ranks" : "race"),
         }}
       />
     );
@@ -435,6 +450,7 @@ function LiveRace({ version, onNavigate }: { version: number; onNavigate: (t: Ta
         nudge: raceNudge(race.data.standings),
         period,
         onPeriod: setPeriod,
+        onScope: (scope) => setBoard(scope === "league" ? "ranks" : "race"),
       }}
     />
   );

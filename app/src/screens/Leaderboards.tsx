@@ -19,11 +19,15 @@ export type Ranked = { id: number; name: string; initials: string; you: boolean;
 
 export type LeaderboardLive = {
   subtitle: string;
+  /** Real earned count, so the pip here matches the one on every other tab. */
+  trophies: number;
   podium: Ranked[];
   rest: Ranked[];
   you: (Ranked & { gapLabel: string }) | null;
   period: "month" | "quarter" | "year";
   onPeriod: (p: "month" | "quarter" | "year") => void;
+  /** Back to the race chart — the other half of the same MY CREW / LEAGUE switch. */
+  onScope?: (scope: "crew" | "league") => void;
 };
 
 /** 2nd, 1st, 3rd — the podium reads centre-tallest, so first place sits between. */
@@ -52,7 +56,7 @@ export function Leaderboards({
       <Screen scroll padding="14px 20px 0">
         <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 6, position: "relative" }}>
           <div style={{ position: "absolute", right: 0, top: 0 }}>
-            <Avatar pip={PLAYER.trophies} onClick={onProfile} />
+            <Avatar pip={live ? live.trophies : PLAYER.trophies} onClick={onProfile} />
           </div>
           <div
             style={{
@@ -73,6 +77,19 @@ export function Leaderboards({
                   .toLowerCase()} ends in ${SEASON.endsIn} · ${SEASON.players} players`}
           </div>
         </div>
+
+        {live?.onScope && (
+          <Segmented
+            options={[
+              { id: "crew", label: "MY CREW" },
+              { id: "league", label: "LEAGUE" },
+            ]}
+            value="league"
+            onChange={live.onScope}
+            activeSkin="magenta"
+            style={{ flexShrink: 0 }}
+          />
+        )}
 
         <Segmented
           options={[

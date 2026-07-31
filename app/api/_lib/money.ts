@@ -18,7 +18,13 @@ export function usd(n: number) {
 /** "$1.14M" for the compact stack figures on the race rows. */
 export function usdCompact(n: number) {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
-  if (Math.abs(n) >= 1_000) return `$${Math.round(n / 1000)}K`;
+  if (Math.abs(n) >= 1_000) {
+    const k = Math.round(n / 1000);
+    // $999,999 rounds to 1000K, which is a millionth of a dollar short of the
+    // M branch and reads like a bug. Promote it.
+    if (Math.abs(k) >= 1000) return `$${(k / 1000).toFixed(2)}M`;
+    return `$${k}K`;
+  }
   return usd(n);
 }
 

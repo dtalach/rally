@@ -48,7 +48,26 @@ export function ProfilePullUp({
   shake?: { state: ShakeState; enable: () => void; disable: () => void };
 }) {
   const [muted, setMutedState] = useState(isMuted);
+  const [invited, setInvited] = useState(false);
   const me = useSession();
+
+  /* Share sheet where there is one — that's how a phone sends a link — and the
+     clipboard everywhere else. Either way the label confirms it happened. */
+  const invite = async () => {
+    const url = window.location.origin;
+    const text = `Race me on Rally. Sign up and you get $1,000,000 in fake money: ${url}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Rally", text, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setInvited(true);
+      setTimeout(() => setInvited(false), 2000);
+    } catch {
+      // Cancelled the share sheet, or the clipboard was refused. Nothing to say.
+    }
+  };
 
   const stats: { value: string; label: string; role: Role }[] = live
     ? [
@@ -182,12 +201,16 @@ export function ProfilePullUp({
           </div>
         </button>
 
+        {/* A race needs someone to race. This is the only way to get one, so
+            it's a real action rather than a row that looks tappable. */}
         <ProfileRow
           icon="ph ph-users-three"
           label={(() => {
             const n = live ? live.crewSize : PLAYER.crewSize;
             return `My Crew · ${n} racer${n === 1 ? "" : "s"}`;
           })()}
+          trailing={live ? (invited ? "COPIED" : "INVITE") : undefined}
+          onClick={live ? invite : undefined}
         />
         {/* Toggling the sound on previews it, so the control demonstrates
             what it controls. */}
@@ -232,7 +255,11 @@ export function ProfilePullUp({
         />
         )}
 
-        <ProfileRow icon="ph ph-shield-check" label="Parent view & settings" />
+        <ProfileRow
+          icon="ph ph-shield-check"
+          label="Parent view & settings"
+          trailing={live ? "SOON" : undefined}
+        />
 
         {live && onSignOut && (
           <button
@@ -333,24 +360,61 @@ function ToggleRow({
   );
 }
 
-function ProfileRow({ icon, label }: { icon: string; label: string }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "13px 14px",
-        borderRadius: 14,
-        background: "rgba(34,247,255,0.05)",
-        boxShadow: "inset 0 0 0 1px rgba(34,247,255,0.25)",
-      }}
-    >
+function ProfileRow({
+  icon,
+  label,
+  trailing,
+  onClick,
+}: {
+  icon: string;
+  label: string;
+  /** Replaces the chevron. A row with nowhere to go shouldn't show one. */
+  trailing?: string;
+  onClick?: () => void;
+}) {
+  const body = (
+    <>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <i className={icon} style={{ fontSize: 20, color: "var(--cyan-soft)" }} />
         <span style={{ fontSize: 14, fontWeight: 600 }}>{label}</span>
       </div>
-      <i className="ph ph-caret-right" style={{ color: "var(--cyan-soft)" }} />
-    </div>
+      {trailing ? (
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: "0.1em",
+            color: onClick ? "var(--cyan)" : "var(--text-3)",
+          }}
+        >
+          {trailing}
+        </span>
+      ) : (
+        <i className="ph ph-caret-right" style={{ color: "var(--cyan-soft)" }} />
+      )}
+    </>
+  );
+
+  const style: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    padding: "13px 14px",
+    borderRadius: 14,
+    border: "none",
+    background: "rgba(34,247,255,0.05)",
+    boxShadow: "inset 0 0 0 1px rgba(34,247,255,0.25)",
+    fontFamily: "inherit",
+    color: "#fff",
+    textAlign: "left",
+  };
+
+  return onClick ? (
+    <button type="button" onClick={onClick} style={{ ...style, cursor: "pointer" }}>
+      {body}
+    </button>
+  ) : (
+    <div style={style}>{body}</div>
   );
 }

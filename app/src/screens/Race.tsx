@@ -29,6 +29,8 @@ export type RaceLive = {
   }[];
   /** Computed from the standings above — omitted when there's nothing true to say. */
   nudge?: string;
+  /** LEAGUE swaps the chart for the high-score board; both read the same period. */
+  onScope?: (scope: "crew" | "league") => void;
   onPeriod: (p: "month" | "quarter" | "year") => void;
   period: "month" | "quarter" | "year";
 };
@@ -153,7 +155,10 @@ export function Race({ onNavigate, live }: { onNavigate?: (t: Tab) => void; live
               { id: "league", label: "LEAGUE" },
             ]}
             value={scope}
-            onChange={setScope}
+            onChange={(next) => {
+              setScope(next);
+              live?.onScope?.(next);
+            }}
             activeSkin="magenta"
             style={{ flex: 1 }}
           />
