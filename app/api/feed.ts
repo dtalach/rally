@@ -5,7 +5,7 @@ import { toNum, usd } from "./_lib/money.js";
 
 /**
  * The crew feed on HOME — what everyone else just did, built from real orders.
- * This is what makes the app worth opening: you see that Maya bought, and you
+ * This is what makes the app worth opening: you see that someone bought, and you
  * want to answer it. Your own trades are excluded; the Activity screen is the
  * one that's about you.
  */

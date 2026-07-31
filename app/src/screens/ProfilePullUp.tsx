@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { PhoneFrame, Screen } from "../components/PhoneFrame";
-import { ROLE, Sheet, type Role } from "../components/ui";
+import { Avatar, ROLE, Sheet, type Role } from "../components/ui";
 import { PLAYER } from "../data";
 import { isMuted, playFill, setMuted } from "../sound";
+import { useSession } from "../useSession";
 import { isStandalone, needsPermission, type ShakeState } from "../useShake";
 
 /* 17 · PROFILE PULL-UP — what the avatar opens.
@@ -35,16 +36,19 @@ export type ProfileLive = {
 export function ProfilePullUp({
   onTrophyRoom,
   onDismiss,
+  onSignOut,
   live,
   shake,
 }: {
   onTrophyRoom?: () => void;
   onDismiss?: () => void;
+  onSignOut?: () => void;
   live?: ProfileLive;
   /** Owned by the app shell, so the listener outlives this sheet. */
   shake?: { state: ShakeState; enable: () => void; disable: () => void };
 }) {
   const [muted, setMutedState] = useState(isMuted);
+  const me = useSession();
 
   const stats: { value: string; label: string; role: Role }[] = live
     ? [
@@ -69,22 +73,7 @@ export function ProfilePullUp({
           <div className="pixel" style={{ fontSize: 15, color: "var(--gold)" }}>
             RALLY
           </div>
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: "50%",
-              background: "var(--cyan-deep)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 13,
-              fontWeight: 700,
-              color: "var(--cyan-pale)",
-            }}
-          >
-            JD
-          </div>
+          <Avatar ring={false} />
         </div>
         <div style={{ borderRadius: "var(--r-card)", height: 150, background: "var(--grad-violet-card)" }} />
         <div style={{ borderRadius: "var(--r-card)", height: 120, background: "var(--grad-indigo-card-170)" }} />
@@ -136,7 +125,10 @@ export function ProfilePullUp({
         </div>
 
         {live && (
-          <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: -6 }}>{live.toNextLabel}</div>
+          <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: -6 }}>
+            {live.toNextLabel}
+            {me?.email ? ` · ${me.email}` : ""}
+          </div>
         )}
 
         <div style={{ display: "flex", gap: 10 }}>
@@ -192,7 +184,10 @@ export function ProfilePullUp({
 
         <ProfileRow
           icon="ph ph-users-three"
-          label={`My Crew · ${live ? live.crewSize : PLAYER.crewSize} racers`}
+          label={(() => {
+            const n = live ? live.crewSize : PLAYER.crewSize;
+            return `My Crew · ${n} racer${n === 1 ? "" : "s"}`;
+          })()}
         />
         {/* Toggling the sound on previews it, so the control demonstrates
             what it controls. */}
@@ -238,6 +233,32 @@ export function ProfilePullUp({
         )}
 
         <ProfileRow icon="ph ph-shield-check" label="Parent view & settings" />
+
+        {live && onSignOut && (
+          <button
+            type="button"
+            onClick={onSignOut}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              padding: "13px 14px",
+              borderRadius: 14,
+              border: "none",
+              background: "transparent",
+              boxShadow: "inset 0 0 0 1.5px rgba(255,43,214,0.4)",
+              fontFamily: "inherit",
+              fontSize: 14,
+              fontWeight: 700,
+              color: "var(--magenta)",
+              cursor: "pointer",
+            }}
+          >
+            <i className="ph ph-sign-out" style={{ fontSize: 18 }} />
+            Sign out
+          </button>
+        )}
       </Sheet>
     </PhoneFrame>
   );

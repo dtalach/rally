@@ -4,11 +4,10 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 /* ---------------------------------------------------------------------------
    Sessions.
 
-   Test-account PINs, not real user accounts — deliberately, so this build
-   collects nothing personal from an app aimed at minors. The PIN is still
-   stored as a scrypt hash rather than plaintext, and the session is a signed
-   HttpOnly cookie, because there is no reason to build the insecure version
-   of something this small.
+   Real accounts: an email address, a password stored as a scrypt hash with a
+   per-account salt, and a session that is a signed HttpOnly cookie rather than
+   anything the page's JavaScript can read. The email is the only personal data
+   the app holds, and it exists to log you in — nothing sends mail.
 --------------------------------------------------------------------------- */
 
 const COOKIE = "rally_session";
@@ -22,16 +21,16 @@ function secret() {
   return s;
 }
 
-export function hashPin(pin: string) {
+export function hashSecret(secretValue: string) {
   const salt = randomBytes(16);
-  return `${salt.toString("hex")}:${scryptSync(pin, salt, 32).toString("hex")}`;
+  return `${salt.toString("hex")}:${scryptSync(secretValue, salt, 32).toString("hex")}`;
 }
 
-export function verifyPin(pin: string, stored: string) {
+export function verifySecret(secretValue: string, stored: string) {
   const [saltHex, keyHex] = stored.split(":");
   if (!saltHex || !keyHex) return false;
   const expected = Buffer.from(keyHex, "hex");
-  const actual = scryptSync(pin, Buffer.from(saltHex, "hex"), expected.length);
+  const actual = scryptSync(secretValue, Buffer.from(saltHex, "hex"), expected.length);
   return timingSafeEqual(expected, actual);
 }
 

@@ -5,8 +5,9 @@ import { MIGRATIONS } from "./_lib/migrations.js";
 import { seed } from "./_lib/seed.js";
 
 /**
- * One-shot database setup for a fresh deployment: create the tables, then seed
- * the test crew.
+ * One-shot database setup for a fresh deployment: create the tables, then load
+ * the tradable universe. It creates no players — accounts are made from the
+ * app's signup screen.
  *
  * It runs *inside* the deployment, which already holds DATABASE_URL, so nobody
  * has to hand a database credential around to get started. Guarded by
@@ -51,12 +52,12 @@ export default route("POST", async (req) => {
   }
   log.push(`schema: ${created} applied, ${skipped} already present`);
 
-  const players = await seed((m) => log.push(m));
+  const loaded = await seed((m) => log.push(m));
 
   return {
     ok: true,
     log,
-    players: players.map((p) => p.name),
-    next: "Open the app and sign in. PINs are in the log above.",
+    ...loaded,
+    next: "Open the app and create your account.",
   };
 });

@@ -36,7 +36,7 @@ const post = <T,>(path: string, body: unknown) =>
 
 /* ------------------------------- types --------------------------------- */
 
-export type Player = { id: number; handle: string; name: string; initials: string };
+export type Player = { id: number; email: string; name: string; initials: string };
 
 export type Vitals = {
   level: number;
@@ -177,8 +177,10 @@ export type Period = "month" | "quarter" | "year";
 
 export const api = {
   me: () => get<{ player: Player | null; realPrices: boolean }>("me"),
-  players: () => get<{ players: Player[] }>("players"),
-  login: (handle: string, pin: string) => post<{ player: Player }>("login", { handle, pin }),
+  login: (email: string, password: string) =>
+    post<{ player: Player }>("login", { email, password }),
+  signup: (name: string, email: string, password: string) =>
+    post<{ player: Player }>("signup", { name, email, password }),
   logout: () => post<{ ok: true }>("logout", {}),
 
   portfolio: () => get<Portfolio>("portfolio"),
@@ -237,6 +239,15 @@ export type Async<T> = {
  * unmounts — switching tabs must not throw the data away.
  */
 const cache = new Map<string, unknown>();
+
+/**
+ * Drop everything on the way in or out of an account. Without this, signing in
+ * as someone else would paint their screens with the last player's portfolio
+ * until the refetch landed.
+ */
+export function clearApiCache() {
+  cache.clear();
+}
 
 /**
  * Fetch with stale-while-revalidate.

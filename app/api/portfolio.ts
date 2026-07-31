@@ -4,6 +4,7 @@ import { requirePlayer, route } from "./_lib/http.js";
 import { pct, signedUsd, usd } from "./_lib/money.js";
 import { level, periodReturn, recordSnapshot, streak, valuePlayer } from "./_lib/valuation.js";
 import { evaluateTrophies } from "./_lib/trophies.js";
+import { STARTING_STACK } from "./_lib/game.js";
 
 /**
  * Everything HOME and FOLIO need: the stack, the day's move, every position,
@@ -21,7 +22,7 @@ export default route("GET", async (req) => {
   await recordSnapshot(playerId, stack.total);
 
   const monthReturn = await periodReturn(playerId, "month", stack.total);
-  const allTime = stack.total - 1_000_000;
+  const allTime = stack.total - STARTING_STACK;
 
   // Rank across the field on the same month return the leaderboard uses.
   const everyone = await db().select({ id: schema.players.id }).from(schema.players);
@@ -51,7 +52,7 @@ export default route("GET", async (req) => {
       cashLabel: usd(stack.cash),
       invested: stack.invested,
       investedLabel: usd(stack.invested),
-      allTimeLabel: `${signedUsd(allTime)} all-time (${pct(allTime / 1_000_000)})`,
+      allTimeLabel: `${signedUsd(allTime)} all-time (${pct(allTime / STARTING_STACK)})`,
       todayLabel: `Today ${signedUsd(stack.dayChangeValue)}`,
       dayChange: stack.dayChange,
       monthReturn,

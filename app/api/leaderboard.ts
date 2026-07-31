@@ -9,6 +9,9 @@ const PERIOD_LABEL: Record<Period, string> = {
   year: "year",
 };
 
+/** "1 player", "4 players" — the field is small enough for the difference to show. */
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
 /** Days left in the period — the "February ends in 19 days" line. */
 function daysLeft(period: Period, now = new Date()) {
   const start = new Date(`${periodStart(period, now)}T00:00:00Z`);
@@ -47,10 +50,10 @@ export default route("GET", async (req) => {
 
   return {
     period,
-    subtitle: `Highest % gain · this ${PERIOD_LABEL[period]} ends in ${daysLeft(
-      period as Period,
-      now
-    )} days · ${players.length} players`,
+    subtitle: `Highest % gain · this ${PERIOD_LABEL[period]} ends in ${plural(
+      daysLeft(period as Period, now),
+      "day"
+    )} · ${plural(players.length, "player")}`,
     monthLabel: now.toLocaleString("en-US", { month: "long", timeZone: "UTC" }).toUpperCase(),
     podium: ranked.slice(0, 3),
     rest: ranked.slice(3, 8),

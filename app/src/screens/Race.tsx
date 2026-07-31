@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { PhoneFrame, Screen } from "../components/PhoneFrame";
 import { TabBar, type Tab } from "../components/TabBar";
-import { Card, Chip, GlowDot, GlowLine, Nudge, ROLE, Segmented, Title, type Role } from "../components/ui";
+import { Avatar, Card, Chip, GlowDot, GlowLine, Nudge, ROLE, Segmented, Title, type Role } from "../components/ui";
 import { RACE_LINES, RACE_STANDINGS, SEASON } from "../data";
 
 /* 05 · RACE — the crew race for the current period.
@@ -25,7 +25,10 @@ export type RaceLive = {
     stackLabel: string;
     returnLabel: string;
     series: number[];
+    return: number;
   }[];
+  /** Computed from the standings above — omitted when there's nothing true to say. */
+  nudge?: string;
   onPeriod: (p: "month" | "quarter" | "year") => void;
   period: "month" | "quarter" | "year";
 };
@@ -43,6 +46,9 @@ const PLOT_RIGHT = 302;
 const PLOT_TOP = 26;
 const PLOT_BOTTOM = 226;
 
+/** Two percentage points — the narrowest the % axis is ever drawn. */
+const MIN_SPAN = 0.02;
+
 /** Each series as a return relative to its own first day. */
 const normalise = (s: number[]) => s.map((v) => (s[0] > 0 ? v / s[0] - 1 : 0));
 
@@ -53,8 +59,17 @@ const normalise = (s: number[]) => s.map((v) => (s[0] > 0 ? v / s[0] - 1 : 0));
  */
 function domain(allSeries: number[][]) {
   const flat = allSeries.filter((x) => x.length > 1).map(normalise).flat();
-  const lo = Math.min(0, ...flat);
-  const hi = Math.max(0.0001, ...flat);
+  let lo = Math.min(0, ...flat);
+  let hi = Math.max(0, ...flat);
+
+  // A race where nobody has moved yet would otherwise collapse to a zero-height
+  // scale and print "+0%" on every tick. Hold the axis open at ±1% until real
+  // spread exceeds it.
+  if (hi - lo < MIN_SPAN) {
+    lo = Math.min(lo, -MIN_SPAN / 2);
+    hi = Math.max(hi, MIN_SPAN / 2);
+  }
+
   const pad = (hi - lo) * 0.12;
   return { lo: lo - pad, hi: hi + pad };
 }
@@ -127,22 +142,7 @@ export function Race({ onNavigate, live }: { onNavigate?: (t: Tab) => void; live
               <i className="ph-fill ph-flame" />
               <span className="num">{live ? live.streak : 9}</span>
             </div>
-            <div
-              style={{
-                width: 34,
-                height: 34,
-                borderRadius: "50%",
-                background: "var(--cyan-deep)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 13,
-                fontWeight: 800,
-                color: "var(--cyan-pale)",
-              }}
-            >
-              JD
-            </div>
+            <Avatar ring={false} />
           </div>
         </div>
 
@@ -384,7 +384,11 @@ export function Race({ onNavigate, live }: { onNavigate?: (t: Tab) => void; live
           </button>
         )}
 
-        <Nudge>Maya passed you at 10:04. Avenge yourself.</Nudge>
+        {live ? (
+          live.nudge && <Nudge>{live.nudge}</Nudge>
+        ) : (
+          <Nudge>Maya passed you at 10:04. Avenge yourself.</Nudge>
+        )}
       </Screen>
       <TabBar active="race" onNavigate={onNavigate} />
     </PhoneFrame>

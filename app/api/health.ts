@@ -7,8 +7,9 @@ import { usingRealPrices } from "./_lib/prices.js";
  * Is this deployment actually wired up?
  *
  * Answers the three questions you have right after deploying: can it reach the
- * database, has it been seeded, and is it serving real quotes or the simulated
- * feed. Deliberately reveals no data — counts and a source name only.
+ * database, has the tradable universe been loaded, and is it serving real
+ * quotes or the simulated feed. Deliberately reveals no data — counts and a
+ * source name only.
  */
 export default route("GET", async () => {
   const source = usingRealPrices() ? "finnhub" : "simulated";
@@ -36,7 +37,10 @@ export default route("GET", async () => {
       .orderBy(desc(schema.quotes.fetchedAt))
       .limit(1);
 
-    const seeded = players.n > 0 && instruments.n > 0;
+    // Zero players is the normal state of a fresh deployment — accounts are
+    // made from the signup screen, not by the setup step. Only a missing
+    // universe means setup hasn't run.
+    const seeded = instruments.n > 0;
 
     return {
       ok: seeded && config.sessionSecret,

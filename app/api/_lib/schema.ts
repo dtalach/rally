@@ -18,11 +18,12 @@ import {
 
 export const players = pgTable("players", {
   id: serial("id").primaryKey(),
-  handle: text("handle").notNull().unique(),
+  /** Lowercased on the way in, so uniqueness actually means anything. */
+  email: text("email").notNull().unique(),
   name: text("name").notNull(),
   initials: text("initials").notNull(),
   /** scrypt hash as `salt:derivedKey`, both hex. */
-  pinHash: text("pin_hash").notNull(),
+  passwordHash: text("password_hash").notNull(),
   cash: numeric("cash", { precision: 16, scale: 2 }).notNull(),
   joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
 });

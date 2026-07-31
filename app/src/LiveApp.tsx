@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { api, useApi, type Period, type Player } from "./api";
+import { api, clearApiCache, useApi, type Period, type Player } from "./api";
 import type { Tab } from "./components/TabBar";
 import { Login } from "./screens/Login";
 import { Home } from "./screens/Home";
@@ -9,11 +9,13 @@ import { BuySell } from "./screens/BuySell";
 import { OrderTicket } from "./screens/OrderTicket";
 import { Race } from "./screens/Race";
 import { Leaderboards } from "./screens/Leaderboards";
-import { VsDuel } from "./screens/VsDuel";
 import { ProfilePullUp } from "./screens/ProfilePullUp";
 import { TrophyRoom } from "./screens/TrophyRoom";
 import { PhoneFrame, Screen } from "./components/PhoneFrame";
+import { TabBar } from "./components/TabBar";
+import { Button } from "./components/ui";
 import { RefreshProvider } from "./refresh";
+import { SessionProvider } from "./session";
 import { playFill, playShake } from "./sound";
 import { useShake } from "./useShake";
 
@@ -21,8 +23,8 @@ import { useShake } from "./useShake";
    The running app: real session, real portfolio, real trades.
 
    MVP slice, as agreed — login, home, portfolio, discover, buy/sell, race and
-   leaderboard read and write the database. Duels are still the static design
-   screen; it's reachable from the tab bar and clearly marked as not yet live.
+   leaderboard read and write the database. Duels aren't built yet, so that tab
+   says so rather than showing the design's mocked-up match.
 --------------------------------------------------------------------------- */
 
 type View =
@@ -72,16 +74,36 @@ export default function LiveApp() {
   }, []);
 
   if (!booted) return <Booting />;
-  if (!player) return <Login onSignedIn={setPlayer} />;
+  if (!player) {
+    return (
+      <Login
+        onSignedIn={(p) => {
+          clearApiCache();
+          setPlayer(p);
+        }}
+      />
+    );
+  }
 
   const go = (tab: Tab) => setView({ name: "tab", tab });
+
+  const signOut = async () => {
+    // Clear the cookie first; dropping the player only changes what's drawn.
+    await api.logout().catch(() => {});
+    clearApiCache();
+    setPlayer(null);
+    setView({ name: "tab", tab: "home" });
+    refresh();
+  };
 
   // Pull-to-refresh on any screen refetches everything the shell owns.
   const openProfile = () =>
     setView({ name: "profile", from: view.name === "tab" ? view.tab : "home" });
 
   const shell = (node: React.ReactNode) => (
-    <RefreshProvider onRefresh={refresh}>{node}</RefreshProvider>
+    <SessionProvider player={player}>
+      <RefreshProvider onRefresh={refresh}>{node}</RefreshProvider>
+    </SessionProvider>
   );
 
   if (view.name === "stock") {
@@ -101,6 +123,7 @@ export default function LiveApp() {
       <LiveProfile
         version={dataVersion}
         shake={shake}
+        onSignOut={signOut}
         onDismiss={() => go(view.from)}
         onTrophyRoom={() => setView({ name: "trophies", from: view.from })}
       />
@@ -156,7 +179,7 @@ export default function LiveApp() {
     case "race":
       return shell(<LiveRace version={dataVersion} onNavigate={go} />);
     case "duels":
-      return shell(<VsDuel onNavigate={go} onTrade={() => go("trade")} />);
+      return shell(<DuelsSoon onNavigate={go} />);
   }
 }
 
@@ -409,6 +432,7 @@ function LiveRace({ version, onNavigate }: { version: number; onNavigate: (t: Ta
         label: race.data.label,
         streak: race.data.streak,
         standings: race.data.standings,
+        nudge: raceNudge(race.data.standings),
         period,
         onPeriod: setPeriod,
       }}
@@ -416,14 +440,31 @@ function LiveRace({ version, onNavigate }: { version: number; onNavigate: (t: Ta
   );
 }
 
+/** The line under the standings, true for this race rather than flavour. */
+function raceNudge(standings: { name: string; you: boolean; return: number }[]) {
+  if (standings.length < 2) return "Nobody else is racing yet. Invite someone to make it a race.";
+  const i = standings.findIndex((s) => s.you);
+  if (i < 0) return undefined;
+  const other = standings[i === 0 ? 1 : i - 1];
+  const gap = Math.abs(other.return - standings[i].return) * 100;
+  // Under a tenth of a point everyone rounds to the same number, and "0.0%
+  // ahead" reads as a bug rather than a dead heat.
+  if (gap < 0.05) return `You're level with ${other.name}. Nothing between you.`;
+  return i === 0
+    ? `You're ${gap.toFixed(1)}% ahead of ${other.name}. Defend it.`
+    : `${other.name} is ${gap.toFixed(1)}% ahead of you. Your move.`;
+}
+
 function LiveProfile({
   version,
   shake,
   onDismiss,
+  onSignOut,
   onTrophyRoom,
 }: {
   version: number;
   shake: ReturnType<typeof useShake>;
+  onSignOut: () => void;
   onDismiss: () => void;
   onTrophyRoom: () => void;
 }) {
@@ -435,6 +476,7 @@ function LiveProfile({
     <ProfilePullUp
       onDismiss={onDismiss}
       onTrophyRoom={onTrophyRoom}
+      onSignOut={onSignOut}
       shake={shake}
       live={{
         name: data.player.name,
@@ -511,6 +553,51 @@ function Booting() {
           <div style={{ fontSize: 13, color: "var(--text-2)" }}>Counting your coins…</div>
         </div>
       </Screen>
+    </PhoneFrame>
+  );
+}
+
+/**
+ * Duels aren't built. The design frame for them is a mocked-up match against a
+ * player who doesn't exist, so showing it here would be inventing an opponent,
+ * a stake and a scoreline — the tab says what's true instead.
+ */
+function DuelsSoon({ onNavigate }: { onNavigate: (t: Tab) => void }) {
+  return (
+    <PhoneFrame glow="rgba(255,43,214,0.12)">
+      <Screen>
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 16,
+            textAlign: "center",
+            padding: "0 20px",
+          }}
+        >
+          <i className="ph-fill ph-sword" style={{ fontSize: 52, color: "var(--magenta)" }} />
+          <div className="pixel" style={{ fontSize: 15, color: "var(--magenta)" }}>
+            DUELS
+          </div>
+          <div style={{ fontSize: 14, color: "var(--text-1)", maxWidth: 290, lineHeight: 1.5 }}>
+            Head-to-head matches aren't live yet. When they are, you'll stake coins against
+            one racer and the bigger % gain takes the pot.
+          </div>
+          <Button
+            variant="outline"
+            height={50}
+            caret
+            onClick={() => onNavigate("race")}
+            style={{ maxWidth: 240 }}
+          >
+            RACE EVERYONE INSTEAD
+          </Button>
+        </div>
+      </Screen>
+      <TabBar active="duels" onNavigate={onNavigate} />
     </PhoneFrame>
   );
 }

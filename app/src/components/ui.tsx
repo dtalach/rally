@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { ROLE, type Role } from "../styles/roles";
+import { useSession } from "../useSession";
 
 export { ROLE, type Role };
 
@@ -41,9 +42,13 @@ export function Chip({
 }
 
 /** Avatar on every tab root, never on detail screens. The gold trophy pip is
- *  the discoverability trick that makes the profile surface findable. */
+ *  the discoverability trick that makes the profile surface findable.
+ *
+ *  Initials come from whoever is signed in, so this is the player's own face
+ *  on every screen. The "JD" default only ever shows in the design frames,
+ *  which render outside a session. */
 export function Avatar({
-  initials = "JD",
+  initials,
   size = 34,
   pip,
   ring = true,
@@ -55,6 +60,9 @@ export function Avatar({
   ring?: boolean;
   onClick?: () => void;
 }) {
+  const me = useSession();
+  const shown = initials ?? me?.initials ?? "JD";
+
   const avatar = (
     <div
       style={{
@@ -71,7 +79,7 @@ export function Avatar({
         color: "var(--cyan-pale)",
       }}
     >
-      {initials}
+      {shown}
     </div>
   );
 
@@ -154,6 +162,7 @@ export function Button({
   onClick,
   disabled,
   style,
+  type = "button",
 }: {
   children: ReactNode;
   variant?: "green" | "magenta" | "gold" | "outline" | "teal";
@@ -165,6 +174,8 @@ export function Button({
   onClick?: () => void;
   disabled?: boolean;
   style?: CSSProperties;
+  /** `submit` so a form can be sent with the keyboard's Go key. */
+  type?: "button" | "submit";
 }) {
   const skins: Record<string, CSSProperties> = {
     green: {
@@ -201,7 +212,7 @@ export function Button({
 
   return (
     <button
-      type="button"
+      type={type}
       onClick={onClick}
       disabled={disabled}
       style={{

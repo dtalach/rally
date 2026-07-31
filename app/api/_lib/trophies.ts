@@ -3,6 +3,7 @@ import { db, schema } from "./db.js";
 import { pct, toNum, usd } from "./money.js";
 import { streak } from "./valuation.js";
 import type { StackView } from "./valuation.js";
+import { STARTING_STACK } from "./game.js";
 
 /**
  * Trophies, computed from what the database can actually prove.
@@ -26,7 +27,7 @@ export type Trophy = {
 
 export async function evaluateTrophies(playerId: number, stack: StackView): Promise<Trophy[]> {
   const d = db();
-  const profit = stack.total - 1_000_000;
+  const profit = stack.total - STARTING_STACK;
 
   const [{ trades = 0 } = {}] = await d
     .select({ trades: sql<number>`count(*)::int` })

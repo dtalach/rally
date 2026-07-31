@@ -52,14 +52,21 @@ src/
 
 ## The backend
 
-**MVP slice, as scoped.** Login, home, portfolio, discover, buy/sell, race and
-the month/quarter/year leaderboard all read and write real data. Duels,
-trophies, activity and notifications are still the static design screens.
+**MVP slice, as scoped.** Accounts, home, portfolio, discover, buy/sell, race
+and the month/quarter/year leaderboard all read and write real data. Trophies
+are computed from real history. Duels aren't built — that tab says so rather
+than showing the design's mocked-up match. Activity and notifications are still
+the static design screens.
+
+**No test accounts.** Everyone who plays signs up with their own email and gets
+their own $1,000,000. Nothing in the database is invented: no seeded rivals, no
+generated pre-history, no fabricated streaks.
 
 | Endpoint           | Does                                                          |
 | ------------------ | ------------------------------------------------------------- |
-| `GET /api/players` | The login picker                                              |
-| `POST /api/login`  | PIN → signed HttpOnly session cookie                          |
+| `POST /api/signup` | Create an account; drops the opening $1,000,000               |
+| `POST /api/login`  | Email + password → signed HttpOnly session cookie             |
+| `POST /api/logout` | Clears the session cookie                                     |
 | `GET /api/me`      | Current player, or `null` so the app can boot to login        |
 | `GET /api/portfolio` | Stack, positions, vitals; records today's snapshot          |
 | `GET /api/feed`    | The crew feed, built from other players' real orders          |
@@ -68,7 +75,7 @@ trophies, activity and notifications are still the static design screens.
 | `POST /api/trade`  | Buy or sell, atomically                                       |
 | `GET /api/race`    | Everyone's % return and daily series for the period           |
 | `GET /api/leaderboard` | Ranked standings for month, quarter or year               |
-| `POST /api/setup`  | One-shot migrate + seed, guarded by `SETUP_TOKEN`             |
+| `POST /api/setup`  | One-shot migrate + load the tradable universe, guarded by `SETUP_TOKEN` |
 | `GET /api/health`  | Is this deployment wired up? Config, counts, price source      |
 
 Things worth knowing:
@@ -102,14 +109,24 @@ Things worth knowing:
 ```bash
 npm run db:generate   # regenerate migrations + bake them for /api/setup
 npm run db:migrate    # apply to DATABASE_URL
-npm run db:seed       # four test players with real portfolios
+npm run db:seed       # the tradable universe — instruments and a warm quote cache
 ```
 
-The seed's pre-history is **generated**, not real: these accounts didn't exist
-last quarter, so each player walks a seeded path from $1,000,000 to their current
-stack. Those rows are flagged `seeded = 'true'`. Everything from the seed forward
-is real. Expect a visible seam in the race chart where generated history meets
-live valuation; it disappears after a few real days.
+The seed creates **no players**. Accounts come from the app's signup screen, so
+every portfolio, snapshot and order in the database was earned by someone
+playing. A brand-new account is honestly empty: $1,000,000 in cash, 0% return,
+rank #1 of however many people have signed up.
+
+### Accounts
+
+Email and a password, hashed with scrypt and a per-account salt. The session is
+a signed HttpOnly cookie, so page JavaScript can never read it. Nothing sends
+mail — there's no verification step and no password reset yet, which is the
+main thing to build next if this goes further than friends and family.
+
+Anyone who signs up joins the same race and appears in everyone's standings and
+crew feed. That's the game, but it means the deployment is only as private as
+the people you give the URL to.
 
 ## Deploying
 
@@ -130,7 +147,7 @@ function; `vercel.json` rewrites everything else to `index.html`.
 
    Expect `"priceSource": "finnhub"` once the key is set, and a hint telling you
    what's still missing otherwise.
-5. Create the tables and the test crew — once:
+5. Create the tables and load the tradable universe — once:
 
    ```bash
    curl -X POST https://<your-app>.vercel.app/api/setup \
@@ -139,15 +156,19 @@ function; `vercel.json` rewrites everything else to `index.html`.
    ```
 
    It's idempotent, and it runs inside the deployment, so the database credential
-   never has to leave Vercel.
+   never has to leave Vercel. Re-run it after pulling schema changes — it applies
+   any new migrations and leaves existing accounts alone.
 6. **Delete `SETUP_TOKEN`** once you're set up. With it unset the endpoint refuses
    to run at all. `/api/health` should now report `"ok": true`.
+7. Open the app and create your account. It's the first one in the database, so
+   you're the whole race until someone else signs up.
 
 ### On your iPhone
 
 Open the URL in Safari → Share → **Add to Home Screen**. It launches fullscreen
 with no browser chrome, respects the notch and home indicator, and uses the gold
-coin icon. Sign in as Jordan with PIN `1234` (the seed prints all four).
+coin icon. Create an account with your email, and a million coins drops into
+it.
 
 ## Design decisions carried over from the chat
 

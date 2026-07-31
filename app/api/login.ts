@@ -1,27 +1,27 @@
 import { eq } from "drizzle-orm";
 import { db, schema } from "./_lib/db.js";
 import { ApiError, route, str } from "./_lib/http.js";
-import { issue, verifyPin } from "./_lib/session.js";
+import { issue, verifySecret } from "./_lib/session.js";
 
 export default route("POST", async (req, res) => {
-  const handle = str(req.body?.handle, "handle").toLowerCase();
-  const pin = str(req.body?.pin, "pin");
+  // Not the strict validators signup uses: a wrong address should fail the
+  // same way a wrong password does, not be rejected on shape.
+  const email = str(req.body?.email, "email").trim().toLowerCase();
+  const password = str(req.body?.password, "password");
 
-  const [player] = await db()
-    .select()
-    .from(schema.players)
-    .where(eq(schema.players.handle, handle));
+  const [player] = await db().select().from(schema.players).where(eq(schema.players.email, email));
 
-  // Same message either way, so the response can't be used to enumerate players.
-  if (!player || !verifyPin(pin, player.pinHash)) {
-    throw new ApiError(401, "That PIN doesn't match.");
+  // One message for both cases, so this can't be used to find out who has an
+  // account here.
+  if (!player || !verifySecret(password, player.passwordHash)) {
+    throw new ApiError(401, "That email and password don't match.");
   }
 
   issue(res, player.id);
   return {
     player: {
       id: player.id,
-      handle: player.handle,
+      email: player.email,
       name: player.name,
       initials: player.initials,
     },

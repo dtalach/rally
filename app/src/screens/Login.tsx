@@ -1,41 +1,57 @@
 import { useState } from "react";
 import { PhoneFrame, Screen } from "../components/PhoneFrame";
-import { Button, Chip, ROLE } from "../components/ui";
-import { api, useApi, type Player } from "../api";
+import { Button, Chip } from "../components/ui";
+import { api, type Player } from "../api";
 
-/* Sign-in for the test crew.
+/* Sign in, or make an account.
    Not part of the original 20 frames — the design's onboarding is the coin
-   drop, which assumes a fresh $1,000,000. These accounts already have running
-   portfolios, so this picks up an existing player instead. Same visual
-   language: pixel logo, glass cards, the gold PRESS START button. */
+   drop, which this is the front door to: create an account and a million
+   lands in it. Same visual language as the rest — pixel logo, glass cards,
+   the gold PRESS START button. */
 
-const ROLES = ["cyan", "magenta", "green", "gold"] as const;
+const MIN_PASSWORD = 8;
 
 export function Login({ onSignedIn }: { onSignedIn: (p: Player) => void }) {
-  const { data, error: loadError, loading } = useApi("players", () => api.players(), []);
-  const [selected, setSelected] = useState<Player | null>(null);
-  const [pin, setPin] = useState("");
+  const [mode, setMode] = useState<"in" | "up">("in");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [show, setShow] = useState(false);
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
 
+  const signingUp = mode === "up";
+  const ready =
+    email.trim().length > 3 &&
+    password.length >= MIN_PASSWORD &&
+    (!signingUp || name.trim().length >= 2);
+
   async function submit() {
-    if (!selected || pin.length < 4 || busy) return;
+    if (!ready || busy) return;
     setBusy(true);
     setError(undefined);
     try {
-      const { player } = await api.login(selected.handle, pin);
+      const { player } = signingUp
+        ? await api.signup(name.trim(), email.trim(), password)
+        : await api.login(email.trim(), password);
       onSignedIn(player);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Couldn't sign in.");
-      setPin("");
+      setPassword("");
     } finally {
       setBusy(false);
     }
   }
 
+  const swap = () => {
+    setMode(signingUp ? "in" : "up");
+    setError(undefined);
+    setPassword("");
+  };
+
   return (
     <PhoneFrame glow="rgba(255,230,0,0.16)">
-      <Screen scroll gap={18} padding="24px 24px 0">
+      <Screen scroll gap={16} padding="24px 24px 0">
         <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
           <div
             style={{
@@ -59,129 +75,169 @@ export function Login({ onSignedIn }: { onSignedIn: (p: Player) => void }) {
           >
             RALLY
           </div>
-          <Chip role="gold">SELECT PLAYER</Chip>
+          <Chip role="gold">{signingUp ? "NEW PLAYER" : "SIGN IN"}</Chip>
         </div>
 
-        {loading && <Muted>Loading the crew…</Muted>}
-        {loadError && <Problem>{loadError}</Problem>}
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {data?.players.map((p, i) => {
-            const tint = ROLE[ROLES[i % ROLES.length]];
-            const on = selected?.id === p.id;
-            return (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit();
+          }}
+          style={{ display: "flex", flexDirection: "column", gap: 12 }}
+        >
+          {signingUp && (
+            <Field
+              label="WHAT DO WE CALL YOU"
+              value={name}
+              onChange={setName}
+              placeholder="Your name"
+              autoComplete="name"
+              autoCapitalize="words"
+            />
+          )}
+          <Field
+            label="EMAIL"
+            value={email}
+            onChange={setEmail}
+            placeholder="you@example.com"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            autoCapitalize="none"
+          />
+          <Field
+            label="PASSWORD"
+            value={password}
+            onChange={setPassword}
+            placeholder={signingUp ? `At least ${MIN_PASSWORD} characters` : "Your password"}
+            type={show ? "text" : "password"}
+            autoComplete={signingUp ? "new-password" : "current-password"}
+            autoCapitalize="none"
+            trailing={
               <button
-                key={p.id}
                 type="button"
-                onClick={() => {
-                  setSelected(p);
-                  setPin("");
-                  setError(undefined);
-                }}
+                onClick={() => setShow((s) => !s)}
+                aria-label={show ? "Hide password" : "Show password"}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "12px 14px",
-                  borderRadius: "var(--r-tile)",
+                  background: "none",
                   border: "none",
-                  fontFamily: "inherit",
-                  textAlign: "left",
-                  color: "#fff",
+                  padding: 4,
                   cursor: "pointer",
-                  background: on ? "var(--grad-cyan-card)" : "var(--bg-card)",
-                  boxShadow: on
-                    ? "0 0 0 1.5px var(--cyan), 0 0 20px rgba(34,247,255,0.3)"
-                    : "var(--ring)",
+                  display: "flex",
+                  color: "var(--cyan-soft)",
                 }}
               >
-                <div
-                  style={{
-                    width: 42,
-                    height: 42,
-                    borderRadius: "50%",
-                    background: `${tint.base}22`,
-                    boxShadow: `inset 0 0 0 1.5px ${tint.base}`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: tint.base,
-                    flexShrink: 0,
-                  }}
-                >
-                  {p.initials}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 15, fontWeight: 700 }}>{p.name}</div>
-                  <div style={{ fontSize: 12, color: "var(--text-2)" }}>
-                    {on ? "Enter your PIN below" : "Tap to select"}
-                  </div>
-                </div>
-                {on && <i className="ph-fill ph-check-circle" style={{ fontSize: 24, color: "var(--green)" }} />}
+                <i className={show ? "ph ph-eye-slash" : "ph ph-eye"} style={{ fontSize: 19 }} />
               </button>
-            );
-          })}
-        </div>
+            }
+          />
 
-        {selected && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", color: "var(--cyan-soft)" }}>
-              4-DIGIT PIN
-            </div>
-            <input
-              autoFocus
-              type="tel"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              maxLength={4}
-              value={pin}
-              onChange={(e) => {
-                setPin(e.target.value.replace(/\D/g, "").slice(0, 4));
-                setError(undefined);
-              }}
-              onKeyDown={(e) => e.key === "Enter" && submit()}
-              placeholder="––––"
-              style={{
-                width: "100%",
-                padding: "14px 16px",
-                borderRadius: "var(--r-tile)",
-                border: "none",
-                background: "var(--bg-card)",
-                boxShadow: "inset 0 0 0 1.5px rgba(34,247,255,0.35)",
-                color: "var(--cyan)",
-                fontSize: 28,
-                fontWeight: 700,
-                letterSpacing: "0.5em",
-                textAlign: "center",
-                fontVariantNumeric: "tabular-nums",
-              }}
-            />
-            {error && <Problem>{error}</Problem>}
-            <Button
-              variant="gold"
-              height={56}
-              caret
-              blink={!busy}
-              onClick={submit}
-              style={{ opacity: pin.length === 4 && !busy ? 1 : 0.55 }}
-            >
-              {busy ? "CHECKING…" : "PRESS START"}
-            </Button>
+          {error && <Problem>{error}</Problem>}
+
+          <Button
+            variant="gold"
+            height={56}
+            caret
+            blink={!busy && ready}
+            type="submit"
+            disabled={busy || !ready}
+            style={{ opacity: ready && !busy ? 1 : 0.55 }}
+          >
+            {busy ? (signingUp ? "CREATING…" : "CHECKING…") : signingUp ? "DROP MY COINS" : "PRESS START"}
+          </Button>
+        </form>
+
+        {signingUp && (
+          <div style={{ textAlign: "center", fontSize: 12, color: "var(--cyan-soft)" }}>
+            You'll start with{" "}
+            <span className="num" style={{ fontWeight: 700, color: "var(--gold)" }}>
+              $1,000,000
+            </span>{" "}
+            in coins.
           </div>
         )}
 
+        <button
+          type="button"
+          onClick={swap}
+          style={{
+            background: "none",
+            border: "none",
+            fontFamily: "inherit",
+            fontSize: 13,
+            color: "var(--cyan)",
+            cursor: "pointer",
+            padding: "6px 0",
+          }}
+        >
+          {signingUp ? "Already have an account? Sign in" : "New here? Create an account"}
+        </button>
+
         <div style={{ textAlign: "center", fontSize: 12, color: "var(--text-4)", paddingBottom: 24 }}>
-          Test accounts · fake money, not investing advice
+          Fake money · real prices, 15 min delayed · not investing advice
         </div>
       </Screen>
     </PhoneFrame>
   );
 }
 
-function Muted({ children }: { children: React.ReactNode }) {
-  return <div style={{ textAlign: "center", fontSize: 13, color: "var(--text-2)" }}>{children}</div>;
+function Field({
+  label,
+  value,
+  onChange,
+  trailing,
+  ...input
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  trailing?: React.ReactNode;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">) {
+  // The show/hide button sits inside the field box but outside the <label>,
+  // so it doesn't get swept up as part of the input's accessible name.
+  const id = `field-${label.toLowerCase().replace(/[^a-z]+/g, "-")}`;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+      <label
+        htmlFor={id}
+        style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "var(--cyan-soft)" }}
+      >
+        {label}
+      </label>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "12px 14px",
+          borderRadius: "var(--r-tile)",
+          background: "var(--bg-card)",
+          boxShadow: "inset 0 0 0 1.5px rgba(34,247,255,0.35)",
+        }}
+      >
+        <input
+          {...input}
+          id={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{
+            flex: 1,
+            minWidth: 0,
+            border: "none",
+            background: "transparent",
+            outline: "none",
+            fontFamily: "inherit",
+            fontSize: 16,
+            fontWeight: 600,
+            color: "#fff",
+            caretColor: "var(--cyan)",
+          }}
+        />
+        {trailing}
+      </div>
+    </div>
+  );
 }
 
 export function Problem({ children }: { children: React.ReactNode }) {

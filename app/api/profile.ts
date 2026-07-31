@@ -4,6 +4,7 @@ import { requirePlayer, route } from "./_lib/http.js";
 import { pct, usd } from "./_lib/money.js";
 import { level, periodReturn, streak, valuePlayer } from "./_lib/valuation.js";
 import { evaluateTrophies } from "./_lib/trophies.js";
+import { STARTING_STACK } from "./_lib/game.js";
 
 /**
  * The profile behind the avatar: who you are, and what you've actually earned.
@@ -43,7 +44,7 @@ export default route("GET", async (req) => {
     .where(eq(schema.players.id, playerId));
 
   const stack = await valuePlayer(playerId);
-  const profit = stack.total - 1_000_000;
+  const profit = stack.total - STARTING_STACK;
   const lvl = level(stack.total);
   const days = await streak(playerId);
   const monthReturn = await periodReturn(playerId, "month", stack.total);

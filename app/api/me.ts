@@ -12,7 +12,7 @@ export default route("GET", async (req) => {
   const [player] = await db()
     .select({
       id: schema.players.id,
-      handle: schema.players.handle,
+      email: schema.players.email,
       name: schema.players.name,
       initials: schema.players.initials,
     })

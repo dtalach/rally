@@ -2,6 +2,7 @@ import { and, desc, eq, lte, sql } from "drizzle-orm";
 import { db, schema } from "./db.js";
 import { round2, toNum } from "./money.js";
 import { dayChange, getQuotes } from "./prices.js";
+import { STARTING_STACK } from "./game.js";
 
 /* ---------------------------------------------------------------------------
    Valuation.
@@ -210,7 +211,7 @@ export async function streak(playerId: number) {
 
 /** Level from lifetime profit — a milestone ladder, not an arbitrary counter. */
 export function level(total: number) {
-  const profit = Math.max(0, total - 1_000_000);
+  const profit = Math.max(0, total - STARTING_STACK);
   return Math.min(50, 1 + Math.floor(Math.sqrt(profit / 4000)));
 }
 
