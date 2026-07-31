@@ -132,7 +132,7 @@ export function VsDuel({ onNavigate, onTrade }: { onNavigate?: (t: Tab) => void;
         </svg>
 
         <div style={{ display: "flex", gap: 10 }}>
-          <Button variant="outline" height={52} icon="ph ph-chat-teardrop-text" style={{ flex: 1, letterSpacing: 0 }}>
+          <Button variant="teal" height={52} icon="ph ph-chat-teardrop-text" style={{ flex: 1, letterSpacing: 0 }}>
             TAUNT ▾
           </Button>
           <Button

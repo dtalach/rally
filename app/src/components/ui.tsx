@@ -156,7 +156,7 @@ export function Button({
   style,
 }: {
   children: ReactNode;
-  variant?: "green" | "magenta" | "gold" | "outline";
+  variant?: "green" | "magenta" | "gold" | "outline" | "teal";
   height?: number;
   fontSize?: number;
   caret?: boolean;
@@ -183,8 +183,19 @@ export function Button({
       boxShadow: "0 0 26px rgba(255,230,0,0.5), inset 0 -4px 0 rgba(0,0,0,0.2)",
     },
     outline: {
+      // Without an explicit background this inherits the browser's default
+      // buttonface grey, which rendered as a pale fill instead of the
+      // transparent, ring-only button the design draws.
+      background: "transparent",
       color: "var(--cyan)",
       boxShadow: "inset 0 0 0 1.5px var(--cyan)",
+    },
+    // Filled teal. Deep enough that white type clears 4.5:1 — the neon cyan
+    // itself is far too bright to carry white text.
+    teal: {
+      background: "linear-gradient(160deg,#087f92,#05606f)",
+      color: "#fff",
+      boxShadow: "inset 0 0 0 1.5px rgba(34,247,255,0.55), 0 0 18px rgba(34,247,255,0.22)",
     },
   };
 
