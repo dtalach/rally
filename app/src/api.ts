@@ -271,7 +271,9 @@ export function useApi<T>(key: string, fn: () => Promise<T>, deps: unknown[]): A
       setData(hit);
       setLoading(false);
     } else {
-      setData(undefined);
+      // Keep whatever we were showing (e.g. last period's race) instead of
+      // blanking to a loading splash — native apps don't flash empty frames
+      // when you flip a toggle or revisit a tab.
       setLoading(true);
     }
 

@@ -238,6 +238,12 @@ a:hover {
   }
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes tick {
   0%,
   100% {

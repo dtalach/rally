@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { api, clearApiCache, useApi, type Period, type Player } from "./api";
 import type { Tab } from "./components/TabBar";
 import { Login } from "./screens/Login";
@@ -100,89 +100,89 @@ export default function LiveApp() {
   const openProfile = () =>
     setView({ name: "profile", from: view.name === "tab" ? view.tab : "home" });
 
-  const shell = (node: React.ReactNode) => (
+  // Remember which tab sits under overlays so we can keep it mounted (and warm)
+  // while stock / profile / ticket are open — switching back shouldn't remount.
+  const tab =
+    view.name === "tab"
+      ? view.tab
+      : view.name === "profile" || view.name === "trophies"
+        ? view.from
+        : view.name === "stock" || view.name === "ticket"
+          ? "trade"
+          : "home";
+
+  const hide = (id: Tab): CSSProperties => ({
+    display: view.name === "tab" && tab === id ? undefined : "none",
+  });
+
+  return (
     <SessionProvider player={player}>
-      <RefreshProvider onRefresh={refresh}>{node}</RefreshProvider>
+      <RefreshProvider onRefresh={refresh}>
+        {/* All tab roots stay mounted so revisits paint instantly from cache. */}
+        <div style={hide("home")}>
+          <LiveHome version={dataVersion} onNavigate={go} onProfile={openProfile} />
+        </div>
+        <div style={hide("folio")}>
+          <LiveFolio
+            version={dataVersion}
+            onNavigate={go}
+            onProfile={openProfile}
+            onOpen={(symbol) => setView({ name: "stock", symbol })}
+          />
+        </div>
+        <div style={hide("trade")}>
+          <LiveDiscover
+            onNavigate={go}
+            onProfile={openProfile}
+            onOpen={(symbol) => setView({ name: "stock", symbol })}
+          />
+        </div>
+        <div style={hide("race")}>
+          <LiveRace version={dataVersion} onNavigate={go} onProfile={openProfile} />
+        </div>
+        <div style={hide("duels")}>
+          <DuelsSoon onNavigate={go} />
+        </div>
+
+        {view.name === "stock" && (
+          <StockDetail
+            symbol={view.symbol}
+            version={dataVersion}
+            onBack={() => go("trade")}
+            onNavigate={go}
+            onReview={(order) => setView({ name: "ticket", symbol: view.symbol, ...order })}
+          />
+        )}
+        {view.name === "ticket" && (
+          <Ticket
+            order={view}
+            version={dataVersion}
+            onDismiss={() => setView({ name: "stock", symbol: view.symbol })}
+            onFilled={() => {
+              refresh();
+              go("folio");
+            }}
+          />
+        )}
+        {view.name === "profile" && (
+          <LiveProfile
+            version={dataVersion}
+            shake={shake}
+            onSignOut={signOut}
+            onDismiss={() => go(view.from)}
+            onTrophyRoom={() => setView({ name: "trophies", from: view.from })}
+          />
+        )}
+        {view.name === "trophies" && (
+          <LiveTrophies
+            version={dataVersion}
+            onNavigate={go}
+            onBack={() => setView({ name: "profile", from: view.from })}
+          />
+        )}
+      </RefreshProvider>
     </SessionProvider>
   );
-
-  if (view.name === "stock") {
-    return shell(
-      <StockDetail
-        symbol={view.symbol}
-        version={dataVersion}
-        onBack={() => go("trade")}
-        onNavigate={go}
-        onReview={(order) => setView({ name: "ticket", symbol: view.symbol, ...order })}
-      />
-    );
-  }
-
-  if (view.name === "profile") {
-    return shell(
-      <LiveProfile
-        version={dataVersion}
-        shake={shake}
-        onSignOut={signOut}
-        onDismiss={() => go(view.from)}
-        onTrophyRoom={() => setView({ name: "trophies", from: view.from })}
-      />
-    );
-  }
-
-  if (view.name === "trophies") {
-    return shell(
-      <LiveTrophies
-        version={dataVersion}
-        onNavigate={go}
-        onBack={() => setView({ name: "profile", from: view.from })}
-      />
-    );
-  }
-
-  if (view.name === "ticket") {
-    return shell(
-      <Ticket
-        order={view}
-        version={dataVersion}
-        onDismiss={() => setView({ name: "stock", symbol: view.symbol })}
-        onFilled={() => {
-          refresh();
-          go("folio");
-        }}
-      />
-    );
-  }
-
-  switch (view.tab) {
-    case "home":
-      return shell(
-        <LiveHome version={dataVersion} onNavigate={go} onProfile={openProfile} />
-      );
-    case "folio":
-      return shell(
-        <LiveFolio
-          version={dataVersion}
-          onNavigate={go}
-          onProfile={openProfile}
-          onOpen={(symbol) => setView({ name: "stock", symbol })}
-        />
-      );
-    case "trade":
-      return shell(
-        <LiveDiscover
-          onNavigate={go}
-          onProfile={openProfile}
-          onOpen={(symbol) => setView({ name: "stock", symbol })}
-        />
-      );
-    case "race":
-      return shell(
-        <LiveRace version={dataVersion} onNavigate={go} onProfile={openProfile} />
-      );
-    case "duels":
-      return shell(<DuelsSoon onNavigate={go} />);
-  }
 }
 
 /* ------------------------------- screens -------------------------------- */
@@ -199,8 +199,10 @@ function LiveHome({
   const portfolio = useApi("portfolio", () => api.portfolio(), [version]);
   const feed = useApi("feed", () => api.feed(), [version]);
 
-  if (portfolio.error) return <Failed message={portfolio.error} onRetry={portfolio.reload} />;
-  if (!portfolio.data) return <Booting />;
+  if (portfolio.error && !portfolio.data) {
+    return <Failed message={portfolio.error} onRetry={portfolio.reload} active="home" onNavigate={onNavigate} />;
+  }
+  if (!portfolio.data) return <TabPending active="home" onNavigate={onNavigate} />;
 
   const p = portfolio.data;
   return (
@@ -232,8 +234,10 @@ function LiveFolio({
 }) {
   const { data, error, reload } = useApi("portfolio", () => api.portfolio(), [version]);
 
-  if (error) return <Failed message={error} onRetry={reload} />;
-  if (!data) return <Booting />;
+  if (error && !data) {
+    return <Failed message={error} onRetry={reload} active="folio" onNavigate={onNavigate} />;
+  }
+  if (!data) return <TabPending active="folio" onNavigate={onNavigate} />;
 
   return (
     <Portfolio
@@ -277,7 +281,9 @@ function LiveDiscover({
     [board, debounced]
   );
 
-  if (error) return <Failed message={error} onRetry={reload} />;
+  if (error && !data) {
+    return <Failed message={error} onRetry={reload} active="trade" onNavigate={onNavigate} />;
+  }
 
   return (
     <Discover
@@ -312,8 +318,10 @@ function StockDetail({
 }) {
   const { data, error, reload } = useApi(`quote:${symbol}`, () => api.quote(symbol), [symbol, version]);
 
-  if (error) return <Failed message={error} onRetry={reload} />;
-  if (!data) return <Booting />;
+  if (error && !data) {
+    return <Failed message={error} onRetry={reload} active="trade" onNavigate={onNavigate} />;
+  }
+  if (!data) return <TabPending active="trade" onNavigate={onNavigate} />;
 
   return <BuySell onNavigate={onNavigate} onBack={onBack} onReview={onReview} live={data} />;
 }
@@ -415,11 +423,14 @@ function LiveRace({
   // it's here only for the trophy pip, which must not be a made-up number.
   const portfolio = useApi("portfolio", () => api.portfolio(), [version]);
 
-  if (race.error) return <Failed message={race.error} onRetry={race.reload} />;
-  if (!race.data) return <Booting />;
+  if (race.error && !race.data) {
+    return <Failed message={race.error} onRetry={race.reload} active="race" onNavigate={onNavigate} />;
+  }
+  if (!race.data) return <TabPending active="race" onNavigate={onNavigate} />;
 
   // The race and the high-score board are two views of the same period; the
-  // race row list doubles as the switch into the full standings.
+  // race row list doubles as the switch into the full standings. Stay on the
+  // race chart until ranks arrive — don't flash a loading splash on the toggle.
   if (board === "ranks" && ranks.data) {
     return (
       <Leaderboards
@@ -485,8 +496,8 @@ function LiveProfile({
   onTrophyRoom: () => void;
 }) {
   const { data, error, reload } = useApi("profile", () => api.profile(), [version]);
-  if (error) return <Failed message={error} onRetry={reload} />;
-  if (!data) return <Booting />;
+  if (error && !data) return <Failed message={error} onRetry={reload} />;
+  if (!data) return <SoftPending />;
 
   return (
     <ProfilePullUp
@@ -523,8 +534,8 @@ function LiveTrophies({
   onBack: () => void;
 }) {
   const { data, error, reload } = useApi("profile", () => api.profile(), [version]);
-  if (error) return <Failed message={error} onRetry={reload} />;
-  if (!data) return <Booting />;
+  if (error && !data) return <Failed message={error} onRetry={reload} active="home" onNavigate={onNavigate} />;
+  if (!data) return <SoftPending />;
 
   return (
     <TrophyRoom
@@ -542,6 +553,7 @@ function LiveTrophies({
 
 /* -------------------------------- states -------------------------------- */
 
+/** Cold start only — waiting on /api/me before we know whether to show login. */
 function Booting() {
   return (
     <PhoneFrame>
@@ -570,6 +582,60 @@ function Booting() {
         </div>
       </Screen>
     </PhoneFrame>
+  );
+}
+
+/**
+ * In-app wait that keeps the tab bar. Switching tabs should feel instant —
+ * the destination tab lights up immediately, and content fills in behind it.
+ * Never put the RALLY splash here; that reads as a full app restart.
+ */
+function TabPending({ active, onNavigate }: { active: Tab; onNavigate: (t: Tab) => void }) {
+  return (
+    <PhoneFrame>
+      <Screen>
+        <PendingBody copy="Loading…" />
+      </Screen>
+      <TabBar active={active} onNavigate={onNavigate} />
+    </PhoneFrame>
+  );
+}
+
+/** Overlay waits (profile / trophies) — no tab bar, still no RALLY splash. */
+function SoftPending() {
+  return (
+    <PhoneFrame>
+      <Screen>
+        <PendingBody copy="Loading…" />
+      </Screen>
+    </PhoneFrame>
+  );
+}
+
+function PendingBody({ copy }: { copy: string }) {
+  return (
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 14,
+      }}
+    >
+      <div
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: "50%",
+          border: "2px solid var(--cyan)",
+          borderTopColor: "transparent",
+          animation: "spin 0.7s linear infinite",
+        }}
+      />
+      <div style={{ fontSize: 13, color: "var(--text-2)" }}>{copy}</div>
+    </div>
   );
 }
 
@@ -618,7 +684,17 @@ function DuelsSoon({ onNavigate }: { onNavigate: (t: Tab) => void }) {
   );
 }
 
-function Failed({ message, onRetry }: { message: string; onRetry: () => void }) {
+function Failed({
+  message,
+  onRetry,
+  active,
+  onNavigate,
+}: {
+  message: string;
+  onRetry: () => void;
+  active?: Tab;
+  onNavigate?: (t: Tab) => void;
+}) {
   return (
     <PhoneFrame glow="rgba(255,43,214,0.16)">
       <Screen>
@@ -660,6 +736,7 @@ function Failed({ message, onRetry }: { message: string; onRetry: () => void }) 
           </button>
         </div>
       </Screen>
+      {active && onNavigate ? <TabBar active={active} onNavigate={onNavigate} /> : null}
     </PhoneFrame>
   );
 }
