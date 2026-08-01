@@ -6,15 +6,28 @@ olds: neon-glass UI carrying the interface, 80s arcade carrying the soul.
 
 ## Run it
 
+Works the same in bash and PowerShell — every script reads `.env.local`
+itself, so there's nothing to export first.
+
 ```bash
 npm install
+cp .env.example .env.local     # PowerShell: Copy-Item .env.example .env.local
+# fill in DATABASE_URL and SESSION_SECRET, then:
+npm run db:migrate             # create the tables
+npm run db:seed                # load the tradable universe
 
-# terminal 1 — the API (needs Postgres; see Database below)
-DATABASE_URL=... SESSION_SECRET=... npm run dev:api
+# terminal 1 — the API
+npm run dev:api
 
 # terminal 2 — the app
-npm run dev            # http://localhost:5173
+npm run dev                    # http://localhost:5173
 ```
+
+Point `DATABASE_URL` at a database you don't mind losing — on Neon, branch the
+production one rather than using it. Leave `FINNHUB_API_KEY` unset locally and
+the app runs on a deterministic simulated feed, which is usually what you want.
+Then open the app and create an account; a local one is separate from
+production because it's a different database.
 
 | Route          | What it is                                                             |
 | -------------- | ---------------------------------------------------------------------- |
@@ -111,6 +124,11 @@ npm run db:generate   # regenerate migrations + bake them for /api/setup
 npm run db:migrate    # apply to DATABASE_URL
 npm run db:seed       # the tradable universe — instruments and a warm quote cache
 ```
+
+Migrations are baked into `api/_lib/migrations.ts` by `db:generate`, because a
+serverless function can't read `drizzle/*.sql` at runtime. Run it after any
+schema change, or `/api/setup` will apply an older schema than the code
+expects. `/api/health` catches that mismatch and names the missing columns.
 
 The seed creates **no players**. Accounts come from the app's signup screen, so
 every portfolio, snapshot and order in the database was earned by someone
