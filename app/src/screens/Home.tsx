@@ -1,3 +1,4 @@
+import { useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from "react";
 import { PhoneFrame, Screen } from "../components/PhoneFrame";
 import { TabBar, type Tab } from "../components/TabBar";
 import { Avatar, Card, ROLE, type Role } from "../components/ui";
@@ -7,14 +8,32 @@ import { PLAYER, STACK } from "../data";
    Total stack on top, then one thin vitals strip (the identity signals live
    here and nowhere else), then the crew feed, which is the scroll surface. */
 
+const DISMISSED_KEY = "rally:crew-dismissed";
+const SWIPE_DISMISS = 88;
+
 type Post = {
   initials: string;
   role: Role;
   name: string;
   time: string;
-  body: React.ReactNode;
+  body: ReactNode;
   actions: { label: string; role: Role }[];
 };
+
+function loadDismissed(): Set<string> {
+  try {
+    const raw = localStorage.getItem(DISMISSED_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? new Set(parsed.map(String)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function saveDismissed(ids: Set<string>) {
+  localStorage.setItem(DISMISSED_KEY, JSON.stringify([...ids]));
+}
 
 const FEED: Post[] = [
   {
@@ -64,11 +83,134 @@ const FEED: Post[] = [
   },
 ];
 
-function Strong({ children, color = "#fff" }: { children: React.ReactNode; color?: string }) {
+function Strong({ children, color = "#fff" }: { children: ReactNode; color?: string }) {
   return (
     <span className="num" style={{ color, fontWeight: 700 }}>
       {children}
     </span>
+  );
+}
+
+/** Swipe left/right or tap the X to clear a crew update from the feed. */
+function DismissibleCard({
+  id,
+  onDismiss,
+  children,
+  style,
+}: {
+  id: string;
+  onDismiss: (id: string) => void;
+  children: (dismissControl: ReactNode) => ReactNode;
+  style?: CSSProperties;
+}) {
+  const start = useRef<{ x: number; y: number } | null>(null);
+  const axis = useRef<"h" | "v" | null>(null);
+  const dxRef = useRef(0);
+  const [dx, setDx] = useState(0);
+  const [exiting, setExiting] = useState(false);
+  const dragging = useRef(false);
+
+  const setOffset = (value: number) => {
+    dxRef.current = value;
+    setDx(value);
+  };
+
+  const finish = (dir: number) => {
+    setExiting(true);
+    setOffset(dir * 420);
+    window.setTimeout(() => onDismiss(id), 220);
+  };
+
+  const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    if (exiting) return;
+    // Don't steal taps meant for COPY PLAY / dismiss.
+    if ((e.target as HTMLElement).closest("button")) return;
+    start.current = { x: e.clientX, y: e.clientY };
+    axis.current = null;
+    dragging.current = true;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    if (!dragging.current || !start.current || exiting) return;
+    const mx = e.clientX - start.current.x;
+    const my = e.clientY - start.current.y;
+    if (!axis.current) {
+      if (Math.abs(mx) < 8 && Math.abs(my) < 8) return;
+      axis.current = Math.abs(mx) > Math.abs(my) ? "h" : "v";
+      if (axis.current === "v") {
+        dragging.current = false;
+        start.current = null;
+        setOffset(0);
+        return;
+      }
+    }
+    if (axis.current === "h") {
+      e.preventDefault();
+      setOffset(mx);
+    }
+  };
+
+  const onPointerUp = () => {
+    if (!dragging.current) {
+      start.current = null;
+      axis.current = null;
+      return;
+    }
+    dragging.current = false;
+    start.current = null;
+    axis.current = null;
+    const final = dxRef.current;
+    if (Math.abs(final) >= SWIPE_DISMISS) {
+      finish(final > 0 ? 1 : -1);
+    } else {
+      setOffset(0);
+    }
+  };
+
+  const opacity = exiting ? 0 : Math.max(0.35, 1 - Math.abs(dx) / 220);
+
+  const dismissControl = (
+    <button
+      type="button"
+      aria-label="Dismiss update"
+      onClick={() => finish(1)}
+      style={{
+        width: 24,
+        height: 24,
+        borderRadius: 6,
+        border: "none",
+        background: "transparent",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        padding: 0,
+        flexShrink: 0,
+        marginLeft: 2,
+      }}
+    >
+      <i className="ph ph-x" style={{ fontSize: 15, color: "var(--text-3)" }} />
+    </button>
+  );
+
+  return (
+    <div
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      style={{
+        flexShrink: 0,
+        touchAction: "pan-y",
+        transform: `translateX(${dx}px)`,
+        opacity,
+        transition: dragging.current && !exiting ? undefined : "transform 220ms ease, opacity 220ms ease",
+        willChange: "transform, opacity",
+      }}
+    >
+      <Card style={{ display: "flex", gap: 12, padding: "13px 14px", ...style }}>{children(dismissControl)}</Card>
+    </div>
   );
 }
 
@@ -107,6 +249,22 @@ export function Home({
     streak: PLAYER.streak,
     duels: PLAYER.liveDuels,
   };
+
+  const [dismissed, setDismissed] = useState(loadDismissed);
+
+  const dismiss = (id: string) => {
+    setDismissed((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      saveDismissed(next);
+      return next;
+    });
+  };
+
+  const livePosts = live?.posts.filter((p) => !dismissed.has(String(p.id))) ?? [];
+  const protoPosts = FEED.filter((p) => !dismissed.has(`proto:${p.name}`));
+  const visibleCount = live ? livePosts.length : protoPosts.length;
+  const hadPosts = live ? live.posts.length > 0 : FEED.length > 0;
 
   return (
     <PhoneFrame>
@@ -198,161 +356,187 @@ export function Home({
           <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.1em", color: "var(--cyan-soft)" }}>
             YOUR CREW
           </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
-              fontSize: 12,
-              fontWeight: 700,
-              color: "var(--magenta)",
-            }}
-          >
-            <span
+          {visibleCount > 0 && (
+            <div
               style={{
-                width: 7,
-                height: 7,
-                borderRadius: "50%",
-                background: "var(--magenta)",
-                boxShadow: "0 0 8px var(--magenta)",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                fontSize: 12,
+                fontWeight: 700,
+                color: "var(--magenta)",
               }}
-            />
-            {live ? live.newPlays : 3} NEW PLAYS
-          </div>
+            >
+              <span
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: "50%",
+                  background: "var(--magenta)",
+                  boxShadow: "0 0 8px var(--magenta)",
+                }}
+              />
+              {visibleCount} NEW PLAYS
+            </div>
+          )}
         </div>
 
         {live &&
-          (live.posts.length === 0 ? (
+          (livePosts.length === 0 ? (
             <Card style={{ padding: "16px 14px", flexShrink: 0 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>Nobody's played yet</div>
+              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>
+                {hadPosts ? "You're caught up" : "Nobody's played yet"}
+              </div>
               <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.4 }}>
-                When someone in your crew buys or sells, it lands here. Make the first move.
+                {hadPosts
+                  ? "New crew buys and sells will show up here."
+                  : "When someone in your crew buys or sells, it lands here. Make the first move."}
               </div>
             </Card>
           ) : (
-            live.posts.map((post) => {
+            livePosts.map((post) => {
               const tint = ROLE[(post.role as Role) in ROLE ? (post.role as Role) : "cyan"];
               const sold = post.side === "sell";
               return (
-                <Card key={post.id} style={{ display: "flex", gap: 12, padding: "13px 14px", flexShrink: 0 }}>
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: "50%",
-                      background: `${tint.base}22`,
-                      boxShadow: `inset 0 0 0 1.5px ${tint.base}`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: tint.base,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {post.initials}
-                  </div>
-                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-                      <span style={{ fontSize: 14, fontWeight: 700 }}>{post.name}</span>
-                      <span className="num" style={{ fontSize: 11, color: "var(--text-3)" }}>
-                        {post.time}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.4 }}>
-                      {post.verb} <Strong color={sold ? "var(--magenta)" : "#fff"}>{post.amountLabel}</Strong>
-                    </div>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button
-                        type="button"
-                        onClick={onTrade}
+                <DismissibleCard key={post.id} id={String(post.id)} onDismiss={dismiss}>
+                  {(dismissControl) => (
+                    <>
+                      <div
                         style={{
-                          padding: "6px 12px",
-                          borderRadius: 9,
-                          border: "none",
-                          background: "transparent",
-                          fontFamily: "inherit",
-                          fontSize: 12,
+                          width: 40,
+                          height: 40,
+                          borderRadius: "50%",
+                          background: `${tint.base}22`,
+                          boxShadow: `inset 0 0 0 1.5px ${tint.base}`,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 13,
                           fontWeight: 700,
-                          color: "var(--cyan)",
-                          boxShadow: "inset 0 0 0 1.5px rgba(34,247,255,0.5)",
-                          cursor: "pointer",
+                          color: tint.base,
+                          flexShrink: 0,
                         }}
                       >
-                        COPY PLAY
-                      </button>
-                    </div>
-                  </div>
-                </Card>
+                        {post.initials}
+                      </div>
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                          <span style={{ fontSize: 14, fontWeight: 700 }}>{post.name}</span>
+                          <div style={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}>
+                            <span className="num" style={{ fontSize: 11, color: "var(--text-3)" }}>
+                              {post.time}
+                            </span>
+                            {dismissControl}
+                          </div>
+                        </div>
+                        <div style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.4 }}>
+                          {post.verb} <Strong color={sold ? "var(--magenta)" : "#fff"}>{post.amountLabel}</Strong>
+                        </div>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <button
+                            type="button"
+                            onClick={onTrade}
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: 9,
+                              border: "none",
+                              background: "transparent",
+                              fontFamily: "inherit",
+                              fontSize: 12,
+                              fontWeight: 700,
+                              color: "var(--cyan)",
+                              boxShadow: "inset 0 0 0 1.5px rgba(34,247,255,0.5)",
+                              cursor: "pointer",
+                            }}
+                          >
+                            COPY PLAY
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </DismissibleCard>
               );
             })
           ))}
 
         {!live &&
-          FEED.map((post) => (
-          <Card
-            key={post.name}
-            style={{ display: "flex", gap: 12, padding: "13px 14px", flexShrink: 0 }}
-          >
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                background: `${ROLE[post.role].base}22`,
-                boxShadow: `inset 0 0 0 1.5px ${ROLE[post.role].base}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 13,
-                fontWeight: 700,
-                color: ROLE[post.role].base,
-                flexShrink: 0,
-              }}
-            >
-              {post.initials}
-            </div>
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-                <span style={{ fontSize: 14, fontWeight: 700 }}>{post.name}</span>
-                <span className="num" style={{ fontSize: 11, color: "var(--text-3)" }}>
-                  {post.time}
-                </span>
+          (protoPosts.length === 0 ? (
+            <Card style={{ padding: "16px 14px", flexShrink: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>You're caught up</div>
+              <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.4 }}>
+                New crew buys and sells will show up here.
               </div>
-              <div style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.4 }}>{post.body}</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                {post.actions.map((a) => (
-                  <button
-                    key={a.label}
-                    type="button"
-                    style={{
-                      padding: "6px 12px",
-                      borderRadius: 9,
-                      border: "none",
-                      background: "transparent",
-                      fontFamily: "inherit",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: ROLE[a.role].base,
-                      boxShadow: `inset 0 0 0 1.5px rgba(${ROLE[a.role].rgb},0.5)`,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {a.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          ) : (
+            protoPosts.map((post) => (
+              <DismissibleCard key={post.name} id={`proto:${post.name}`} onDismiss={dismiss}>
+                {(dismissControl) => (
+                  <>
+                    <div
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: "50%",
+                        background: `${ROLE[post.role].base}22`,
+                        boxShadow: `inset 0 0 0 1.5px ${ROLE[post.role].base}`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: ROLE[post.role].base,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {post.initials}
+                    </div>
+                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 14, fontWeight: 700 }}>{post.name}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}>
+                          <span className="num" style={{ fontSize: 11, color: "var(--text-3)" }}>
+                            {post.time}
+                          </span>
+                          {dismissControl}
+                        </div>
+                      </div>
+                      <div style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.4 }}>{post.body}</div>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        {post.actions.map((a) => (
+                          <button
+                            key={a.label}
+                            type="button"
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: 9,
+                              border: "none",
+                              background: "transparent",
+                              fontFamily: "inherit",
+                              fontSize: 12,
+                              fontWeight: 700,
+                              color: ROLE[a.role].base,
+                              boxShadow: `inset 0 0 0 1.5px rgba(${ROLE[a.role].rgb},0.5)`,
+                              cursor: "pointer",
+                            }}
+                          >
+                            {a.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </DismissibleCard>
+            ))
+          ))}
       </Screen>
       <TabBar active="home" onNavigate={onNavigate} />
     </PhoneFrame>
   );
 }
 
-function Pill({ children, role }: { children: React.ReactNode; role: Role }) {
+function Pill({ children, role }: { children: ReactNode; role: Role }) {
   const t = ROLE[role];
   return (
     <div
@@ -378,7 +562,7 @@ function Vital({
   color,
   icon,
 }: {
-  value: React.ReactNode;
+  value: ReactNode;
   label: string;
   color: string;
   icon?: string;
