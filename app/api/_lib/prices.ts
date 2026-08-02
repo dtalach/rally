@@ -216,3 +216,132 @@ function lastMarketClose(now: Date) {
 }
 
 export const dayChange = (q: Quote) => (q.price - q.prevClose) / q.prevClose;
+
+/* ---------------------------------------------------------------------------
+   Chart history.
+
+   Live quotes stay on Finnhub (15-min delayed). Candle history is a different
+   problem: Finnhub's free tier does not include /stock/candle, and our own
+   price_history table only has samples from this app's 15-minute refreshes —
+   often two points, which makes the trade chart scale look broken.
+
+   Yahoo's public chart endpoint gives real OHLCV for US symbols with no key.
+   Results are cached in memory so flipping 1D/1W/1M/1Y stays cheap.
+--------------------------------------------------------------------------- */
+
+export type ChartRange = "1D" | "1W" | "1M" | "1Y";
+
+const YAHOO: Record<ChartRange, { range: string; interval: string }> = {
+  "1D": { range: "1d", interval: "5m" },
+  "1W": { range: "5d", interval: "30m" },
+  "1M": { range: "1mo", interval: "1d" },
+  "1Y": { range: "1y", interval: "1d" },
+};
+
+const HISTORY_TTL_MS: Record<ChartRange, number> = {
+  "1D": 15 * 60 * 1000,
+  "1W": 60 * 60 * 1000,
+  "1M": 60 * 60 * 1000,
+  "1Y": 6 * 60 * 60 * 1000,
+};
+
+type HistoryHit = { prices: number[]; expiresAt: number };
+const historyCache = new Map<string, HistoryHit>();
+
+/** Cap the polyline so the SVG stays readable on a phone. */
+function downsample(prices: number[], max = 120): number[] {
+  if (prices.length <= max) return prices;
+  const out: number[] = [];
+  const step = (prices.length - 1) / (max - 1);
+  for (let i = 0; i < max; i++) out.push(prices[Math.round(i * step)]!);
+  return out;
+}
+
+async function fetchYahooCloses(symbol: string, range: ChartRange): Promise<number[]> {
+  const { range: yr, interval } = YAHOO[range];
+  const url =
+    `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}` +
+    `?range=${yr}&interval=${interval}&includePrePost=false`;
+
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(8000),
+    headers: {
+      // Yahoo occasionally 429s bare serverless fetches without a UA.
+      "User-Agent": "Mozilla/5.0 (compatible; RallyChart/1.0)",
+      Accept: "application/json",
+    },
+  });
+  if (!res.ok) throw new Error(`yahoo chart ${res.status} for ${symbol}`);
+
+  const json = (await res.json()) as {
+    chart?: {
+      result?: {
+        indicators?: { quote?: { close?: (number | null)[] }[] };
+      }[];
+      error?: { description?: string } | null;
+    };
+  };
+
+  if (json.chart?.error) {
+    throw new Error(json.chart.error.description ?? "yahoo chart error");
+  }
+
+  const closes = json.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
+  if (!closes?.length) return [];
+
+  return downsample(
+    closes.filter((c): c is number => typeof c === "number" && Number.isFinite(c) && c > 0)
+  );
+}
+
+/**
+ * Deterministic fake series for local/simulated mode when Yahoo is unreachable.
+ * Walks from prevClose toward price across `n` steps so the chart still moves.
+ */
+function simulatedSeries(q: Quote, range: ChartRange): number[] {
+  const n = range === "1D" ? 48 : range === "1W" ? 40 : range === "1M" ? 30 : 52;
+  const out: number[] = [];
+  for (let i = 0; i < n; i++) {
+    const t = i / (n - 1);
+    const drift = q.prevClose + (q.price - q.prevClose) * t;
+    const wiggle = 1 + wobble(`${q.symbol}:${range}:${i}`) * 0.012;
+    out.push(round2(drift * wiggle));
+  }
+  out[out.length - 1] = q.price;
+  return out;
+}
+
+/**
+ * Close prices for the trade chart. Prefers Yahoo's real market history; falls
+ * back to a seeded walk only when the market feed can't be reached.
+ */
+export async function getChartHistory(
+  symbol: string,
+  range: ChartRange,
+  quote?: Quote
+): Promise<{ prices: number[]; fromMarket: boolean }> {
+  const key = `${symbol.toUpperCase()}:${range}`;
+  const cached = historyCache.get(key);
+  if (cached && cached.expiresAt > Date.now() && cached.prices.length >= 2) {
+    return { prices: cached.prices, fromMarket: true };
+  }
+
+  try {
+    const prices = await fetchYahooCloses(symbol.toUpperCase(), range);
+    if (prices.length >= 2) {
+      // Pin the last point to the quote we serve for fills, so the chart tip
+      // and the big price number don't disagree by a few cents.
+      if (quote?.price) prices[prices.length - 1] = quote.price;
+      historyCache.set(key, { prices, expiresAt: Date.now() + HISTORY_TTL_MS[range] });
+      return { prices, fromMarket: true };
+    }
+  } catch (err) {
+    console.error("chart history fetch failed:", err);
+  }
+
+  if (quote) {
+    const prices = simulatedSeries(quote, range);
+    return { prices, fromMarket: false };
+  }
+  return { prices: [], fromMarket: false };
+}

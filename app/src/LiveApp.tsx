@@ -316,8 +316,7 @@ function StockDetail({
   onNavigate: (t: Tab) => void;
   onReview: (order: { side: "buy" | "sell"; shares?: number; all?: boolean }) => void;
 }) {
-  // The chart window is a server query, not a client filter — each range is a
-  // different slice of the recorded price series.
+  // The chart window is a server query — each range loads real market history.
   const [range, setRange] = useState("1D");
   const { data, error, reload } = useApi(
     `quote:${symbol}:${range}`,

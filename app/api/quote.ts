@@ -1,24 +1,22 @@
-import { and, eq, gte } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db, schema } from "./_lib/db.js";
 import { ApiError, oneOf, route, str } from "./_lib/http.js";
 import { pct, signedUsd, toNum, usd } from "./_lib/money.js";
-import { dayChange, getQuotes } from "./_lib/prices.js";
+import {
+  dayChange,
+  getChartHistory,
+  getQuotes,
+  type ChartRange,
+} from "./_lib/prices.js";
 import { playerIdFrom } from "./_lib/session.js";
 
-const RANGES = ["1D", "1W", "1M", "1Y"] as const;
+const RANGES = ["1D", "1W", "1M", "1Y"] as const satisfies readonly ChartRange[];
 
-const RANGE_MS: Record<(typeof RANGES)[number], number> = {
-  "1D": 24 * 60 * 60 * 1000,
-  "1W": 7 * 24 * 60 * 60 * 1000,
-  "1M": 30 * 24 * 60 * 60 * 1000,
-  "1Y": 365 * 24 * 60 * 60 * 1000,
-};
-
-const RANGE_LABEL: Record<(typeof RANGES)[number], string> = {
-  "1D": "24-hour",
-  "1W": "week's",
-  "1M": "month's",
-  "1Y": "year's",
+const RANGE_CHANGE_LABEL: Record<ChartRange, string> = {
+  "1D": "today",
+  "1W": "this week",
+  "1M": "this month",
+  "1Y": "this year",
 };
 
 /** The stock detail screen: price, delay stamp, and the player's own position. */
@@ -35,7 +33,7 @@ export default route("GET", async (req) => {
   const q = (await getQuotes([symbol])).get(symbol);
   if (!q) throw new ApiError(503, "No price available right now. Try again in a minute.");
 
-  const change = dayChange(q);
+  const day = dayChange(q);
   const asOf = q.fetchedAt.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -73,36 +71,35 @@ export default route("GET", async (req) => {
     }
   }
 
-  // The chart is the price series this app actually recorded — not other
-  // players' fills, which is what it used to draw and which said nothing about
-  // the market.
+  // Real market candles for the selected window (Yahoo), not the sparse
+  // samples this app happens to have recorded on its own.
   const range = oneOf(req.query.range, RANGES, "1D");
-  const since = new Date(Date.now() - RANGE_MS[range]);
-  const samples = await d
-    .select({ price: schema.priceHistory.price, at: schema.priceHistory.at })
-    .from(schema.priceHistory)
-    .where(and(eq(schema.priceHistory.symbol, symbol), gte(schema.priceHistory.at, since)))
-    .orderBy(schema.priceHistory.at)
-    .limit(400);
+  const { prices: history, fromMarket } = await getChartHistory(symbol, range, q);
+
+  const start = history[0];
+  const end = history[history.length - 1];
+  const periodChange =
+    history.length >= 2 && start! > 0 ? (end! - start!) / start! : day;
+  const up = periodChange >= 0;
 
   return {
     symbol,
     name: instrument.name,
     price: q.price,
     priceLabel: `$${q.price.toFixed(2)}`,
-    changeLabel: `${pct(change)} today`,
-    up: change >= 0,
+    changeLabel: `${pct(periodChange)} ${RANGE_CHANGE_LABEL[range]}`,
+    up,
     asOfLabel: `As of ${asOf} · prices delayed 15 min`,
     balance,
     balanceLabel: usd(balance),
     position,
     range,
-    history: samples.map((r) => toNum(r.price)),
-    /* Said plainly rather than drawn as a flat line: a chart needs two points,
-       and a young deployment hasn't got them for every window yet. */
+    history,
     historyNote:
-      samples.length >= 2
+      history.length >= 2
         ? undefined
-        : `No ${RANGE_LABEL[range]} price history yet — the chart fills in as prices update.`,
+        : fromMarket
+          ? undefined
+          : `Couldn't load ${RANGE_CHANGE_LABEL[range]} chart yet — try again in a moment.`,
   };
 });

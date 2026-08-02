@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PhoneFrame, Screen } from "../components/PhoneFrame";
 import { TabBar, type Tab } from "../components/TabBar";
 import { BackCaret, Button, Card, Chip, GlowDot, GlowLine } from "../components/ui";
@@ -6,7 +6,8 @@ import { NVDA } from "../data";
 
 /* 09 · TRADE · BUY/SELL — stock detail and the order builder.
    Prices are 15-minute delayed, and the UI says so rather than implying a
-   live tick: "As of 9:26 AM · prices delayed 15 min". */
+   live tick: "As of 9:26 AM · prices delayed 15 min".
+   The chart is real market history for the selected window (1D/1W/1M/1Y). */
 
 const RANGES = ["1D", "1W", "1M", "1Y"] as const;
 
@@ -101,6 +102,13 @@ export function BuySell({
   const [range, setRange] = useState<(typeof RANGES)[number]>(
     (live?.range as (typeof RANGES)[number]) ?? "1D"
   );
+
+  // Parent refetch swaps `live` when the range changes — keep the chips in sync.
+  useEffect(() => {
+    if (live?.range && RANGES.includes(live.range as (typeof RANGES)[number])) {
+      setRange(live.range as (typeof RANGES)[number]);
+    }
+  }, [live?.range]);
   const [unit, setUnit] = useState<Unit>("shares");
   // Starts empty. A pre-filled figure is an order you didn't choose, and the
   // one that used to be here was the largest one you could afford.
