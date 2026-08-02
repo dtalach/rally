@@ -127,6 +127,8 @@ export async function getQuotes(symbols: string[]): Promise<Map<string, Quote>> 
     });
   }
 
+  let refreshed = new Set<string>();
+
   const now = Date.now();
   const stale = wanted.filter((s) => {
     const hit = bySymbol.get(s);
@@ -158,13 +160,59 @@ export async function getQuotes(symbols: string[]): Promise<Map<string, Quote>> 
       for (const [symbol, q] of fresh) {
         bySymbol.set(symbol, { symbol, ...q, fetchedAt: new Date() });
       }
+      refreshed = new Set(fresh.keys());
     } catch (err) {
       // Serve what we have. A stale price is a better answer than an error page.
       console.error("quote refresh failed, serving cache:", err);
     }
   }
 
+  await recordHistory(bySymbol, refreshed);
   return bySymbol;
+}
+
+/**
+ * Append what we just saw to the price series.
+ *
+ * A symbol with no history yet is backfilled from the quote in hand: its
+ * previous close, stamped at the last US market close, and its current price.
+ * Both are real published numbers, so a chart drawn the first time anyone opens
+ * a stock has a real segment in it rather than nothing — and every sample after
+ * that is one this app observed live. Waiting for the 15-minute cache to expire
+ * instead would leave the screen blank for the first quarter of an hour.
+ */
+async function recordHistory(served: Map<string, Quote>, refreshed: Set<string>) {
+  if (served.size === 0) return;
+  const d = db();
+  const symbols = [...served.keys()];
+
+  const seen = await d
+    .selectDistinct({ symbol: schema.priceHistory.symbol })
+    .from(schema.priceHistory)
+    .where(inArray(schema.priceHistory.symbol, symbols));
+  const known = new Set(seen.map((r) => r.symbol));
+
+  const rows: { symbol: string; price: string; at: Date }[] = [];
+  for (const [symbol, q] of served) {
+    if (!known.has(symbol)) {
+      rows.push({ symbol, price: String(q.prevClose), at: lastMarketClose(q.fetchedAt) });
+      rows.push({ symbol, price: String(q.price), at: q.fetchedAt });
+    } else if (refreshed.has(symbol)) {
+      rows.push({ symbol, price: String(q.price), at: q.fetchedAt });
+    }
+  }
+  if (rows.length > 0) await d.insert(schema.priceHistory).values(rows);
+}
+
+/** 4pm New York on the last weekday before now, as a UTC instant. */
+function lastMarketClose(now: Date) {
+  const close = new Date(now);
+  close.setUTCHours(20, 0, 0, 0); // 16:00 ET during daylight time
+  if (close >= now) close.setUTCDate(close.getUTCDate() - 1);
+  while (close.getUTCDay() === 0 || close.getUTCDay() === 6) {
+    close.setUTCDate(close.getUTCDate() - 1);
+  }
+  return close;
 }
 
 export const dayChange = (q: Quote) => (q.price - q.prevClose) / q.prevClose;

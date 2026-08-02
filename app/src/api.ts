@@ -118,7 +118,10 @@ export type QuoteDetail = {
     gainLabel: string;
     up: boolean;
   } | null;
+  range: string;
   history: number[];
+  /** Present when the window hasn't got two samples yet. */
+  historyNote?: string;
 };
 
 export type Standing = {
@@ -190,7 +193,8 @@ export const api = {
     get<{ board: string; rows: MarketRow[] }>(
       `market?board=${board}${q ? `&q=${encodeURIComponent(q)}` : ""}`
     ),
-  quote: (symbol: string) => get<QuoteDetail>(`quote?symbol=${encodeURIComponent(symbol)}`),
+  quote: (symbol: string, range = "1D") =>
+    get<QuoteDetail>(`quote?symbol=${encodeURIComponent(symbol)}&range=${range}`),
   /** Size the order in dollars, in shares, or with `all` — never all three. */
   trade: (order: {
     symbol: string;

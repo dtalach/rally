@@ -27,7 +27,10 @@ export type BuySellLive = {
     gainLabel: string;
     up: boolean;
   } | null;
+  range: string;
   history: number[];
+  /** Set when the window has fewer than two real samples to draw. */
+  historyNote?: string;
 };
 
 /* The order can be sized in dollars or in shares. Kids think in both — "put
@@ -37,8 +40,8 @@ export type BuySellLive = {
 type Unit = "usd" | "shares";
 
 const USD_DECIMALS = 2;
-/** Matches the six decimals the server stores holdings in. */
-const SHARE_DECIMALS = 6;
+/** Whole shares only — you buy 3 of something, not 3.4172 of it. */
+const SHARE_DECIMALS = 0;
 
 const decimalsFor = (unit: Unit) => (unit === "usd" ? USD_DECIMALS : SHARE_DECIMALS);
 
@@ -47,6 +50,9 @@ function sanitize(input: string, decimals: number) {
   const cleaned = input.replace(/[^0-9.]/g, "");
   const dot = cleaned.indexOf(".");
   if (dot === -1) return cleaned;
+  // Whole-number fields drop the point along with everything after it, rather
+  // than leaving a trailing "3." that reads as an unfinished number.
+  if (decimals === 0) return cleaned.slice(0, dot);
   const whole = cleaned.slice(0, dot);
   const rest = cleaned.slice(dot + 1).replace(/\./g, "");
   return `${whole}.${rest.slice(0, decimals)}`;
@@ -66,8 +72,6 @@ const moneyPlain = (n: number) =>
 const moneyExact = (n: number) => `$${moneyPlain(n)}`;
 const sharesText = (n: number) =>
   n.toLocaleString("en-US", { maximumFractionDigits: SHARE_DECIMALS });
-/** Two decimals is enough to read an estimate by. */
-const sharesShort = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 2 });
 
 /** Maps a price series into the 340x130 chart box. */
 function priceLine(history: number[]) {
@@ -85,71 +89,80 @@ export function BuySell({
   onNavigate,
   onBack,
   onReview,
+  onRange,
   live,
 }: {
   onNavigate?: (t: Tab) => void;
   onBack?: () => void;
-  onReview?: (order: { side: "buy" | "sell"; amount?: number; shares?: number }) => void;
+  onReview?: (order: { side: "buy" | "sell"; shares?: number; all?: boolean }) => void;
+  onRange?: (range: string) => void;
   live?: BuySellLive;
 }) {
-  const [side, setSide] = useState<"buy" | "sell">("buy");
-  const [range, setRange] = useState<(typeof RANGES)[number]>("1D");
-  const [unit, setUnit] = useState<Unit>("usd");
-  const [field, setField] = useState("25000");
+  const [range, setRange] = useState<(typeof RANGES)[number]>(
+    (live?.range as (typeof RANGES)[number]) ?? "1D"
+  );
+  const [unit, setUnit] = useState<Unit>("shares");
+  // Starts empty. A pre-filled figure is an order you didn't choose, and the
+  // one that used to be here was the largest one you could afford.
+  const [field, setField] = useState("");
   // While the field has focus it shows exactly what was typed; the rest of the
   // time it's grouped and prefixed, because $25,000 reads better than 25000.
   const [editing, setEditing] = useState(false);
+  /* "ALL" has to mean every share, including the fraction of one left over from
+     a dollar-sized order placed before whole shares were the rule. */
+  const [wantsAll, setWantsAll] = useState(false);
 
   const price = live?.price ?? 0;
   const held = live?.position?.shares ?? 0;
-  const heldValue = held * price;
+  const balance = live?.balance ?? 0;
   const typed = parse(field);
 
-  const amount = unit === "usd" ? typed : typed * price;
-  const shares = unit === "shares" ? typed : price > 0 ? amount / price : 0;
+  /* Whole shares are the order. A dollar figure is a way of saying how many —
+     it floors to the shares it actually covers, so the ticket and the fill are
+     the same number rather than a rounding apart. */
+  const shares = Math.floor(unit === "shares" ? typed : price > 0 ? typed / price : 0);
+  const cost = shares * price;
 
-  /* The most you can ask for, in whatever unit is showing. A buy in shares is
-     floored to whole cents' worth so the estimate can't round past your cash. */
-  const max = !live
-    ? 975400
-    : unit === "usd"
-      ? side === "buy"
-        ? live.balance
-        : heldValue
-      : side === "buy"
-        ? price > 0
-          ? Math.floor((live.balance / price) * 100) / 100
-          : 0
-        : held;
+  const maxBuy = price > 0 ? Math.floor(balance / price) : 0;
+  const maxSell = Math.floor(held);
+  const canBuy = shares > 0 && shares <= maxBuy;
+  const canSell = held > 0 && shares > 0 && shares <= maxSell;
 
-  const overMax = unit === "usd" ? typed > max + 0.01 : typed > max + 0.000001;
-  const maxField = unit === "usd" ? String(Math.floor(max)) : toField(max, unit);
-
-  /* Said in the unit they're typing in, and always with the number that fits,
-     so "too much" is never a dead end. */
-  const overMessage = !live
-    ? ""
-    : side === "buy"
-      ? unit === "usd"
-        ? `Too much — you only have ${moneyExact(live.balance)}.`
-        : `Too many — ${sharesText(max)} shares is all your ${moneyExact(live.balance)} buys.`
-      : unit === "usd"
-        ? `You only hold ${moneyExact(heldValue)} of ${live.name}.`
-        : `You only hold ${sharesText(held)} shares of ${live.name}.`;
+  /* One message, for whichever limit the number in the box has broken. */
+  const overBuy = shares > maxBuy;
+  const overSell = held > 0 && shares > maxSell;
+  const problem = !live
+    ? undefined
+    : overBuy && (held === 0 || overSell)
+      ? {
+          text: `${sharesText(shares)} shares costs ${moneyExact(cost)} — you have ${moneyExact(balance)}, enough for ${sharesText(maxBuy)}.`,
+          fix: String(maxBuy),
+        }
+      : overBuy
+        ? { text: `Too many to buy — ${moneyExact(balance)} covers ${sharesText(maxBuy)}.`, fix: String(maxBuy) }
+        : overSell
+          ? { text: `You only hold ${sharesText(maxSell)} shares of ${live.name}.`, fix: String(maxSell) }
+          : undefined;
 
   const setUnitKeeping = (next: Unit) => {
     if (next === unit) return;
     setUnit(next);
+    setWantsAll(false);
     if (price > 0 && typed > 0) {
-      // Floored to the two decimals the estimate was showing, so the number
-      // you tap into is the number you were just looking at — and so a switch
-      // can never nudge the order past the cash it was inside a moment ago.
-      const converted = next === "shares" ? typed / price : typed * price;
-      setField(toField(Math.floor(converted * 100) / 100, next));
+      // Carry the order across, in the unit you're switching into.
+      setField(next === "shares" ? String(shares) : toField(cost, next));
     }
   };
 
-  const bump = (step: number) => setField((f) => toField(parse(f) + step, unit));
+  const bump = (step: number) => {
+    setWantsAll(false);
+    setField((f) => toField(parse(f) + step, unit));
+  };
+
+  const setSize = (value: string, all = false) => {
+    setWantsAll(all);
+    setField(value);
+  };
 
   return (
     <PhoneFrame glow="rgba(57,255,20,0.12)">
@@ -204,21 +217,43 @@ export function BuySell({
         </div>
 
         <Card background="var(--grad-indigo-card-170)" radius="var(--r-card)" padding="12px 10px 6px">
-          <svg viewBox="0 0 340 130" style={{ width: "100%", height: 135 }}>
-            <line x1="0" y1="43" x2="340" y2="43" stroke="#241442" strokeWidth="1" />
-            <line x1="0" y1="86" x2="340" y2="86" stroke="#241442" strokeWidth="1" />
-            {(() => {
-              const color = live && !live.up ? "#ff2bd6" : "#39ff14";
-              const points = live ? priceLine(live.history) : NVDA.line;
-              const last = points.split(" ").pop()!.split(",").map(Number);
-              return (
-                <>
-                  <GlowLine points={points} color={color} width={3.5} bloom={12} />
-                  <GlowDot cx={last[0]} cy={last[1]} color={color} />
-                </>
-              );
-            })()}
-          </svg>
+          {live?.historyNote ? (
+            /* Two points make a line. Fewer than that and the honest thing is
+               to say so, not to draw something. */
+            <div
+              style={{
+                height: 135,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                padding: "0 24px",
+                textAlign: "center",
+              }}
+            >
+              <i className="ph ph-chart-line" style={{ fontSize: 26, color: "var(--text-3)" }} />
+              <div style={{ fontSize: 12.5, color: "var(--text-2)", lineHeight: 1.45 }}>
+                {live.historyNote}
+              </div>
+            </div>
+          ) : (
+            <svg viewBox="0 0 340 130" style={{ width: "100%", height: 135 }}>
+              <line x1="0" y1="43" x2="340" y2="43" stroke="#241442" strokeWidth="1" />
+              <line x1="0" y1="86" x2="340" y2="86" stroke="#241442" strokeWidth="1" />
+              {(() => {
+                const color = live && !live.up ? "#ff2bd6" : "#39ff14";
+                const points = live ? priceLine(live.history) : NVDA.line;
+                const last = points.split(" ").pop()!.split(",").map(Number);
+                return (
+                  <>
+                    <GlowLine points={points} color={color} width={3.5} bloom={12} />
+                    <GlowDot cx={last[0]} cy={last[1]} color={color} />
+                  </>
+                );
+              })()}
+            </svg>
+          )}
           <div style={{ display: "flex", gap: 6, padding: "4px 2px 6px" }}>
             {RANGES.map((r) => {
               const on = r === range;
@@ -226,7 +261,10 @@ export function BuySell({
                 <button
                   key={r}
                   type="button"
-                  onClick={() => setRange(r)}
+                  onClick={() => {
+                    setRange(r);
+                    onRange?.(r);
+                  }}
                   style={{
                     flex: 1,
                     textAlign: "center",
@@ -253,12 +291,6 @@ export function BuySell({
           </div>
         </Card>
 
-        {/* BUY / SELL */}
-        <div style={{ display: "flex", gap: 6, padding: 4, borderRadius: 12, background: "var(--bg-card)" }}>
-          <SideTab label="BUY" on={side === "buy"} role="green" onClick={() => setSide("buy")} />
-          <SideTab label="SELL" on={side === "sell"} role="magenta" onClick={() => setSide("sell")} />
-        </div>
-
         <Card
           background="var(--grad-indigo-card-170)"
           radius="var(--r-card)"
@@ -267,19 +299,15 @@ export function BuySell({
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", color: "var(--text-2)" }}>
-              {live ? (side === "buy" ? "HOW MUCH TO BUY" : "HOW MUCH TO SELL") : "AMOUNT"}
+              {live ? "HOW MANY" : "AMOUNT"}
             </div>
             <div className="num" style={{ fontSize: 12, color: "var(--cyan-soft)" }}>
-              {live && side === "sell" ? (
+              {live && held > 0 ? (
                 <>
-                  You hold: <span style={{ fontWeight: 700 }}>{sharesText(held)} shares</span>
+                  You hold: <span style={{ fontWeight: 700 }}>{sharesText(held)}</span> ·{" "}
                 </>
-              ) : (
-                <>
-                  Balance:{" "}
-                  <span style={{ fontWeight: 700 }}>{live ? live.balanceLabel : NVDA.balance}</span>
-                </>
-              )}
+              ) : null}
+              Balance: <span style={{ fontWeight: 700 }}>{live ? live.balanceLabel : NVDA.balance}</span>
             </div>
           </div>
           {live ? (
@@ -290,37 +318,29 @@ export function BuySell({
               <SizeBar
                 label="DOLLARS"
                 active={unit === "usd"}
-                over={overMax && unit === "usd"}
+                over={Boolean(problem) && unit === "usd"}
                 value={
-                  unit === "usd"
-                    ? editing
-                      ? field
-                      : field === ""
-                        ? ""
-                        : typed.toLocaleString("en-US", { maximumFractionDigits: USD_DECIMALS })
-                    : `≈ ${moneyPlain(amount)}`
+                  unit === "usd" && editing
+                    ? field
+                    : shares > 0
+                      ? `≈ ${moneyPlain(cost)}`
+                      : ""
                 }
                 ariaLabel="Order amount in dollars"
                 onFocus={() => setUnitKeeping("usd")}
-                onChange={(v) => setField(sanitize(v, USD_DECIMALS))}
+                onChange={(v) => setSize(sanitize(v, USD_DECIMALS))}
                 onEditing={setEditing}
               />
               <SizeBar
                 label="SHARES"
                 active={unit === "shares"}
-                over={overMax && unit === "shares"}
+                over={Boolean(problem) && unit === "shares"}
                 value={
-                  unit === "shares"
-                    ? editing
-                      ? field
-                      : field === ""
-                        ? ""
-                        : sharesText(typed)
-                    : `≈ ${sharesShort(shares)}`
+                  unit === "shares" && editing ? field : shares > 0 ? sharesText(shares) : ""
                 }
                 ariaLabel="Number of shares"
                 onFocus={() => setUnitKeeping("shares")}
-                onChange={(v) => setField(sanitize(v, SHARE_DECIMALS))}
+                onChange={(v) => setSize(sanitize(v, SHARE_DECIMALS))}
                 onEditing={setEditing}
               />
             </div>
@@ -350,7 +370,7 @@ export function BuySell({
 
           {/* Over the limit gets said out loud, with the number that fits and a
               one-tap way to take it. */}
-          {live && overMax && (
+          {live && problem && (
             <div
               style={{
                 display: "flex",
@@ -364,11 +384,11 @@ export function BuySell({
             >
               <i className="ph-fill ph-warning" style={{ fontSize: 18, color: "var(--magenta)" }} />
               <div style={{ flex: 1, fontSize: 12.5, color: "var(--magenta)", lineHeight: 1.4 }}>
-                {overMessage}
+                {problem.text}
               </div>
               <button
                 type="button"
-                onClick={() => setField(maxField)}
+                onClick={() => setSize(problem.fix)}
                 style={{
                   background: "none",
                   border: "none",
@@ -389,92 +409,71 @@ export function BuySell({
           <div style={{ display: "flex", gap: 8 }}>
             {unit === "usd" ? (
               <>
+                <AmountChip onClick={() => bump(100)}>+$100</AmountChip>
                 <AmountChip onClick={() => bump(1000)}>+$1K</AmountChip>
-                <AmountChip onClick={() => bump(10000)}>+$10K</AmountChip>
-                <AmountChip onClick={() => bump(100000)}>+$100K</AmountChip>
               </>
             ) : (
               <>
                 <AmountChip onClick={() => bump(1)}>+1</AmountChip>
                 <AmountChip onClick={() => bump(10)}>+10</AmountChip>
-                <AmountChip onClick={() => bump(100)}>+100</AmountChip>
               </>
             )}
-            <AmountChip gold onClick={() => setField(maxField)}>
-              MAX
+            <AmountChip gold onClick={() => setSize(String(maxBuy))}>
+              MAX BUY
             </AmountChip>
+            {held > 0 && (
+              <AmountChip gold onClick={() => setSize(String(maxSell), true)}>
+                ALL
+              </AmountChip>
+            )}
           </div>
           {/* No Clear button: tapping a bar selects what's in it, so typing
               replaces it outright. */}
         </Card>
 
-        <Button
-          variant={side === "buy" ? "green" : "magenta"}
-          height={56}
-          fontSize={16}
-          caret
-          onClick={() =>
-            onReview?.(unit === "usd" ? { side, amount: typed } : { side, shares: typed })
-          }
-          style={{
-            boxShadow:
-              side === "buy"
-                ? "0 0 26px rgba(57,255,20,0.5), inset 0 -4px 0 rgba(0,0,0,0.2)"
-                : "0 0 26px rgba(255,43,214,0.5), inset 0 -4px 0 rgba(0,0,0,0.25)",
-          }}
-          disabled={Boolean(live) && (overMax || typed <= 0 || amount < 1)}
-        >
-          REVIEW {side.toUpperCase()}
-        </Button>
+        {/* The side is chosen by which action you take, rather than by a mode
+            switch you had to set first. SELL only appears when there's
+            something to sell. */}
+        <div style={{ display: "flex", gap: 10 }}>
+          <Button
+            variant="green"
+            height={56}
+            fontSize={16}
+            caret
+            onClick={() => onReview?.({ side: "buy", shares })}
+            style={{
+              flex: 1,
+              boxShadow: "0 0 26px rgba(57,255,20,0.5), inset 0 -4px 0 rgba(0,0,0,0.2)",
+            }}
+            disabled={Boolean(live) && !canBuy}
+          >
+            BUY
+          </Button>
+          {(!live || held > 0) && (
+            <Button
+              variant="magenta"
+              height={56}
+              fontSize={16}
+              caret
+              onClick={() =>
+                onReview?.(wantsAll ? { side: "sell", all: true } : { side: "sell", shares })
+              }
+              style={{
+                flex: 1,
+                boxShadow: "0 0 26px rgba(255,43,214,0.5), inset 0 -4px 0 rgba(0,0,0,0.25)",
+              }}
+              disabled={Boolean(live) && !canSell}
+            >
+              SELL
+            </Button>
+          )}
+        </div>
         <div style={{ textAlign: "center", fontSize: 13, color: "var(--text-4)" }}>
           Zero fees · settles instantly · it's fake money
         </div>
       </Screen>
       <TabBar active="trade" onNavigate={onNavigate} />
     </PhoneFrame>
-  );
-}
-
-function SideTab({
-  label,
-  on,
-  role,
-  onClick,
-}: {
-  label: string;
-  on: boolean;
-  role: "green" | "magenta";
-  onClick: () => void;
-}) {
-  const activeSkin =
-    role === "green"
-      ? { background: "var(--grad-btn-green)", color: "var(--green-ink)", boxShadow: "0 0 16px rgba(57,255,20,0.45)" }
-      : { background: "var(--grad-btn-magenta)", color: "#fff", boxShadow: "0 0 16px rgba(255,43,214,0.45)" };
-  const idleSkin =
-    role === "green"
-      ? { background: "transparent", color: "var(--green)", boxShadow: "inset 0 0 0 1.5px rgba(57,255,20,0.5)" }
-      : { background: "transparent", color: "var(--magenta)", boxShadow: "inset 0 0 0 1.5px rgba(255,43,214,0.5)" };
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        flex: 1,
-        textAlign: "center",
-        padding: "10px 0",
-        borderRadius: 9,
-        border: "none",
-        fontFamily: "inherit",
-        fontSize: 14,
-        fontWeight: 700,
-        letterSpacing: "0.08em",
-        cursor: "pointer",
-        ...(on ? activeSkin : idleSkin),
-      }}
-    >
-      {label}
-    </button>
   );
 }
 

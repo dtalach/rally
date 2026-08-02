@@ -9,7 +9,7 @@ const MIN_ORDER = 1;
 /**
  * Buy or sell.
  *
- * The client sends a symbol, a side and a size — dollars, shares, or "all" —
+ * The client sends a symbol, a side and a size — whole shares, or "all" —
  * but never a price. The server prices the fill from its own quote cache, so a
  * tampered request can't mint shares. Cash, holdings and the order record move
  * together in one transaction, so a failure can't leave a player paid but
@@ -31,6 +31,11 @@ export default route("POST", async (req) => {
 
   if (byShares && wantShares <= 0) {
     throw new ApiError(400, "Enter how many shares you want.");
+  }
+  // Whole shares only. A fractional position can still be closed — that's what
+  // `all` is for — but nothing new creates one.
+  if (byShares && !Number.isInteger(wantShares)) {
+    throw new ApiError(400, "Orders are in whole shares.");
   }
   if (!sellAll && !byShares && amount < MIN_ORDER) {
     throw new ApiError(400, `Orders start at ${usd(MIN_ORDER)}.`);

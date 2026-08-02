@@ -22,6 +22,9 @@ export function db() {
     idle_timeout: 20,
     connect_timeout: 10,
     prepare: false, // required when talking to a transaction-mode pooler
+    // "column already exists, skipping" is the expected result of re-running an
+    // idempotent migration, not something to print a stack-shaped block about.
+    onnotice: () => {},
   });
   return drizzle(client, { schema });
 }

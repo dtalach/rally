@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "build:single": "vite build --mode single && node scripts/bundle-single-file.mjs",
     "db:generate": "node --env-file-if-exists=.env.local node_modules/drizzle-kit/bin.cjs generate && tsx scripts/build-migrations.ts",
-    "db:migrate": "node --env-file-if-exists=.env.local node_modules/drizzle-kit/bin.cjs migrate",
+    "db:migrate": "tsx --env-file-if-exists=.env.local scripts/migrate.ts",
     "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
     "dev:api": "tsx --env-file-if-exists=.env.local scripts/dev-api.ts"
   },

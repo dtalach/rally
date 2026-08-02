@@ -1,9 +1,25 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, eq, gte } from "drizzle-orm";
 import { db, schema } from "./_lib/db.js";
-import { ApiError, route, str } from "./_lib/http.js";
+import { ApiError, oneOf, route, str } from "./_lib/http.js";
 import { pct, signedUsd, toNum, usd } from "./_lib/money.js";
 import { dayChange, getQuotes } from "./_lib/prices.js";
 import { playerIdFrom } from "./_lib/session.js";
+
+const RANGES = ["1D", "1W", "1M", "1Y"] as const;
+
+const RANGE_MS: Record<(typeof RANGES)[number], number> = {
+  "1D": 24 * 60 * 60 * 1000,
+  "1W": 7 * 24 * 60 * 60 * 1000,
+  "1M": 30 * 24 * 60 * 60 * 1000,
+  "1Y": 365 * 24 * 60 * 60 * 1000,
+};
+
+const RANGE_LABEL: Record<(typeof RANGES)[number], string> = {
+  "1D": "24-hour",
+  "1W": "week's",
+  "1M": "month's",
+  "1Y": "year's",
+};
 
 /** The stock detail screen: price, delay stamp, and the player's own position. */
 export default route("GET", async (req) => {
@@ -57,13 +73,17 @@ export default route("GET", async (req) => {
     }
   }
 
-  // Recent fills make a usable sparkline until real intraday history exists.
-  const recent = await d
-    .select({ price: schema.orders.price, at: schema.orders.filledAt })
-    .from(schema.orders)
-    .where(eq(schema.orders.symbol, symbol))
-    .orderBy(desc(schema.orders.filledAt))
-    .limit(24);
+  // The chart is the price series this app actually recorded — not other
+  // players' fills, which is what it used to draw and which said nothing about
+  // the market.
+  const range = oneOf(req.query.range, RANGES, "1D");
+  const since = new Date(Date.now() - RANGE_MS[range]);
+  const samples = await d
+    .select({ price: schema.priceHistory.price, at: schema.priceHistory.at })
+    .from(schema.priceHistory)
+    .where(and(eq(schema.priceHistory.symbol, symbol), gte(schema.priceHistory.at, since)))
+    .orderBy(schema.priceHistory.at)
+    .limit(400);
 
   return {
     symbol,
@@ -76,6 +96,13 @@ export default route("GET", async (req) => {
     balance,
     balanceLabel: usd(balance),
     position,
-    history: recent.reverse().map((r) => toNum(r.price)),
+    range,
+    history: samples.map((r) => toNum(r.price)),
+    /* Said plainly rather than drawn as a flat line: a chart needs two points,
+       and a young deployment hasn't got them for every window yet. */
+    historyNote:
+      samples.length >= 2
+        ? undefined
+        : `No ${RANGE_LABEL[range]} price history yet — the chart fills in as prices update.`,
   };
 });

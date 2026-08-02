@@ -87,6 +87,25 @@ export const quotes = pgTable("quotes", {
 });
 
 /**
+ * Every price this app has actually seen, appended on each refresh.
+ *
+ * The stock chart used to be drawn from recent orders, which is other players'
+ * fills rather than the market — and nothing at all on a quiet database. This
+ * is the real series: one sample per symbol per cache refresh, so a chart drawn
+ * from it is a record of prices this deployment genuinely observed.
+ */
+export const priceHistory = pgTable(
+  "price_history",
+  {
+    id: serial("id").primaryKey(),
+    symbol: text("symbol").notNull(),
+    price: numeric("price", { precision: 16, scale: 4 }).notNull(),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("price_history_symbol_idx").on(t.symbol, t.at)]
+);
+
+/**
  * One row per player per day. This is what makes % return over a month,
  * quarter or year answerable — competition is on percentage gain, and the
  * stack itself never resets, so a baseline per period is required.

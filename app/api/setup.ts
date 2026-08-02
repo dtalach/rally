@@ -1,7 +1,5 @@
-import { sql } from "drizzle-orm";
-import { db } from "./_lib/db.js";
 import { ApiError, route, str } from "./_lib/http.js";
-import { MIGRATIONS } from "./_lib/migrations.js";
+import { MigrationError, applyMigrations, message, sqlState } from "./_lib/migrate.js";
 import { seed } from "./_lib/seed.js";
 
 /**
@@ -18,25 +16,6 @@ import { seed } from "./_lib/seed.js";
  *        -d '{"token":"<SETUP_TOKEN>"}'
  */
 
-/** Postgres codes for "this object already exists" — re-running is fine. */
-const ALREADY_EXISTS = new Set(["42P07", "42710", "42P16", "23505"]);
-
-/** Drizzle wraps driver errors, so the SQLSTATE code lives on `cause`. */
-function sqlState(err: unknown): string {
-  const e = err as { code?: string; cause?: { code?: string } };
-  return e?.code ?? e?.cause?.code ?? "";
-}
-
-/** First line, capped — drizzle appends the whole query and every parameter. */
-function message(err: unknown) {
-  const raw = err instanceof Error ? err.message : String(err);
-  const first = raw.split("\n")[0].trim();
-  return first.length > 300 ? `${first.slice(0, 300)}…` : first;
-}
-
-/** Enough of the statement to recognise it, on one line. */
-const summarise = (statement: string) => statement.replace(/\s+/g, " ").slice(0, 120);
-
 export default route("POST", async (req) => {
   const expected = process.env.SETUP_TOKEN;
   if (!expected) {
@@ -46,29 +25,17 @@ export default route("POST", async (req) => {
   const token = str(req.body?.token, "token");
   if (token !== expected) throw new ApiError(403, "Bad setup token.");
 
-  const d = db();
   const log: string[] = [];
-  let created = 0;
-  let skipped = 0;
 
-  for (const [i, statement] of MIGRATIONS.entries()) {
-    try {
-      await d.execute(sql.raw(statement));
-      created++;
-    } catch (err) {
-      if (ALREADY_EXISTS.has(sqlState(err))) {
-        skipped++;
-        continue;
-      }
-      // The caller proved they hold SETUP_TOKEN, so they get the real reason
-      // rather than a generic 500. Without this, a migration that fails on one
-      // deployment's data is undebuggable from the outside.
-      throw new ApiError(
-        500,
-        `Migration statement ${i + 1} of ${MIGRATIONS.length} failed` +
-          `${sqlState(err) ? ` (${sqlState(err)})` : ""}: ${message(err)} — ${summarise(statement)}`
-      );
-    }
+  let created: number;
+  let skipped: number;
+  try {
+    // The caller proved they hold SETUP_TOKEN, so they get the real reason a
+    // statement failed rather than a generic 500.
+    ({ created, skipped } = await applyMigrations());
+  } catch (err) {
+    if (err instanceof MigrationError) throw new ApiError(500, err.message);
+    throw err;
   }
   log.push(`schema: ${created} applied, ${skipped} already present`);
 
