@@ -10,6 +10,8 @@ import { NVDA } from "../data";
 
 const RANGES = ["1D", "1W", "1M", "1Y"] as const;
 
+export type ChartRange = (typeof RANGES)[number];
+
 export type BuySellLive = {
   symbol: string;
   name: string;
@@ -27,7 +29,10 @@ export type BuySellLive = {
     gainLabel: string;
     up: boolean;
   } | null;
+  /** The price series for the selected range. */
   history: number[];
+  range: ChartRange;
+  onRange: (r: ChartRange) => void;
 };
 
 /* The order can be sized in dollars or in shares. Kids think in both — "put
@@ -37,8 +42,8 @@ export type BuySellLive = {
 type Unit = "usd" | "shares";
 
 const USD_DECIMALS = 2;
-/** Matches the six decimals the server stores holdings in. */
-const SHARE_DECIMALS = 6;
+/** Shares are picked in whole numbers only. */
+const SHARE_DECIMALS = 0;
 
 const decimalsFor = (unit: Unit) => (unit === "usd" ? USD_DECIMALS : SHARE_DECIMALS);
 
@@ -48,6 +53,7 @@ function sanitize(input: string, decimals: number) {
   const dot = cleaned.indexOf(".");
   if (dot === -1) return cleaned;
   const whole = cleaned.slice(0, dot);
+  if (decimals === 0) return whole;
   const rest = cleaned.slice(dot + 1).replace(/\./g, "");
   return `${whole}.${rest.slice(0, decimals)}`;
 }
@@ -66,12 +72,9 @@ const moneyPlain = (n: number) =>
 const moneyExact = (n: number) => `$${moneyPlain(n)}`;
 const sharesText = (n: number) =>
   n.toLocaleString("en-US", { maximumFractionDigits: SHARE_DECIMALS });
-/** Two decimals is enough to read an estimate by. */
-const sharesShort = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 2 });
 
 /** Maps a price series into the 340x130 chart box. */
 function priceLine(history: number[]) {
-  if (history.length < 2) return NVDA.line;
   const lo = Math.min(...history);
   const hi = Math.max(...history);
   const span = hi - lo || 1;
@@ -92,60 +95,55 @@ export function BuySell({
   onReview?: (order: { side: "buy" | "sell"; amount?: number; shares?: number }) => void;
   live?: BuySellLive;
 }) {
-  const [side, setSide] = useState<"buy" | "sell">("buy");
-  const [range, setRange] = useState<(typeof RANGES)[number]>("1D");
+  const [localRange, setLocalRange] = useState<ChartRange>("1D");
+  // Live mode owns the range so it can fetch the right series; the design
+  // frame keeps its own state so the tabs still respond.
+  const range = live?.range ?? localRange;
+  const setRange = live?.onRange ?? setLocalRange;
   const [unit, setUnit] = useState<Unit>("usd");
-  const [field, setField] = useState("25000");
+  // Every order starts from zero — you say how much, not walk a number down.
+  const [field, setField] = useState("0");
   // While the field has focus it shows exactly what was typed; the rest of the
   // time it's grouped and prefixed, because $25,000 reads better than 25000.
   const [editing, setEditing] = useState(false);
 
   const price = live?.price ?? 0;
-  const held = live?.position?.shares ?? 0;
-  const heldValue = held * price;
   const typed = parse(field);
 
   const amount = unit === "usd" ? typed : typed * price;
   const shares = unit === "shares" ? typed : price > 0 ? amount / price : 0;
 
-  /* The most you can ask for, in whatever unit is showing. A buy in shares is
-     floored to whole cents' worth so the estimate can't round past your cash. */
+  /* The most you can ask for, in whatever unit is showing. In shares that's
+     floored to the whole shares your cash covers. */
   const max = !live
     ? 975400
     : unit === "usd"
-      ? side === "buy"
-        ? live.balance
-        : heldValue
-      : side === "buy"
-        ? price > 0
-          ? Math.floor((live.balance / price) * 100) / 100
-          : 0
-        : held;
+      ? live.balance
+      : price > 0
+        ? Math.floor(live.balance / price)
+        : 0;
 
-  const overMax = unit === "usd" ? typed > max + 0.01 : typed > max + 0.000001;
+  const overMax = typed > max + (unit === "usd" ? 0.01 : 0);
   const maxField = unit === "usd" ? String(Math.floor(max)) : toField(max, unit);
 
   /* Said in the unit they're typing in, and always with the number that fits,
      so "too much" is never a dead end. */
   const overMessage = !live
     ? ""
-    : side === "buy"
-      ? unit === "usd"
-        ? `Too much — you only have ${moneyExact(live.balance)}.`
-        : `Too many — ${sharesText(max)} shares is all your ${moneyExact(live.balance)} buys.`
-      : unit === "usd"
-        ? `You only hold ${moneyExact(heldValue)} of ${live.name}.`
-        : `You only hold ${sharesText(held)} shares of ${live.name}.`;
+    : unit === "usd"
+      ? `Too much — you only have ${moneyExact(live.balance)}.`
+      : `Too many — ${sharesText(max)} shares is all your ${moneyExact(live.balance)} buys.`;
 
   const setUnitKeeping = (next: Unit) => {
     if (next === unit) return;
     setUnit(next);
     if (price > 0 && typed > 0) {
-      // Floored to the two decimals the estimate was showing, so the number
-      // you tap into is the number you were just looking at — and so a switch
-      // can never nudge the order past the cash it was inside a moment ago.
-      const converted = next === "shares" ? typed / price : typed * price;
-      setField(toField(Math.floor(converted * 100) / 100, next));
+      // Shares floor to whole shares and dollars to cents, so the number you
+      // tap into is at most the one you were just looking at — a switch can
+      // never nudge the order past the cash it was inside a moment ago.
+      const converted =
+        next === "shares" ? Math.floor(typed / price) : Math.floor(typed * price * 100) / 100;
+      setField(toField(converted, next));
     }
   };
 
@@ -208,6 +206,9 @@ export function BuySell({
             <line x1="0" y1="43" x2="340" y2="43" stroke="#241442" strokeWidth="1" />
             <line x1="0" y1="86" x2="340" y2="86" stroke="#241442" strokeWidth="1" />
             {(() => {
+              // Gridlines only until this range's series arrives — never a
+              // stand-in line pretending to be data.
+              if (live && live.history.length < 2) return null;
               const color = live && !live.up ? "#ff2bd6" : "#39ff14";
               const points = live ? priceLine(live.history) : NVDA.line;
               const last = points.split(" ").pop()!.split(",").map(Number);
@@ -253,12 +254,6 @@ export function BuySell({
           </div>
         </Card>
 
-        {/* BUY / SELL */}
-        <div style={{ display: "flex", gap: 6, padding: 4, borderRadius: 12, background: "var(--bg-card)" }}>
-          <SideTab label="BUY" on={side === "buy"} role="green" onClick={() => setSide("buy")} />
-          <SideTab label="SELL" on={side === "sell"} role="magenta" onClick={() => setSide("sell")} />
-        </div>
-
         <Card
           background="var(--grad-indigo-card-170)"
           radius="var(--r-card)"
@@ -267,19 +262,11 @@ export function BuySell({
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", color: "var(--text-2)" }}>
-              {live ? (side === "buy" ? "HOW MUCH TO BUY" : "HOW MUCH TO SELL") : "AMOUNT"}
+              {live ? "HOW MUCH TO BUY" : "AMOUNT"}
             </div>
             <div className="num" style={{ fontSize: 12, color: "var(--cyan-soft)" }}>
-              {live && side === "sell" ? (
-                <>
-                  You hold: <span style={{ fontWeight: 700 }}>{sharesText(held)} shares</span>
-                </>
-              ) : (
-                <>
-                  Balance:{" "}
-                  <span style={{ fontWeight: 700 }}>{live ? live.balanceLabel : NVDA.balance}</span>
-                </>
-              )}
+              Balance:{" "}
+              <span style={{ fontWeight: 700 }}>{live ? live.balanceLabel : NVDA.balance}</span>
             </div>
           </div>
           {live ? (
@@ -316,7 +303,7 @@ export function BuySell({
                       : field === ""
                         ? ""
                         : sharesText(typed)
-                    : `≈ ${sharesShort(shares)}`
+                    : `≈ ${sharesText(shares)}`
                 }
                 ariaLabel="Number of shares"
                 onFocus={() => setUnitKeeping("shares")}
@@ -409,22 +396,17 @@ export function BuySell({
         </Card>
 
         <Button
-          variant={side === "buy" ? "green" : "magenta"}
+          variant="green"
           height={56}
           fontSize={16}
           caret
           onClick={() =>
-            onReview?.(unit === "usd" ? { side, amount: typed } : { side, shares: typed })
+            onReview?.(unit === "usd" ? { side: "buy", amount: typed } : { side: "buy", shares: typed })
           }
-          style={{
-            boxShadow:
-              side === "buy"
-                ? "0 0 26px rgba(57,255,20,0.5), inset 0 -4px 0 rgba(0,0,0,0.2)"
-                : "0 0 26px rgba(255,43,214,0.5), inset 0 -4px 0 rgba(0,0,0,0.25)",
-          }}
+          style={{ boxShadow: "0 0 26px rgba(57,255,20,0.5), inset 0 -4px 0 rgba(0,0,0,0.2)" }}
           disabled={Boolean(live) && (overMax || typed <= 0 || amount < 1)}
         >
-          REVIEW {side.toUpperCase()}
+          REVIEW BUY
         </Button>
         <div style={{ textAlign: "center", fontSize: 13, color: "var(--text-4)" }}>
           Zero fees · settles instantly · it's fake money
@@ -432,49 +414,6 @@ export function BuySell({
       </Screen>
       <TabBar active="trade" onNavigate={onNavigate} />
     </PhoneFrame>
-  );
-}
-
-function SideTab({
-  label,
-  on,
-  role,
-  onClick,
-}: {
-  label: string;
-  on: boolean;
-  role: "green" | "magenta";
-  onClick: () => void;
-}) {
-  const activeSkin =
-    role === "green"
-      ? { background: "var(--grad-btn-green)", color: "var(--green-ink)", boxShadow: "0 0 16px rgba(57,255,20,0.45)" }
-      : { background: "var(--grad-btn-magenta)", color: "#fff", boxShadow: "0 0 16px rgba(255,43,214,0.45)" };
-  const idleSkin =
-    role === "green"
-      ? { background: "transparent", color: "var(--green)", boxShadow: "inset 0 0 0 1.5px rgba(57,255,20,0.5)" }
-      : { background: "transparent", color: "var(--magenta)", boxShadow: "inset 0 0 0 1.5px rgba(255,43,214,0.5)" };
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        flex: 1,
-        textAlign: "center",
-        padding: "10px 0",
-        borderRadius: 9,
-        border: "none",
-        fontFamily: "inherit",
-        fontSize: 14,
-        fontWeight: 700,
-        letterSpacing: "0.08em",
-        cursor: "pointer",
-        ...(on ? activeSkin : idleSkin),
-      }}
-    >
-      {label}
-    </button>
   );
 }
 

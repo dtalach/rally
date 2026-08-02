@@ -1,8 +1,8 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db, schema } from "./_lib/db.js";
 import { ApiError, route, str } from "./_lib/http.js";
 import { pct, signedUsd, toNum, usd } from "./_lib/money.js";
-import { dayChange, getQuotes } from "./_lib/prices.js";
+import { dayChange, getQuotes, priceHistory } from "./_lib/prices.js";
 import { playerIdFrom } from "./_lib/session.js";
 
 /** The stock detail screen: price, delay stamp, and the player's own position. */
@@ -57,14 +57,6 @@ export default route("GET", async (req) => {
     }
   }
 
-  // Recent fills make a usable sparkline until real intraday history exists.
-  const recent = await d
-    .select({ price: schema.orders.price, at: schema.orders.filledAt })
-    .from(schema.orders)
-    .where(eq(schema.orders.symbol, symbol))
-    .orderBy(desc(schema.orders.filledAt))
-    .limit(24);
-
   return {
     symbol,
     name: instrument.name,
@@ -76,6 +68,7 @@ export default route("GET", async (req) => {
     balance,
     balanceLabel: usd(balance),
     position,
-    history: recent.reverse().map((r) => toNum(r.price)),
+    // The intraday series; the /history endpoint serves the other ranges.
+    history: await priceHistory(symbol, "1D", q),
   };
 });

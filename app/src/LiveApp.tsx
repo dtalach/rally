@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
-import { api, clearApiCache, useApi, type Period, type Player } from "./api";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { api, clearApiCache, useApi, type HistoryRange, type Period, type Player } from "./api";
 import type { Tab } from "./components/TabBar";
 import { Login } from "./screens/Login";
 import { Home } from "./screens/Home";
@@ -318,12 +318,32 @@ function StockDetail({
 }) {
   const { data, error, reload } = useApi(`quote:${symbol}`, () => api.quote(symbol), [symbol, version]);
 
+  // Each range tab is its own fetch; while one loads, the chart keeps showing
+  // the last series it had instead of flashing empty.
+  const [range, setRange] = useState<HistoryRange>("1D");
+  const hist = useApi(`history:${symbol}:${range}`, () => api.history(symbol, range), [symbol, range, version]);
+  const lastPoints = useRef<{ symbol: string; points: number[] } | null>(null);
+  if (hist.data) lastPoints.current = { symbol, points: hist.data.points };
+  const held = lastPoints.current?.symbol === symbol ? lastPoints.current.points : null;
+
   if (error && !data) {
     return <Failed message={error} onRetry={reload} active="trade" onNavigate={onNavigate} />;
   }
   if (!data) return <TabPending active="trade" onNavigate={onNavigate} />;
 
-  return <BuySell onNavigate={onNavigate} onBack={onBack} onReview={onReview} live={data} />;
+  return (
+    <BuySell
+      onNavigate={onNavigate}
+      onBack={onBack}
+      onReview={onReview}
+      live={{
+        ...data,
+        history: hist.data?.points ?? held ?? data.history,
+        range,
+        onRange: setRange,
+      }}
+    />
+  );
 }
 
 function Ticket({

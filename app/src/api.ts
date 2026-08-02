@@ -173,6 +173,8 @@ export type Profile = {
 
 export type Period = "month" | "quarter" | "year";
 
+export type HistoryRange = "1D" | "1W" | "1M" | "1Y";
+
 /* ------------------------------ endpoints ------------------------------- */
 
 export const api = {
@@ -191,6 +193,10 @@ export const api = {
       `market?board=${board}${q ? `&q=${encodeURIComponent(q)}` : ""}`
     ),
   quote: (symbol: string) => get<QuoteDetail>(`quote?symbol=${encodeURIComponent(symbol)}`),
+  history: (symbol: string, range: HistoryRange) =>
+    get<{ symbol: string; range: HistoryRange; points: number[] }>(
+      `history?symbol=${encodeURIComponent(symbol)}&range=${range}`
+    ),
   /** Size the order in dollars, in shares, or with `all` — never all three. */
   trade: (order: {
     symbol: string;

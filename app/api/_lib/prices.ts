@@ -102,6 +102,84 @@ const seededBase = (symbol: string) => round2(40 + Math.abs(wobble(symbol)) * 26
 
 const provider = (): Provider => (usingRealPrices() ? finnhub : simulated);
 
+/* ---------------------------------------------------------------------------
+   History — the series behind the detail chart's 1D/1W/1M/1Y tabs.
+--------------------------------------------------------------------------- */
+
+export type HistoryRange = "1D" | "1W" | "1M" | "1Y";
+
+export const HISTORY_RANGES = ["1D", "1W", "1M", "1Y"] as const;
+
+/** Lookback, sample count, and the Finnhub candle resolution per range. */
+const HISTORY_SPEC: Record<HistoryRange, { days: number; points: number; resolution: string }> = {
+  "1D": { days: 1, points: 48, resolution: "15" },
+  "1W": { days: 7, points: 42, resolution: "60" },
+  "1M": { days: 30, points: 30, resolution: "D" },
+  "1Y": { days: 365, points: 52, resolution: "W" },
+};
+
+/** https://finnhub.io/docs/api/stock-candles — `c` closes, `s` status. */
+async function finnhubCandles(symbol: string, range: HistoryRange): Promise<number[]> {
+  const key = process.env.FINNHUB_API_KEY!;
+  const spec = HISTORY_SPEC[range];
+  const to = Math.floor(Date.now() / 1000);
+  const from = to - spec.days * 86_400;
+  const res = await fetch(
+    `https://finnhub.io/api/v1/stock/candle?symbol=${encodeURIComponent(symbol)}&resolution=${spec.resolution}&from=${from}&to=${to}&token=${key}`,
+    { signal: AbortSignal.timeout(8000) }
+  );
+  if (!res.ok) throw new Error(`finnhub candle ${res.status} for ${symbol}`);
+  const j = (await res.json()) as { s?: string; c?: number[] };
+  if (j.s !== "ok" || !j.c || j.c.length < 2) throw new Error(`finnhub candle empty for ${symbol}`);
+  return j.c.map(round2);
+}
+
+/**
+ * Replays the same seeded walk the simulated quote provider uses, at points
+ * spaced back through the range — so the series is exactly the prices players
+ * actually traded at, and its last point is the current quote.
+ */
+function simulatedHistory(symbol: string, range: HistoryRange): number[] {
+  const spec = HISTORY_SPEC[range];
+  const base = BASE_PRICES[symbol] ?? seededBase(symbol);
+  const now = Date.now();
+  const out: number[] = [];
+  for (let i = 0; i < spec.points; i++) {
+    const t = now - spec.days * 86_400_000 * (1 - i / (spec.points - 1));
+    const day = Math.floor(t / 86_400_000);
+    const bucket = Math.floor(t / CACHE_TTL_MS);
+    const prevClose = base * (1 + wobble(`${symbol}:${day - 1}`) * 0.06);
+    out.push(round2(prevClose * (1 + wobble(`${symbol}:${bucket}`) * 0.05)));
+  }
+  return out;
+}
+
+/**
+ * Price series for one chart range. Real candles when a Finnhub key is set;
+ * otherwise (or if the candle endpoint is unavailable on the plan) the
+ * simulated walk, scaled so the line ends at the price the screen shows.
+ */
+export async function priceHistory(
+  symbol: string,
+  range: HistoryRange,
+  current?: Quote
+): Promise<number[]> {
+  if (usingRealPrices()) {
+    try {
+      return await finnhubCandles(symbol, range);
+    } catch (err) {
+      console.error(`candle fetch failed for ${symbol} ${range}, using synthetic series:`, err);
+    }
+  }
+  const points = simulatedHistory(symbol, range);
+  const last = points[points.length - 1];
+  if (current && last > 0 && current.price !== last) {
+    const scale = current.price / last;
+    return points.map((v) => round2(v * scale));
+  }
+  return points;
+}
+
 /**
  * Quotes for the given symbols, refreshing only what has gone stale.
  * Never throws on a provider failure — a stale cached price beats a broken
