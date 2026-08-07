@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PhoneFrame, Screen } from "../components/PhoneFrame";
-import { Button, Card, Chip, Sheet } from "../components/ui";
+import { Button, Card, Chip, SHEET_MS, Sheet } from "../components/ui";
 import { NVDA } from "../data";
 
 /* 10 · ORDER TICKET — the stock screen dimmed behind a pulled-up ticket.
@@ -10,8 +10,6 @@ import { NVDA } from "../data";
 
    Note: the design's "Coins before $1,000,400" is stale against the $975,400
    balance shown on frame 09 — reproduced as designed, flagged in the README. */
-
-const SHEET_MS = 320;
 
 export type OrderTicketLive = {
   side: "buy" | "sell";
@@ -99,7 +97,7 @@ export function OrderTicket({
         </Card>
       </Screen>
 
-      <Sheet open={open}>
+      <Sheet open={open} onRequestClose={close}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Chip role={buying ? "green" : "magenta"}>ORDER TICKET</Chip>
           <button

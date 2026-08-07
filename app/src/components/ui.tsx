@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import { useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from "react";
 import { ROLE, type Role } from "../styles/roles";
 import { useSession } from "../useSession";
 
@@ -508,6 +508,12 @@ export function BackCaret({ onClick }: { onClick?: () => void }) {
   );
 }
 
+/** How long open/close slides take — slow enough to feel intentional. */
+export const SHEET_MS = 520;
+
+/** Distance (px) you must drag down before release counts as dismiss. */
+const DISMISS_Y = 110;
+
 /** The drag handle on pull-up sheets. */
 export function SheetHandle() {
   return (
@@ -523,17 +529,65 @@ export function SheetHandle() {
   );
 }
 
-/** Bottom sheet: order ticket and profile pull-up share this shell. */
+/** Bottom sheet: order ticket and profile pull-up share this shell.
+ *  Slides up slowly on open; drag the handle down to slide it away. */
 export function Sheet({
   children,
   paddingBottom = 40,
   open = true,
+  onRequestClose,
+  durationMs = SHEET_MS,
 }: {
   children: ReactNode;
   paddingBottom?: number;
   /** When false the sheet sits off-screen below; animate this for slide in/out. */
   open?: boolean;
+  /** Fired when the user finishes a dismissive drag. */
+  onRequestClose?: () => void;
+  durationMs?: number;
 }) {
+  const [dragY, setDragY] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const startY = useRef<number | null>(null);
+  const startT = useRef(0);
+  const dragYRef = useRef(0);
+
+  const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    if (!open) return;
+    startY.current = e.clientY;
+    startT.current = performance.now();
+    dragYRef.current = 0;
+    setDragging(true);
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    if (startY.current === null) return;
+    const dy = Math.max(0, e.clientY - startY.current);
+    dragYRef.current = dy;
+    setDragY(dy);
+  };
+
+  const endDrag = () => {
+    if (startY.current === null) return;
+    const dy = dragYRef.current;
+    const elapsed = Math.max(16, performance.now() - startT.current);
+    const velocity = dy / elapsed; // px/ms — a quick fling closes early
+    startY.current = null;
+    setDragging(false);
+
+    if (dy > DISMISS_Y || velocity > 0.85) {
+      dragYRef.current = 0;
+      setDragY(0);
+      onRequestClose?.();
+      return;
+    }
+    dragYRef.current = 0;
+    setDragY(0);
+  };
+
+  const translate = !open ? "110%" : `${dragY}px`;
+
   return (
     <div
       style={{
@@ -545,16 +599,33 @@ export function Sheet({
         borderRadius: "28px 28px var(--r-frame) var(--r-frame)",
         background: "var(--grad-sheet)",
         boxShadow: "0 0 0 1.5px var(--cyan), 0 -12px 44px rgba(34,247,255,0.3)",
-        padding: `12px 24px ${paddingBottom}px`,
+        padding: `0 24px ${paddingBottom}px`,
         display: "flex",
         flexDirection: "column",
         gap: 16,
-        transform: open ? "translateY(0)" : "translateY(110%)",
-        transition: "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
+        transform: `translateY(${translate})`,
+        transition: dragging ? undefined : `transform ${durationMs}ms cubic-bezier(0.22, 1, 0.36, 1)`,
         willChange: "transform",
       }}
     >
-      <SheetHandle />
+      {/* Wide hit target around the handle — this is what you grab to slide. */}
+      <div
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        style={{
+          padding: "14px 0 10px",
+          display: "flex",
+          justifyContent: "center",
+          cursor: "grab",
+          touchAction: "none",
+          userSelect: "none",
+        }}
+        aria-label="Drag down to close"
+      >
+        <SheetHandle />
+      </div>
       {children}
     </div>
   );

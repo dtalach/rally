@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PhoneFrame, Screen } from "../components/PhoneFrame";
-import { Avatar, ROLE, Sheet, type Role } from "../components/ui";
+import { Avatar, ROLE, SHEET_MS, Sheet, type Role } from "../components/ui";
 import { PLAYER } from "../data";
 import { isMuted, playFill, setMuted } from "../sound";
 import { useSession } from "../useSession";
@@ -9,7 +9,7 @@ import { isStandalone, needsPermission, type ShakeState } from "../useShake";
 /* 17 · PROFILE PULL-UP — what the avatar opens.
    Level ring, XP bar, the four vitals, then Trophy Room, crew and parent view.
    Trophies get no nav tab; they live here and come to you through toasts.
-   Slides up from the bottom on open and down again on dismiss. */
+   Slides up slowly from the bottom; drag the handle down to dismiss. */
 
 const STATS: { value: string; label: string; role: Role }[] = [
   { value: `#${PLAYER.rank}`, label: "RANK", role: "cyan" },
@@ -17,8 +17,6 @@ const STATS: { value: string; label: string; role: Role }[] = [
   { value: PLAYER.duelRecord, label: "DUELS", role: "green" },
   { value: String(PLAYER.trophies), label: "TROPHIES", role: "magenta" },
 ];
-
-const SHEET_MS = 320;
 
 export type ProfileLive = {
   name: string;
@@ -105,7 +103,7 @@ export function ProfilePullUp({
           inset: 0,
           zIndex: 3,
           background: open ? "rgba(5,1,13,0.35)" : "transparent",
-          transition: "background 320ms ease",
+          transition: `background ${SHEET_MS}ms ease`,
         }}
         aria-hidden
       />
@@ -120,7 +118,7 @@ export function ProfilePullUp({
         <div style={{ borderRadius: "var(--r-card)", height: 120, background: "var(--grad-indigo-card-170)" }} />
       </Screen>
 
-      <Sheet open={open} paddingBottom={36}>
+      <Sheet open={open} onRequestClose={close} paddingBottom={36}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div
             style={{
