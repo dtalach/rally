@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { PhoneFrame, Screen } from "../components/PhoneFrame";
 import { Button, Card, Chip, Sheet } from "../components/ui";
 import { NVDA } from "../data";
@@ -9,6 +10,8 @@ import { NVDA } from "../data";
 
    Note: the design's "Coins before $1,000,400" is stale against the $975,400
    balance shown on frame 09 — reproduced as designed, flagged in the README. */
+
+const SHEET_MS = 320;
 
 export type OrderTicketLive = {
   side: "buy" | "sell";
@@ -42,7 +45,20 @@ export function OrderTicket({
   onDismiss?: () => void;
   live?: OrderTicketLive;
 }) {
+  const [open, setOpen] = useState(false);
   const buying = live ? live.side === "buy" : true;
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setOpen(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  const close = () => {
+    if (!open) return;
+    setOpen(false);
+    window.setTimeout(() => onDismiss?.(), SHEET_MS);
+  };
+
   return (
     <PhoneFrame glow="rgba(255,230,0,0.12)">
       {/* dimmed stock detail behind the sheet */}
@@ -83,12 +99,12 @@ export function OrderTicket({
         </Card>
       </Screen>
 
-      <Sheet>
+      <Sheet open={open}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Chip role={buying ? "green" : "magenta"}>ORDER TICKET</Chip>
           <button
             type="button"
-            onClick={onDismiss}
+            onClick={close}
             aria-label="Cancel order"
             style={{ background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex" }}
           >

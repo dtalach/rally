@@ -1,15 +1,22 @@
 import { PhoneFrame, Screen } from "../components/PhoneFrame";
 import { TabBar, type Tab } from "../components/TabBar";
-import { Avatar, Card, Chip, Ticker, Title } from "../components/ui";
+import { Avatar, Card, Chip, GlowDot, GlowLine, Ticker, Title } from "../components/ui";
 import { ALLOCATION, HOLDINGS, PLAYER, STACK } from "../data";
 
-/* 03 · PORTFOLIO — invested vs cash with a colour-keyed allocation bar, then
-   every holding with shares, weight, value and day change. */
+/* 03 · PORTFOLIO — invested vs cash with a colour-keyed allocation bar, the
+   player's real stack growth chart from portfolio snapshots, then every
+   holding with shares, weight, value and day change. */
 
 export type PortfolioLive = {
   trophies: number;
   investedLabel: string;
   cashLabel: string;
+  growth?: {
+    series: number[];
+    changeLabel: string;
+    up: boolean;
+    totalLabel: string;
+  };
   positions: {
     symbol: string;
     name: string;
@@ -41,6 +48,18 @@ const mockToRow = (h: (typeof HOLDINGS)[number]): PortfolioLive["positions"][num
   up: h.up,
 });
 
+/** Maps the stack series into the 340×130 chart box. */
+function growthLine(history: number[]) {
+  if (history.length < 2) return "";
+  const lo = Math.min(...history);
+  const hi = Math.max(...history);
+  const span = hi - lo || 1;
+  const stepX = 340 / (history.length - 1);
+  return history
+    .map((v, i) => `${(i * stepX).toFixed(1)},${(118 - ((v - lo) / span) * 100).toFixed(1)}`)
+    .join(" ");
+}
+
 export function Portfolio({
   onNavigate,
   onProfile,
@@ -56,6 +75,8 @@ export function Portfolio({
   const allocation =
     positions?.map((p, i) => ({ pct: p.weight * 100, color: BAR_COLORS[i % BAR_COLORS.length] })) ??
     ALLOCATION;
+  const growth = live?.growth;
+  const growthPoints = growth && growth.series.length >= 2 ? growthLine(growth.series) : "";
 
   return (
     <PhoneFrame>
@@ -92,6 +113,58 @@ export function Portfolio({
             </span>
           </div>
         </Card>
+
+        {/* Real stack history from portfolio_snapshots — not mock points. */}
+        {(growthPoints || !live) && (
+          <Card background="var(--grad-indigo-card-170)" radius="var(--r-card)" padding="12px 10px 10px">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "0 4px 6px" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: "var(--text-2)" }}>
+                YOUR GROWTH
+              </div>
+              <div
+                className="num"
+                style={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: growth && !growth.up ? "var(--magenta)" : "var(--green)",
+                }}
+              >
+                {growth ? `${growth.up ? "▲" : "▼"} ${growth.changeLabel} all-time` : "▲ +14.0% all-time"}
+              </div>
+            </div>
+            <svg viewBox="0 0 340 130" style={{ width: "100%", height: 120 }}>
+              <line x1="0" y1="43" x2="340" y2="43" stroke="#241442" strokeWidth="1" />
+              <line x1="0" y1="86" x2="340" y2="86" stroke="#241442" strokeWidth="1" />
+              {(() => {
+                const color = growth && !growth.up ? "#ff2bd6" : "#39ff14";
+                const points =
+                  growthPoints ||
+                  "0,90 40,85 80,70 120,75 160,55 200,50 240,40 280,35 320,28 340,22";
+                const last = points.split(" ").pop()!.split(",").map(Number);
+                return (
+                  <>
+                    <GlowLine points={points} color={color} width={3.5} bloom={12} />
+                    <GlowDot cx={last[0]} cy={last[1]} color={color} />
+                  </>
+                );
+              })()}
+            </svg>
+            {growth && (
+              <div
+                className="num"
+                style={{
+                  textAlign: "right",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "var(--text-2)",
+                  padding: "0 4px",
+                }}
+              >
+                Now {growth.totalLabel}
+              </div>
+            )}
+          </Card>
+        )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
           {positions && positions.length === 0 && (

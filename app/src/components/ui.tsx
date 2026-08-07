@@ -527,9 +527,12 @@ export function SheetHandle() {
 export function Sheet({
   children,
   paddingBottom = 40,
+  open = true,
 }: {
   children: ReactNode;
   paddingBottom?: number;
+  /** When false the sheet sits off-screen below; animate this for slide in/out. */
+  open?: boolean;
 }) {
   return (
     <div
@@ -546,6 +549,9 @@ export function Sheet({
         display: "flex",
         flexDirection: "column",
         gap: 16,
+        transform: open ? "translateY(0)" : "translateY(110%)",
+        transition: "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
+        willChange: "transform",
       }}
     >
       <SheetHandle />

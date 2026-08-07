@@ -248,6 +248,7 @@ function LiveFolio({
         trophies: data.vitals.trophies,
         investedLabel: data.stack.investedLabel,
         cashLabel: data.stack.cashLabel,
+        growth: data.growth,
         positions: data.positions,
       }}
     />

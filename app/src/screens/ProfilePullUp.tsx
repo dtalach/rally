@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PhoneFrame, Screen } from "../components/PhoneFrame";
 import { Avatar, ROLE, Sheet, type Role } from "../components/ui";
 import { PLAYER } from "../data";
@@ -8,7 +8,8 @@ import { isStandalone, needsPermission, type ShakeState } from "../useShake";
 
 /* 17 · PROFILE PULL-UP — what the avatar opens.
    Level ring, XP bar, the four vitals, then Trophy Room, crew and parent view.
-   Trophies get no nav tab; they live here and come to you through toasts. */
+   Trophies get no nav tab; they live here and come to you through toasts.
+   Slides up from the bottom on open and down again on dismiss. */
 
 const STATS: { value: string; label: string; role: Role }[] = [
   { value: `#${PLAYER.rank}`, label: "RANK", role: "cyan" },
@@ -16,6 +17,8 @@ const STATS: { value: string; label: string; role: Role }[] = [
   { value: PLAYER.duelRecord, label: "DUELS", role: "green" },
   { value: String(PLAYER.trophies), label: "TROPHIES", role: "magenta" },
 ];
+
+const SHEET_MS = 320;
 
 export type ProfileLive = {
   name: string;
@@ -47,9 +50,22 @@ export function ProfilePullUp({
   /** Owned by the app shell, so the listener outlives this sheet. */
   shake?: { state: ShakeState; enable: () => void; disable: () => void };
 }) {
+  const [open, setOpen] = useState(false);
   const [muted, setMutedState] = useState(isMuted);
   const [invited, setInvited] = useState(false);
   const me = useSession();
+
+  // Enter off-screen, then slide up on the next frame so the transition runs.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setOpen(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  const close = () => {
+    if (!open) return;
+    setOpen(false);
+    window.setTimeout(() => onDismiss?.(), SHEET_MS);
+  };
 
   /* Share sheet where there is one — that's how a phone sends a link — and the
      clipboard everywhere else. Either way the label confirms it happened. */
@@ -83,8 +99,14 @@ export function ProfilePullUp({
       {/* The screen behind, dimmed. Tapping it dismisses, which is what the
           sheet presentation implies — there's no back chevron by design. */}
       <div
-        onClick={onDismiss}
-        style={{ position: "absolute", inset: 0, zIndex: 3 }}
+        onClick={close}
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 3,
+          background: open ? "rgba(5,1,13,0.35)" : "transparent",
+          transition: "background 320ms ease",
+        }}
         aria-hidden
       />
       <Screen style={{ filter: "brightness(0.4) saturate(0.8)" }}>
@@ -98,7 +120,7 @@ export function ProfilePullUp({
         <div style={{ borderRadius: "var(--r-card)", height: 120, background: "var(--grad-indigo-card-170)" }} />
       </Screen>
 
-      <Sheet paddingBottom={36}>
+      <Sheet open={open} paddingBottom={36}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div
             style={{

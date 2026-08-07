@@ -76,6 +76,12 @@ export type Portfolio = {
     monthReturn: number;
     monthReturnLabel: string;
   };
+  growth: {
+    series: number[];
+    changeLabel: string;
+    up: boolean;
+    totalLabel: string;
+  };
   positions: Position[];
 };
 

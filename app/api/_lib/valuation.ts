@@ -225,3 +225,29 @@ export async function series(playerId: number, period: Period) {
 
   return rows.map((r) => ({ asOf: r.asOf, value: toNum(r.v) }));
 }
+
+/**
+ * Every portfolio snapshot for the player, in order — the folio growth chart.
+ * Always ends on `total` (today's live value). If we only have one reading yet,
+ * seeds the series from the opening stack so the line still has a real start.
+ */
+export async function growthSeries(playerId: number, total: number) {
+  const rows = await db()
+    .select({ v: schema.snapshots.totalValue })
+    .from(schema.snapshots)
+    .where(eq(schema.snapshots.playerId, playerId))
+    .orderBy(schema.snapshots.asOf);
+
+  const values = rows.map((r) => toNum(r.v)).filter((v) => v > 0);
+  if (values.length === 0) return [STARTING_STACK, total];
+  if (values.length === 1) {
+    const only = values[0]!;
+    // Brand-new account: show join → now rather than a single dot.
+    if (Math.abs(only - STARTING_STACK) < 0.01) return [STARTING_STACK, total];
+    return [STARTING_STACK, only === total ? only : total].filter(
+      (v, i, arr) => i === 0 || v !== arr[i - 1]
+    );
+  }
+  if (Math.abs(values[values.length - 1]! - total) > 0.01) values.push(total);
+  return values;
+}

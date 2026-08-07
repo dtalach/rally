@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "./_lib/db.js";
 import { requirePlayer, route } from "./_lib/http.js";
 import { pct, signedUsd, usd } from "./_lib/money.js";
-import { level, periodReturn, recordSnapshot, streak, valuePlayer } from "./_lib/valuation.js";
+import { growthSeries, level, periodReturn, recordSnapshot, streak, valuePlayer } from "./_lib/valuation.js";
 import { evaluateTrophies } from "./_lib/trophies.js";
 import { STARTING_STACK } from "./_lib/game.js";
 
@@ -23,6 +23,9 @@ export default route("GET", async (req) => {
 
   const monthReturn = await periodReturn(playerId, "month", stack.total);
   const allTime = stack.total - STARTING_STACK;
+  const growth = await growthSeries(playerId, stack.total);
+  const growthStart = growth[0] ?? STARTING_STACK;
+  const growthChange = growthStart > 0 ? (stack.total - growthStart) / growthStart : 0;
 
   // Rank across the field on the same month return the leaderboard uses.
   const everyone = await db().select({ id: schema.players.id }).from(schema.players);
@@ -57,6 +60,12 @@ export default route("GET", async (req) => {
       dayChange: stack.dayChange,
       monthReturn,
       monthReturnLabel: pct(monthReturn),
+    },
+    growth: {
+      series: growth,
+      changeLabel: pct(growthChange),
+      up: growthChange >= 0,
+      totalLabel: usd(stack.total),
     },
     positions: stack.positions.map((p) => ({
       symbol: p.symbol,
